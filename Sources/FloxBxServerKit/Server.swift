@@ -40,7 +40,7 @@ public struct Server {
     defer { app.shutdown() }
     try Server.configure(app)
     try app.run()
-    try routes(app)
+    //try routes(app)
     return app
   }
 }
