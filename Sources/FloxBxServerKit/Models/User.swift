@@ -6,32 +6,32 @@ final class User: Model {
   static let schema = "Users"
   struct FieldKeys {
       static var email: FieldKey { "email" }
-      static var password: FieldKey { "password" }
+      static var password: FieldKey { "passwordHash" }
   }
 
   @ID() var id: UUID?
   @Field(key: FieldKeys.email) var email: String
-  @Field(key: FieldKeys.password) var password: String
+  @Field(key: FieldKeys.password) var passwordHash: String
 
     init() { }
 
   init(id: User.IDValue? = nil,
        email: String,
-       password: String)
+       passwordHash: String)
   {
       self.id = id
       self.email = email
-      self.password = password
+      self.passwordHash = passwordHash
   }
 }
 
 extension User : ModelAuthenticatable {
   static var usernameKey: KeyPath<User, Field<String>> = \.$email
   
-  static let passwordHashKey: KeyPath<User, Field<String>>  = \.$password
+  static let passwordHashKey: KeyPath<User, Field<String>>  = \.$passwordHash
   
   func verify(password: String) throws -> Bool {
-    try Bcrypt.verify(password, created: self.password)
+    try Bcrypt.verify(password, created: self.passwordHash)
   }
   
   
