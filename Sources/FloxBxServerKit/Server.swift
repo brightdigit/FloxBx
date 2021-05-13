@@ -28,6 +28,8 @@ public struct Server {
       ), as: .psql)
 
       app.migrations.add(CreateTodo())
+    app.migrations.add(CreateUserMigration())
+    app.migrations.add(CreateUserTokenMigration())
 
       // register routes
     try app.register(collection: TodoController())
