@@ -28,10 +28,18 @@ public struct Server {
     app.migrations.add(CreateTodoMigration())
     app.migrations.add(CreateUserTokenMigration())
 
+    let userController = UserController()
+    let tokenController = UserTokenController()
+    let api = app.routes.grouped("api", "v1")
+    api.post("users", use: userController.create(from:))
+    api.post("tokens", use: tokenController.create(from:))
+    let bearer = api.grouped(UserToken.authenticator())
+    bearer.delete("tokens", use: tokenController.delete(from:))
+    try TodoController().boot(routes: bearer)
       // register routes
-    try app.register(collection: TodoController())
-    try app.register(collection: UserController())
-    try app.register(collection: UserTokenController())
+//    try app.register(collection: TodoController())
+//    try app.register(collection: UserController())
+//    try app.register(collection: UserTokenController())
     
     try app.autoMigrate().wait()
 
