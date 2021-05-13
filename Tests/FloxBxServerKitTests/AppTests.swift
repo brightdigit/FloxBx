@@ -1,5 +1,7 @@
 @testable import FloxBxServerKit
+import XCTest
 import XCTVapor
+import Foundation
 
 final class AppTests: XCTestCase {
     func testHelloWorld() throws {
@@ -8,10 +10,21 @@ final class AppTests: XCTestCase {
       
       defer { app.shutdown() }
       
+      let emailAddress = UUID().uuidString
+      let password = UUID().uuidString
       
       try app.test(.POST, "users") { request in
-        //CreateUserRequestContent(emailAddress: UUID().uuidString, password: UU)
+        
+        try request.content.encode(
+          CreateUserRequestContent(emailAddress:emailAddress, password: password)
+        )
       } afterResponse: { response in
+        do {
+          _ = try response.content.decode(CreateUserResponseContent.self)
+        } catch {
+          XCTAssertNil(error)
+          return
+        }
         
       }
 
