@@ -47,6 +47,7 @@ struct UserTokenController : RouteCollection {
   }
   func boot(routes: RoutesBuilder) throws {
     routes.post("token", use: self.create(from:))
+    
   }
   
 
