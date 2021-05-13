@@ -12,6 +12,7 @@ final class User: Model {
   @ID() var id: UUID?
   @Field(key: FieldKeys.email) var email: String
   @Field(key: FieldKeys.password) var passwordHash: String
+  @Children(for: \Todo.$user) var items: [Todo]
 
     init() { }
 
