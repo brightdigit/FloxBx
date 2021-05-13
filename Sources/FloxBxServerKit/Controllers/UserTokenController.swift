@@ -45,9 +45,24 @@ struct UserTokenController : RouteCollection {
        }
 
   }
+  
+  func delete(from request: Request) -> EventLoopFuture<HTTPResponseStatus> {
+    let userToken : UserToken
+    do {
+      userToken = try request.auth.require(UserToken.self)
+    } catch {
+      return request.eventLoop.makeFailedFuture(error)
+    }
+  
+    return userToken.delete(on: request.db).map{
+      request.auth.logout(UserToken.self)
+      return .noContent
+    }
+  }
   func boot(routes: RoutesBuilder) throws {
-    routes.post("token", use: self.create(from:))
-    
+    routes.post("tokens", use: self.create(from:))
+    let tokenProtected = routes.grouped(UserToken.authenticator())
+    tokenProtected.delete("tokens", use: self.delete(from:))
   }
   
 
