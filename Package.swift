@@ -49,9 +49,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "floxbxTests",
+            name: "FloxBxServerKitTests",
             dependencies: [
-              "FloxBxKit",
+              "FloxBxServerKit",
               .product(name: "XCTVapor", package: "vapor")]
         )  
       
