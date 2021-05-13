@@ -13,6 +13,13 @@ typealias FBTextFieldStyle = DefaultTextFieldStyle
 typealias FBTextFieldStyle = RoundedBorderTextFieldStyle
 #endif
 
+#if os(watchOS)
+typealias FBButtonStyle = DefaultButtonStyle
+#else
+typealias FBButtonStyle = BorderlessButtonStyle
+#endif
+
+
 public struct ContentView: View {
   @State var emailAddress : String = ""
   
@@ -23,21 +30,23 @@ public struct ContentView: View {
   
     public var body: some View {
       VStack{
+        #if !os(watchOS)
         Spacer()
         Image("Logo").resizable().scaledToFit().layoutPriority(-1)
         Text("FloxBx").font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/).fontWeight(.ultraLight).padding()
         Spacer()
+        #endif
         VStack{
         TextField("Email Address", text: $emailAddress).textFieldStyle(FBTextFieldStyle())
         SecureField("Password", text: $password).textFieldStyle(FBTextFieldStyle())
         }.padding()
-        Button(action: {}, label: {
-          Text("Sign Up").fontWeight(.bold).padding(.all, 8.0).padding(.horizontal, 10.0).background(Color.accentColor).foregroundColor(.primary).cornerRadius(5.0)
-        })
         
         Button(action: {}, label: {
-          Text("Sign In").fontWeight(.light).padding(.all, 8.0).padding(.horizontal, 10.0)
+          Text("Sign Up").fontWeight(.bold)
         })
+        Button(action: {}, label: {
+          Text("Sign In").fontWeight(.light)
+        }).buttonStyle(FBButtonStyle())
         Spacer()
       }.padding()
     }
