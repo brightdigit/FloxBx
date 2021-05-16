@@ -41,12 +41,21 @@ public struct ContentView: View {
         SecureField("Password", text: $password).textFieldStyle(FBTextFieldStyle())
         }.padding()
         
-        Button(action: {}, label: {
-          Text("Sign Up").fontWeight(.bold)
-        })
-        Button(action: {}, label: {
-          Text("Sign In").fontWeight(.light)
-        }).buttonStyle(FBButtonStyle())
+          #if os(watchOS)
+          Button(action: {}, label: {
+            Text("Get Started").fontWeight(.bold)
+          })
+          #else
+          HStack{
+            Button(action: {}, label: {
+              Text("Sign In").fontWeight(.light)
+            }).buttonStyle(FBButtonStyle())
+          Spacer()
+            Button(action: {}, label: {
+              Text("Sign Up").fontWeight(.bold)
+            })
+          }.padding()
+          #endif
         Spacer()
       }.padding()
     }
