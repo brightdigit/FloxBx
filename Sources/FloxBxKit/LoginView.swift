@@ -61,7 +61,7 @@ public struct LoginView: View {
     }
 }
 
-public struct ContentView_Previews: PreviewProvider {
+public struct LoginView_Previews: PreviewProvider {
   public static var previews: some View {
       ForEach(ColorScheme.allCases, id: \.self) {
            LoginView().preferredColorScheme($0)
