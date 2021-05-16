@@ -20,7 +20,7 @@ typealias FBButtonStyle = BorderlessButtonStyle
 #endif
 
 
-public struct ContentView: View {
+public struct LoginView: View {
   @State var emailAddress : String = ""
   
   @State var password : String = ""
@@ -64,7 +64,7 @@ public struct ContentView: View {
 public struct ContentView_Previews: PreviewProvider {
   public static var previews: some View {
       ForEach(ColorScheme.allCases, id: \.self) {
-           ContentView().preferredColorScheme($0)
+           LoginView().preferredColorScheme($0)
       }
   }
 }

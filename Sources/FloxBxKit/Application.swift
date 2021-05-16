@@ -14,7 +14,7 @@ public protocol Application: App {
 public extension Application {
   var body: some Scene {
       WindowGroup {
-          ContentView()
+          LoginView()
       }
   }
 }
