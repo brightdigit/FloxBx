@@ -7,20 +7,11 @@
 
 import Fluent
 import Vapor
+import FloxBxKit
 
-public struct CreateUserRequestContent : Content {
-  public init(emailAddress: String, password: String) {
-    self.emailAddress = emailAddress
-    self.password = password
-  }
-  
-  public let emailAddress : String
-  public let password : String
-}
+extension CreateUserRequestContent : Content {}
+extension CreateUserResponseContent : Content {}
 
-public struct CreateUserResponseContent : Content {
-  public let token : String
-}
 struct UserController : RouteCollection {
   func create (from request: Request) -> EventLoopFuture<CreateUserResponseContent> {
     let createUserRequestContent : CreateUserRequestContent

@@ -55,8 +55,14 @@ public class ApplicationObject: ObservableObject {
   }
   
   public func beginSignup() {
-//    let request = URLRequest
-//    URLSession.shared.dataTask(with: <#T##URLRequest#>)
+    let encoder = JSONEncoder()
+    var request = URLRequest(url: URL(string: "http://localhost:8080/api/v1/users")!)
+    request.httpMethod = "POST"
+    let body = try! encoder.encode(CreateUserRequestContent(emailAddress: "", password: ""))
+    request.httpBody = body
+    URLSession.shared.dataTask(with: request) { data, response, error in
+      
+    }
   }
   
   public func beginSignIn(withCredentials credentials: Credentials) throws {
