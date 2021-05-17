@@ -29,7 +29,7 @@ struct ContentView: View {
         LoginView()
         }).onAppear(perform: {
           #if os(macOS)
-          self.object.begin()
+          try? self.object.begin()
           #endif
         })
     }
