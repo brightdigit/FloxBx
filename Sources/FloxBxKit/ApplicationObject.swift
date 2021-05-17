@@ -8,6 +8,17 @@
 import Combine
 import SwiftUI
 
+struct Credentials {
+    var username: String
+    var password: String
+}
+
+enum KeychainError: Error {
+    case noPassword
+    case unexpectedPasswordData
+    case unhandledError(status: OSStatus)
+}
+
 public class ApplicationObject: ObservableObject {
   @Published public var token : String? = nil
   @Published public var requiresAuthentication: Bool
@@ -24,5 +35,9 @@ public class ApplicationObject: ObservableObject {
     #if os(macOS)
     self.requiresAuthentication = true
     #endif
+  }
+  
+  public func beginSignup() {
+    
   }
 }

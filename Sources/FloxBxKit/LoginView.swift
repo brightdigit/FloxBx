@@ -57,7 +57,7 @@ public struct LoginView: View {
           }.padding()
           #endif
         Spacer()
-      }.padding()
+      }.padding().frame(maxWidth: 300,  maxHeight: 500)
     }
 }
 
