@@ -7,15 +7,14 @@
 
 import Fluent
 import Vapor
+import FloxBxKit
 
-struct CreateTokenRequestContent : Content {
-  let emailAddress : String
-  let password : String
+extension CreateTokenRequestContent : Content {
 }
 
-struct CreateTokenResponseContent : Content {
-  let token : String
+extension CreateTokenResponseContent : Content {
 }
+
 struct UserTokenController : RouteCollection {
   func create (from request: Request) -> EventLoopFuture<CreateTokenResponseContent> {
     let createTokenRequestContent : CreateTokenRequestContent

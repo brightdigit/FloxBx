@@ -1,14 +1,9 @@
 import Fluent
 import Vapor
+import FloxBxKit
 
-struct CreateTodoRequestContent : Content {
-  let title: String
-}
-
-struct CreateTodoResponseContent : Content {
-  let id: UUID
-  let title: String
-}
+extension CreateTodoRequestContent : Content {}
+extension CreateTodoResponseContent : Content {}
 
 struct TodoController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
