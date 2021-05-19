@@ -21,7 +21,7 @@ public struct CredentialsContainer {
                                 kSecReturnData as String: true]
     var item: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &item)
-    guard status != errSecItemNotFound else { throw KeychainError.noPassword }
+    guard status != errSecItemNotFound else { return nil }
     guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
     guard let existingItem = item as? [String : Any],
         let passwordData = existingItem[kSecValueData as String] as? Data,
@@ -30,7 +30,24 @@ public struct CredentialsContainer {
     else {
         throw KeychainError.unexpectedPasswordData
     }
-    return Credentials(username: account, password: password)
+    
+      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
+                                  kSecAttrServer as String: ApplicationObject.server,
+                                  kSecMatchLimit as String: kSecMatchLimitOne,
+                                  kSecReturnAttributes as String: true,
+                                  kSecReturnData as String: true]
+    var tokenItem: CFTypeRef?
+    let tokenStatus = SecItemCopyMatching(tokenQuery as CFDictionary, &tokenItem)
+    
+    if let existingItem = tokenItem as? [String : Any],
+        let passwordData = existingItem[kSecValueData as String] as? Data,
+        let token = String(data: passwordData, encoding: String.Encoding.utf8),
+        tokenStatus == errSecSuccess
+     {
+      return Credentials(username: account, password: password, token: token)
+    } else {
+      return Credentials(username: account, password: password)
+    }
   }
   
   func save (credentials: Credentials) throws {
@@ -44,6 +61,16 @@ public struct CredentialsContainer {
     // on success
     let status = SecItemAdd(query as CFDictionary, nil)
     guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
+    
+    if let token = credentials.token?.data(using: String.Encoding.utf8) {
+      
+      let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
+                                  kSecAttrAccount as String: account,
+                                  kSecAttrServer as String: ApplicationObject.server,
+                                  kSecValueData as String: token]
+      let status = SecItemAdd(query as CFDictionary, nil)
+      guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
+    }
   }
 }
 
@@ -65,7 +92,6 @@ public struct Credentials {
 }
 
 enum KeychainError: Error {
-    case noPassword
     case unexpectedPasswordData
     case unhandledError(status: OSStatus)
 }
@@ -73,6 +99,9 @@ enum KeychainError: Error {
 public class ApplicationObject: ObservableObject {
   @Published public var token : String? = nil
   @Published public var requiresAuthentication: Bool
+  
+  let credentialsContainer = CredentialsContainer()
+  
   static let server = "www.example.com"
   public init () {
     #if os(macOS)
@@ -109,6 +138,7 @@ public class ApplicationObject: ObservableObject {
       let credentials = decodedResult.map{ content in
         return Credentials(username: emailAddress, password: password, token: content.token)
       }
+      
     }
   }
   
