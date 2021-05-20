@@ -21,6 +21,7 @@ typealias FBButtonStyle = BorderlessButtonStyle
 
 
 public struct LoginView: View {
+  @EnvironmentObject var object: ApplicationObject
   @State var emailAddress : String = ""
   
   @State var password : String = ""
@@ -47,11 +48,15 @@ public struct LoginView: View {
           })
           #else
           HStack{
-            Button(action: {}, label: {
+            Button(action: {
+              self.object.beginSignIn(withCredentials: .init(username: self.emailAddress, password: self.password))
+            }, label: {
               Text("Sign In").fontWeight(.light)
             }).buttonStyle(FBButtonStyle())
           Spacer()
-            Button(action: {}, label: {
+            Button(action: {
+              self.object.beginSignup(withCredentials: .init(username: self.emailAddress, password: self.password))
+            }, label: {
               Text("Sign Up").fontWeight(.bold)
             })
           }.padding()

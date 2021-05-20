@@ -28,9 +28,7 @@ struct ContentView: View {
         .sheet(isPresented: self.$object.requiresAuthentication, content: {
         LoginView()
         }).onAppear(perform: {
-          #if os(macOS)
-          try? self.object.begin()
-          #endif
+          self.object.begin()
         })
     }
 }
