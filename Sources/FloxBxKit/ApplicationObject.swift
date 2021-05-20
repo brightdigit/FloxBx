@@ -86,9 +86,19 @@ public extension Result {
   }
 }
 public struct Credentials {
-    var username: String
-    var password: String
-  var token: String?
+  public init(username: String, password: String, token: String? = nil) {
+    self.username = username
+    self.password = password
+    self.token = token
+  }
+  
+    let username: String
+    let password: String
+  let token: String?
+  
+  func withToken(_ token: String) -> Credentials {
+    Credentials(username: username, password: password, token: token)
+  }
 }
 
 enum KeychainError: Error {
@@ -97,35 +107,49 @@ enum KeychainError: Error {
 }
 
 public class ApplicationObject: ObservableObject {
-  @Published public var token : String? = nil
   @Published public var requiresAuthentication: Bool
-  
+  @Published var latestError : Error?
   let credentialsContainer = CredentialsContainer()
   
-  static let server = "www.example.com"
+  static let server = "floxbx.work"
   public init () {
-    #if os(macOS)
+    
     self.requiresAuthentication = false
-    #else
-    self.requiresAuthentication = true
-    #endif
   }
   
-  public func begin() throws {
-    #if os(macOS)
-    self.requiresAuthentication = true
-    #endif
+  public func begin() {
+    let credentials: Credentials?
+    let error: Error?
+    
+    do {
+      credentials = try self.credentialsContainer.fetch()
+      error = nil
+    } catch let caughtError {
+      error = caughtError
+      credentials = nil
+    }
+    
+    self.latestError = self.latestError ?? error
+    
+    if let credentials = credentials {
+      self.beginSignIn(withCredentials: credentials)
+    } else {
+      DispatchQueue.main.async {
+        self.requiresAuthentication = true
+      }
+      
+    }
 
   }
   
-  public func beginSignup() {
+  
+  public func beginSignup(withCredentials credentials: Credentials) {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
-    var request = URLRequest(url: URL(string: "http://localhost:8080/api/v1/users")!)
+    var request = URLRequest(url: URL(string: "https://breezy-lion-74.loca.lt/api/v1/users")!)
     request.httpMethod = "POST"
-    let emailAddress = ""
-    let password = ""
-    let body = try! encoder.encode(CreateUserRequestContent(emailAddress: emailAddress, password: password))
+    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+    let body = try! encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
     request.httpBody = body
     URLSession.shared.dataTask(with: request) { data, response, error in
       
@@ -136,13 +160,54 @@ public class ApplicationObject: ObservableObject {
         }
       }
       let credentials = decodedResult.map{ content in
-        return Credentials(username: emailAddress, password: password, token: content.token)
+        return credentials.withToken(content.token)
       }
-      
-    }
+      let savingResult = credentials.flatMap{ creds in
+        Result(catching: {try self.credentialsContainer.save(credentials: creds)})
+      }
+      DispatchQueue.main.async {
+        switch savingResult {
+        case .failure(let error):
+          self.latestError = error
+          self.requiresAuthentication = true
+        case .success:
+          self.requiresAuthentication = false
+        }
+        
+      }
+    }.resume()
   }
-  
-  public func beginSignIn(withCredentials credentials: Credentials) throws {
-
+  public func beginSignIn(withCredentials credentials: Credentials) {
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    var request = URLRequest(url: URL(string: "https://breezy-lion-74.loca.lt/api/v1/tokens")!)
+    request.httpMethod = "POST"
+    let body = try! encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
+    request.httpBody = body
+    URLSession.shared.dataTask(with: request) { data, response, error in
+      
+      let result : Result<Data, Error> = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
+      let decodedResult = result.flatMap { data in
+        Result {
+          try decoder.decode(CreateUserResponseContent.self, from: data)
+        }
+      }
+      let credentials = decodedResult.map{ content in
+        return credentials.withToken(content.token)
+      }
+      let savingResult = credentials.flatMap{ creds in
+        Result(catching: {try self.credentialsContainer.save(credentials: creds)})
+      }
+      DispatchQueue.main.async {
+        switch savingResult {
+        case .failure(let error):
+          self.latestError = error
+          self.requiresAuthentication = true
+        case .success:
+          self.requiresAuthentication = false
+        }
+        
+      }
+    }.resume()
   }
 }
