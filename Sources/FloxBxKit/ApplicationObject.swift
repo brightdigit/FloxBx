@@ -31,7 +31,7 @@ public struct CredentialsContainer {
         throw KeychainError.unexpectedPasswordData
     }
     
-      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
+      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                   kSecAttrServer as String: ApplicationObject.server,
                                   kSecMatchLimit as String: kSecMatchLimitOne,
                                   kSecReturnAttributes as String: true,
@@ -64,10 +64,11 @@ public struct CredentialsContainer {
     
     if let token = credentials.token?.data(using: String.Encoding.utf8) {
       
-      let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
+      let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                   kSecAttrAccount as String: account,
                                   kSecAttrServer as String: ApplicationObject.server,
-                                  kSecValueData as String: token]
+                                  kSecValueData as String: token,
+                                  kSecAttrService as String: ApplicationObject.server]
       let status = SecItemAdd(query as CFDictionary, nil)
       guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
     }
@@ -111,10 +112,20 @@ public class ApplicationObject: ObservableObject {
   @Published var latestError : Error?
   let credentialsContainer = CredentialsContainer()
   
+  static let baseURL : URL = {
+    var components = URLComponents()
+    components.host = ProcessInfo.processInfo.environment["HOST_NAME"]
+    components.scheme = "https"
+    return components.url!
+  }()
   static let server = "floxbx.work"
   public init () {
     
     self.requiresAuthentication = false
+  }
+  
+  public static func url(withPath path: String) -> URL {
+    return baseURL.appendingPathComponent(path)
   }
   
   public func begin() {
@@ -146,7 +157,7 @@ public class ApplicationObject: ObservableObject {
   public func beginSignup(withCredentials credentials: Credentials) {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
-    var request = URLRequest(url: URL(string: "https://breezy-lion-74.loca.lt/api/v1/users")!)
+    var request = URLRequest(url: Self.url(withPath: "api/v1/users"))
     request.httpMethod = "POST"
     request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
     let body = try! encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
@@ -180,7 +191,7 @@ public class ApplicationObject: ObservableObject {
   public func beginSignIn(withCredentials credentials: Credentials) {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
-    var request = URLRequest(url: URL(string: "https://breezy-lion-74.loca.lt/api/v1/tokens")!)
+    var request = URLRequest(url: Self.url(withPath: "api/v1/tokens"))
     request.httpMethod = "POST"
     let body = try! encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
     request.httpBody = body
