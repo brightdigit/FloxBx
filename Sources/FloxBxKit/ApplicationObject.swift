@@ -260,12 +260,24 @@ public class ApplicationObject: ObservableObject {
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
     var request = URLRequest(url: Self.url(withPath: "api/v1/tokens"))
-    request.httpMethod = "POST"
-    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-    let body = try! encoder.encode(CreateTokenRequestContent(emailAddress: credentials.username, password: credentials.password))
-    request.httpBody = body
+    if let token = credentials.token {
+      request.httpMethod = "GET"
+      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authentication")
+      request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+    } else {
+      request.httpMethod = "POST"
+      request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+      let body = try! encoder.encode(CreateTokenRequestContent(emailAddress: credentials.username, password: credentials.password))
+      request.httpBody = body
+    }
     URLSession.shared.dataTask(with: request) { data, response, error in
       
+      if credentials.token != nil, let response = response as? HTTPURLResponse {
+        guard response.statusCode / 100 == 2 else {
+          self.beginSignIn(withCredentials: Credentials(username: credentials.username, password: credentials.password))
+          return
+        }
+      }
       let result : Result<Data, Error> = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
       let decodedResult = result.flatMap { data in
         Result {
