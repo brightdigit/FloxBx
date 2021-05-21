@@ -14,13 +14,15 @@ struct EmptyError : Error {
 
 public struct CredentialsContainer {
   
+  static let accessGroup = "MLT7M394S7.com.brightdigit.FloxBx"
   func upsertAccount(_ account: String, andToken token: String) throws {
     let tokenData = token.data(using: String.Encoding.utf8)!
     let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                      kSecAttrService as String: ApplicationObject.server,
                                 kSecMatchLimit as String: kSecMatchLimitOne,
                                 kSecReturnAttributes as String: true,
-                                kSecReturnData as String: true]
+                                kSecReturnData as String: true,
+                                kSecAttrAccessGroup as String: Self.accessGroup]
   var tokenItem: CFTypeRef?
   let tokenStatus = SecItemCopyMatching(tokenQuery as CFDictionary, &tokenItem)
     if tokenStatus == errSecItemNotFound {
@@ -28,7 +30,8 @@ public struct CredentialsContainer {
       let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: account,
       kSecValueData as String: tokenData,
-      kSecAttrService as String: ApplicationObject.server]
+      kSecAttrService as String: ApplicationObject.server,
+      kSecAttrAccessGroup as String: Self.accessGroup]
       
       // on success
       let status = SecItemAdd(query as CFDictionary, nil)
@@ -36,7 +39,8 @@ public struct CredentialsContainer {
     } else {
       
       let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                       kSecAttrService as String: ApplicationObject.server]
+                                       kSecAttrService as String: ApplicationObject.server,
+                                       kSecAttrAccessGroup as String: Self.accessGroup]
       guard tokenStatus == errSecSuccess else { throw KeychainError.unhandledError(status: tokenStatus) }
       
       let attributes: [String: Any] = [kSecAttrAccount as String: account,
@@ -52,7 +56,9 @@ public struct CredentialsContainer {
                                 kSecAttrServer as String: ApplicationObject.server,
                                 kSecMatchLimit as String: kSecMatchLimitOne,
                                 kSecReturnAttributes as String: true,
-                                kSecReturnData as String: true]
+                                kSecReturnData as String: true,
+                                kSecAttrAccessGroup as String: Self.accessGroup,
+                                kSecAttrSynchronizable as String: kSecAttrSynchronizableAny]
     var item: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &item)
     if status == errSecItemNotFound {
@@ -60,7 +66,9 @@ public struct CredentialsContainer {
       let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
                                   kSecAttrAccount as String: account,
                                   kSecAttrServer as String: ApplicationObject.server,
-                                  kSecValueData as String: passwordData]
+                                  kSecValueData as String: passwordData,
+                                  kSecAttrAccessGroup as String: Self.accessGroup,
+                                  kSecAttrSynchronizable as String: kCFBooleanTrue!]
       
       // on success
       let status = SecItemAdd(query as CFDictionary, nil)
@@ -70,9 +78,12 @@ public struct CredentialsContainer {
       guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
       
         let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
-                                    kSecAttrServer as String: ApplicationObject.server]
+                                    kSecAttrServer as String: ApplicationObject.server,
+                                    kSecAttrAccessGroup as String: Self.accessGroup,
+                                    kSecAttrSynchronizable as String: kSecAttrSynchronizableAny]
       let attributes: [String: Any] = [kSecAttrAccount as String: account,
-                                       kSecValueData as String: passwordData]
+                                       kSecValueData as String: passwordData,
+                                       kSecAttrSynchronizable as String: kCFBooleanTrue!]
       let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
       guard status != errSecItemNotFound else { throw KeychainError.noPassword }
       guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
@@ -83,7 +94,9 @@ public struct CredentialsContainer {
                                 kSecAttrServer as String: ApplicationObject.server,
                                 kSecMatchLimit as String: kSecMatchLimitOne,
                                 kSecReturnAttributes as String: true,
-                                kSecReturnData as String: true]
+                                kSecReturnData as String: true,
+                                kSecAttrAccessGroup as String: Self.accessGroup,
+                                kSecAttrSynchronizable as String: kSecAttrSynchronizableAny]
     var item: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &item)
     guard status != errSecItemNotFound else { return nil }
@@ -100,7 +113,8 @@ public struct CredentialsContainer {
                                        kSecAttrService as String: ApplicationObject.server,
                                   kSecMatchLimit as String: kSecMatchLimitOne,
                                   kSecReturnAttributes as String: true,
-                                  kSecReturnData as String: true]
+                                  kSecReturnData as String: true,
+                                  kSecAttrAccessGroup as String: Self.accessGroup]
     var tokenItem: CFTypeRef?
     let tokenStatus = SecItemCopyMatching(tokenQuery as CFDictionary, &tokenItem)
     
@@ -171,7 +185,7 @@ public class ApplicationObject: ObservableObject {
   }()
   static let server = "floxbx.work"
   public init () {
-    self.requiresAuthentication = false
+    self.requiresAuthentication = true
     self.$token.map{$0 == nil}.receive(on: DispatchQueue.main).assign(to: &self.$requiresAuthentication)
   }
   
