@@ -120,25 +120,6 @@ public struct CredentialsContainer {
     if let token = credentials.token {
     try upsertAccount(credentials.username, andToken: token)
     }
-//    let account = credentials.username
-//    let password = credentials.password.data(using: String.Encoding.utf8)!
-//    let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
-//                                kSecAttrAccount as String: account,
-//                                kSecAttrServer as String: ApplicationObject.server,
-//                                kSecValueData as String: password]
-//
-//    // on success
-//    let status = SecItemAdd(query as CFDictionary, nil)
-//    guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
-//
-//    if let token = credentials.token?.data(using: String.Encoding.utf8) {
-//
-//      let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-//                                  kSecAttrAccount as String: account,
-//                                  kSecValueData as String: token,
-//                                  kSecAttrService as String: ApplicationObject.server]
-//      let status = SecItemAdd(query as CFDictionary, nil)
-//      guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
     
   }
 }
@@ -179,6 +160,7 @@ enum KeychainError: Error {
 public class ApplicationObject: ObservableObject {
   @Published public var requiresAuthentication: Bool
   @Published var latestError : Error?
+  @Published var token : String?
   let credentialsContainer = CredentialsContainer()
   
   static let baseURL : URL = {
@@ -190,11 +172,14 @@ public class ApplicationObject: ObservableObject {
   static let server = "floxbx.work"
   public init () {
     self.requiresAuthentication = false
+    self.$token.map{$0 == nil}.receive(on: DispatchQueue.main).assign(to: &self.$requiresAuthentication)
   }
   
   public static func url(withPath path: String) -> URL {
     return baseURL.appendingPathComponent(path)
   }
+  
+  
   
   public func begin() {
     let credentials: Credentials?
@@ -242,15 +227,16 @@ public class ApplicationObject: ObservableObject {
         return credentials.withToken(content.token)
       }
       let savingResult = credentials.flatMap{ creds in
-        Result(catching: {try self.credentialsContainer.save(credentials: creds)})
+        Result(catching: {try self.credentialsContainer.save(credentials: creds)}).map{
+          creds
+        }
       }
       DispatchQueue.main.async {
         switch savingResult {
         case .failure(let error):
           self.latestError = error
-          self.requiresAuthentication = true
-        case .success:
-          self.requiresAuthentication = false
+        case .success(let creds):
+          self.beginSignIn(withCredentials: creds)
         }
         
       }
@@ -276,15 +262,16 @@ public class ApplicationObject: ObservableObject {
         return credentials.withToken(content.token)
       }
       let savingResult = credentials.flatMap{ creds in
-        Result(catching: {try self.credentialsContainer.save(credentials: creds)})
+        Result(catching: {try self.credentialsContainer.save(credentials: creds)}).map{
+          creds
+        }
       }
       DispatchQueue.main.async {
         switch savingResult {
         case .failure(let error):
           self.latestError = error
-          self.requiresAuthentication = true
-        case .success:
-          self.requiresAuthentication = false
+        case .success(let creds):
+          self.token = creds.token
         }
         
       }
