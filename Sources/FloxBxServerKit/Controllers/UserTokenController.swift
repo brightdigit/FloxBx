@@ -45,6 +45,41 @@ struct UserTokenController : RouteCollection {
 
   }
   
+  
+  func get(from request: Request) -> EventLoopFuture<CreateTokenResponseContent> {
+    //let user = try request.auth.require(User.self)
+    
+    let userToken : UserToken
+    do {
+      userToken = try request.auth.require(UserToken.self)
+    } catch {
+      return request.eventLoop.makeFailedFuture(error)
+    }
+    
+    guard let timeInterval = userToken.expiresAt?.timeIntervalSinceNow else {
+      return request.eventLoop.makeFailedFuture(Abort(.unauthorized))
+    }
+    
+    
+    if timeInterval < 0 {
+      return request.eventLoop.makeFailedFuture(Abort(.unauthorized))
+    }
+    else if timeInterval < 60 * 60 {
+      let userToken: UserToken
+      do {
+        userToken = try request.auth.require(User.self).generateToken()
+      } catch {
+        return request.eventLoop.makeFailedFuture(error)
+      }
+      return userToken.save(on: request.db).map{
+        CreateTokenResponseContent(token: userToken.value)
+      }
+    } else {
+      return request.eventLoop.future(CreateTokenResponseContent(token: userToken.value))
+    }
+  
+  }
+  
   func delete(from request: Request) -> EventLoopFuture<HTTPResponseStatus> {
     let userToken : UserToken
     do {
@@ -58,10 +93,13 @@ struct UserTokenController : RouteCollection {
       return .noContent
     }
   }
+  
   func boot(routes: RoutesBuilder) throws {
     routes.post("tokens", use: self.create(from:))
     let tokenProtected = routes.grouped(UserToken.authenticator())
     tokenProtected.delete("tokens", use: self.delete(from:))
+    tokenProtected.get("tokens", use: self.get(from:))
+    
   }
   
 
