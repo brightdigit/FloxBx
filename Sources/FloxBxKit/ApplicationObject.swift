@@ -262,7 +262,7 @@ public class ApplicationObject: ObservableObject {
     var request = URLRequest(url: Self.url(withPath: "api/v1/tokens"))
     if let token = credentials.token {
       request.httpMethod = "GET"
-      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authentication")
+      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
       request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
     } else {
       request.httpMethod = "POST"
