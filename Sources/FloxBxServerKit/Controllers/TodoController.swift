@@ -5,6 +5,11 @@ import FloxBxKit
 extension CreateTodoRequestContent : Content {}
 extension CreateTodoResponseContent : Content {}
 
+extension CreateTodoResponseContent {
+  init(todoItem: Todo) throws {
+    try self.init(id: todoItem.requireID(), title: todoItem.title)
+  }
+}
 struct TodoController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
       let todos = routes.grouped("todos")
@@ -15,9 +20,9 @@ struct TodoController: RouteCollection {
         }
     }
 
-    func index(from request: Request) throws -> EventLoopFuture<[Todo]> {
+    func index(from request: Request) throws -> EventLoopFuture<[TodoContentItem]> {
       let user = try request.auth.require(User.self)
-      return user.$items.get(on: request.db)
+      return user.$items.get(on: request.db).flatMapEachThrowing(TodoContentItem.init(todoItem:))
     }
 
     func create(from request: Request) throws -> EventLoopFuture<CreateTodoResponseContent> {

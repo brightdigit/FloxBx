@@ -1,7 +1,7 @@
 import Foundation
 
-public struct CreateTodoResponseContent : Codable {
-  public init(id: UUID, title: String) {
+public struct CreateTodoResponseContent : Codable, Identifiable {
+  public init(id: UUID = .init(), title: String) {
     self.id = id
     self.title = title
   }
@@ -9,3 +9,5 @@ public struct CreateTodoResponseContent : Codable {
   public let id: UUID
   public let title: String
 }
+
+public typealias TodoContentItem = CreateTodoResponseContent

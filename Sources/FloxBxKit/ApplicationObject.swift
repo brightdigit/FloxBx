@@ -175,6 +175,7 @@ public class ApplicationObject: ObservableObject {
   @Published public var requiresAuthentication: Bool
   @Published var latestError : Error?
   @Published var token : String?
+  @Published var items: [TodoContentItem]?
   let credentialsContainer = CredentialsContainer()
   
   static let baseURL : URL = {
@@ -183,17 +184,51 @@ public class ApplicationObject: ObservableObject {
     components.scheme = "https"
     return components.url!
   }()
+  static let encoder = JSONEncoder()
+  static let decoder = JSONDecoder()
   static let server = "floxbx.work"
-  public init () {
+  public init (items: [CreateTodoResponseContent]? = nil) {
     self.requiresAuthentication = true
-    self.$token.map{$0 == nil}.receive(on: DispatchQueue.main).assign(to: &self.$requiresAuthentication)
+    let authenticated = self.$token.map{$0 == nil}
+    authenticated.receive(on: DispatchQueue.main).assign(to: &self.$requiresAuthentication)
+    self.$token.share().compactMap{$0}.flatMap { token -> URLSession.DataTaskPublisher in
+      
+      let request = Self.request(withURLPath: "api/v1/todos", method: "GET", withToken: token)
+      
+      return URLSession.shared.dataTaskPublisher(for: request)
+      
+    }.map(\.data).decode(type: [TodoContentItem]?.self, decoder: Self.decoder)
+    
+    .replaceError(with: nil).receive(on: DispatchQueue.main).assign(to: &self.$items)
+    
   }
   
   public static func url(withPath path: String) -> URL {
     return baseURL.appendingPathComponent(path)
   }
   
+  public static func request(withURLPath path: String, method: String = "GET", withToken token: String? = nil) -> URLRequest {
+    let url = Self.url(withPath: path)
+    var request = URLRequest(url: url)
+    request.httpMethod = method
+    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+    if let token = token {
+      
+      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    }
+    
+    return request
+  }
   
+  public static func request<EncodableType : Encodable>(withURLPath path: String, method: String = "GET", withToken token: String? = nil, body: EncodableType? = nil)  throws -> URLRequest {
+    var request = self.request(withURLPath: path, method: method, withToken: token)
+    if let body = body {
+    let httpBody = try encoder.encode(body)
+    request.httpBody = httpBody
+    }
+    
+    return request
+  }
   
   public func begin() {
     let credentials: Credentials?
@@ -222,19 +257,17 @@ public class ApplicationObject: ObservableObject {
   
   
   public func beginSignup(withCredentials credentials: Credentials) {
-    let encoder = JSONEncoder()
-    let decoder = JSONDecoder()
     var request = URLRequest(url: Self.url(withPath: "api/v1/users"))
     request.httpMethod = "POST"
     request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-    let body = try! encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
+    let body = try! ApplicationObject.encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
     request.httpBody = body
     URLSession.shared.dataTask(with: request) { data, response, error in
       
       let result : Result<Data, Error> = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
       let decodedResult = result.flatMap { data in
         Result {
-          try decoder.decode(CreateUserResponseContent.self, from: data)
+          try ApplicationObject.decoder.decode(CreateUserResponseContent.self, from: data)
         }
       }
       let credentials = decodedResult.map{ content in
