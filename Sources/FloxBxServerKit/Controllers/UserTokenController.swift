@@ -71,6 +71,7 @@ struct UserTokenController : RouteCollection {
       } catch {
         return request.eventLoop.makeFailedFuture(error)
       }
+      
       return userToken.save(on: request.db).map{
         CreateTokenResponseContent(token: userToken.value)
       }
