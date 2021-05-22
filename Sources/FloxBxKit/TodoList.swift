@@ -9,10 +9,22 @@ import SwiftUI
 
 struct TodoList: View {
   @EnvironmentObject var object: ApplicationObject
+  
     var body: some View {
+      #if os(iOS)
       List(self.object.items ?? .init()) { item in
         Text(item.title)
       }
+      .navigationTitle("Todos")
+      .navigationBarItems(trailing: Button("test", action: {}))
+      #else
+      List(self.object.items ?? .init()) { item in
+        Text(item.title)
+      }
+      .navigationTitle("Todos")
+      #endif
+      
+      
     }
 }
 
