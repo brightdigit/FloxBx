@@ -11,7 +11,7 @@ struct ContentView: View {
   @EnvironmentObject var object: ApplicationObject
   
   var innerView: some View {
-    let view = Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    let view = TodoList()
     #if os(macOS)
       return view.frame(width: 500, height: 500)
     #else
