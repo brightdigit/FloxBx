@@ -1,0 +1,4 @@
+[submodule "Packages/FloxBx"]
+	path = Packages/FloxBxKit
+	url = git@github.com:brightdigit/FloxBx.git
+	branch = feature/project-setup
