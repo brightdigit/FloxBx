@@ -24,6 +24,8 @@ public struct Server {
           hostname: Environment.get("DATABASE_HOST") ?? "localhost",
         username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
       ), as: .psql)
+    
+    
 
     app.migrations.add(CreateUserMigration())
     app.migrations.add(CreateTodoMigration())

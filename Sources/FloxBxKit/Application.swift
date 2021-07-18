@@ -5,9 +5,8 @@
 //  Created by Leo Dion on 5/10/21.
 //
 
-import SwiftUI
 
-import SentryCocoa
+//import SentryCocoa
 import SentryVanilla
 
 public class Sentry {
@@ -26,6 +25,8 @@ public class Sentry {
   }
 }
 
+#if canImport(SwiftUI)
+import SwiftUI
 public protocol Application: App {
   
 }
@@ -37,3 +38,4 @@ public extension Application {
       }
   }
 }
+#endif
