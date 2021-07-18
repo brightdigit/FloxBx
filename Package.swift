@@ -21,7 +21,7 @@ let package = Package(
       .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
         .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),      
-        
+        .package(name: "SentryCocoa", path: "Packages/sentry-cocoa"),
       .package(name: "SentryVanilla", path: "Packages/sentry-swift")
     ],
     targets: [
@@ -33,6 +33,7 @@ let package = Package(
       .target(
           name: "FloxBxKit",
           dependencies: [
+            .product(name: "SentryCocoa", package: "SentryCocoa", condition: .when(platforms: [.iOS, .watchOS, .macOS, .tvOS])),
             .product(name: "SentryVanilla", package: "SentryVanilla")
           ]
       ),
