@@ -33,7 +33,7 @@ struct TodoListItemView: View {
 
   var body: some View {
     if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
-      TextField("", text: self.$title).onSubmit(self.beginSave)
+      TextField("", text: self.$title).onSubmit(self.beginSave).foregroundColor(self.item.isSaved ? .primary : .secondary)
     } else {
       TextField("", text: self.$title, onEditingChanged: self.beginSave(hasFinished:), onCommit: self.beginSave)
     }

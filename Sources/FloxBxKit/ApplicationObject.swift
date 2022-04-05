@@ -223,15 +223,27 @@ public enum Configuration {
       guard let index = items?.firstIndex(where: { $0.id == item.id }) else {
         return
       }
+
       let content = CreateTodoRequestContent(title: item.title)
       let request: URLRequest
-      do {
-        request = try Self.request(withURLPath: "api/v1/todos", method: "POST", withToken: token, body: content)
-      } catch {
-        DispatchQueue.main.async {
-          self.latestError = error
+      if item.isSaved {
+        do {
+          request = try Self.request(withURLPath: "api/v1/todos/\(item.id)", method: "PUT", withToken: token, body: content)
+        } catch {
+          DispatchQueue.main.async {
+            self.latestError = error
+          }
+          return
         }
-        return
+      } else {
+        do {
+          request = try Self.request(withURLPath: "api/v1/todos", method: "POST", withToken: token, body: content)
+        } catch {
+          DispatchQueue.main.async {
+            self.latestError = error
+          }
+          return
+        }
       }
       URLSession.shared.dataTask(with: request) { data, _, error in
         let dataResult: Result<Data, Error> = Result(success: data, failure: error, otherwise: EmptyError())
@@ -287,6 +299,34 @@ public enum Configuration {
         DispatchQueue.main.async {
           self.requiresAuthentication = true
         }
+      }
+    }
+
+    public func deleteItems(atIndexSet indexSet: IndexSet) {
+      let group = DispatchGroup()
+      let requests: [URLRequest]
+      guard let items = items else {
+        return
+      }
+      requests = indexSet.compactMap { index in
+        guard items[index].isSaved else {
+          return nil
+        }
+        return Self.request(withURLPath: "api/v1/todos/\(items[index].id)", method: "DELETE", withToken: token)
+      }
+
+      var errors = [Error?].init(repeating: nil, count: requests.count)
+      for (index, request) in requests.enumerated() {
+        group.enter()
+        URLSession.shared.dataTask(with: request) { _, _, error in
+          errors[index] = error
+          group.leave()
+        }.resume()
+      }
+      group.notify(queue: .main) {
+        print("deleting \(indexSet)")
+        self.latestError = errors.compactMap { $0 }.last
+        self.items?.remove(atOffsets: indexSet)
       }
     }
 
