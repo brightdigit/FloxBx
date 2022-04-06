@@ -6,21 +6,23 @@
 
     var body: some View {
       List {
-        ForEach(self.object.items ?? .init()) { item in
-          TodoListItemView(item: item)
+        ForEach(self.object.items) { item in
+          TodoListItemView(item: item).onAppear{ self.object.saveItem(item, onlyNew: true)
+          }
         }.onDelete(perform: object.deleteItems(atIndexSet:))
+          
       }
       .toolbar(content: {
         ToolbarItemGroup {
           HStack {
-            #if !os(watchOS)
+            #if os(iOS)
 
               EditButton()
 
             #endif
 
             Button {
-              self.object.items?.append(.init(title: "New Item"))
+              self.object.items.append(.init(title: "New Item"))
             } label: {
               Image(systemName: "plus.circle.fill")
             }

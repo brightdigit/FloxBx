@@ -2,7 +2,7 @@ import SwiftUI
 
 extension TodoContentItem {
   func updatingTitle(_ title: String) -> TodoContentItem {
-    TodoContentItem(id: id, title: title, isSaved: isSaved)
+    TodoContentItem(clientID: self.clientID, serverID: self.serverID, title: title)
   }
 }
 
