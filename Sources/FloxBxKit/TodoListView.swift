@@ -1,7 +1,7 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  struct TodoList: View {
+  struct TodoListView: View {
     @EnvironmentObject var object: ApplicationObject
 
     var body: some View {
@@ -35,7 +35,7 @@
 
   struct TodoList_Previews: PreviewProvider {
     static var previews: some View {
-      TodoList().environmentObject(ApplicationObject(items: [
+      TodoListView().environmentObject(ApplicationObject(items: [
         .init(title: "Do Stuff")
       ]))
     }

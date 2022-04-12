@@ -7,6 +7,10 @@ public enum Configuration {
   import Combine
   import SwiftUI
 
+#if canImport(GroupActivities)
+import GroupActivities
+#endif
+
   struct EmptyError: Error {}
 
   public struct CredentialsContainer {
@@ -164,10 +168,29 @@ public enum Configuration {
     case unhandledError(status: OSStatus)
   }
 
+//@available(iOS 15, *)
+//public struct FloxBxActivity : GroupActivity  {
+//  internal init(username: String) {
+//    var metadata = GroupActivityMetadata()
+//    metadata.title = "\(username) FloxBx"
+//    metadata.type = .generic
+//    self.metadata = metadata
+//  }
+//
+//
+//  public let metadata : GroupActivityMetadata
+//
+//
+//
+//}
+
   public class ApplicationObject: ObservableObject {
+    //@available(iOS 15, *)
+    //@State var groupSession: GroupSession<FloxBxActivity>?
     @Published public var requiresAuthentication: Bool
     @Published var latestError: Error?
     @Published var token: String?
+    @Published var username: String?
     @Published var items = [TodoContentItem]()
 
     let credentialsContainer = CredentialsContainer()
@@ -200,10 +223,13 @@ public enum Configuration {
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
+    
+    @available(*, deprecated)
     public static func url(withPath path: String) -> URL {
       baseURL.appendingPathComponent(path)
     }
 
+    @available(*, deprecated)
     public static func request(withURLPath path: String, method: String = "GET", withToken token: String? = nil) -> URLRequest {
       let url = Self.url(withPath: path)
       var request = URLRequest(url: url)
@@ -216,6 +242,8 @@ public enum Configuration {
       return request
     }
 
+    
+    @available(*, deprecated)
     public func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
       guard let index = items.firstIndex(where: { $0.id == item.id }) else {
         return
@@ -270,6 +298,8 @@ public enum Configuration {
       }.resume()
     }
 
+    
+    @available(*, deprecated)
     public static func request<EncodableType: Encodable>(withURLPath path: String, method: String = "GET", withToken token: String? = nil, body: EncodableType? = nil) throws -> URLRequest {
       var request = self.request(withURLPath: path, method: method, withToken: token)
       if let body = body {
@@ -341,6 +371,7 @@ public enum Configuration {
       
     }
 
+    @available(*, deprecated)
     public func beginSignup(withCredentials credentials: Credentials) {
       var request = URLRequest(url: Self.url(withPath: "api/v1/users"))
       request.httpMethod = "POST"
@@ -374,6 +405,7 @@ public enum Configuration {
       }.resume()
     }
 
+    @available(*, deprecated)
     public func beginSignIn(withCredentials credentials: Credentials) {
       let encoder = JSONEncoder()
       let decoder = JSONDecoder()
@@ -416,6 +448,7 @@ public enum Configuration {
 
           case let .success(creds):
             self.token = creds.token
+            self.username = creds.username
           }
         }
       }.resume()

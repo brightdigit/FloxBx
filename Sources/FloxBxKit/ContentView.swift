@@ -5,7 +5,7 @@
     @EnvironmentObject var object: ApplicationObject
 
     var innerView: some View {
-      let view = TodoList()
+      let view = TodoListView()
       #if os(macOS)
         return view.frame(width: 500, height: 500)
       #else
