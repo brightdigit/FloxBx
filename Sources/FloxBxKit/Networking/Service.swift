@@ -145,15 +145,21 @@ public protocol ClientBodySuccessRequest : ClientRequest where SuccessType: Coda
   var body : BodyType { get }
   
 }
-public protocol ClientBodyRequest : ClientBaseRequest {
-  associatedtype BodyType : Codable
+public protocol ClientBodyRequest : ClientRequest where BodyType: Codable, SuccessType == Void {
+  
   
   var body : BodyType { get }
 }
 
-public protocol ClientSuccessRequest : ClientBaseRequest {
+public protocol ClientSuccessRequest : ClientRequest where SuccessType: Codable, BodyType == Void {
   
-  associatedtype SuccessType : Codable
+  
+}
+
+extension ClientSuccessRequest {
+  public var body: BodyType {
+    ()
+  }
 }
 public protocol ClientBaseRequest {
   

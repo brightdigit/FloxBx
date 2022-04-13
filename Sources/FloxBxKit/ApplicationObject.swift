@@ -195,6 +195,10 @@ import GroupActivities
     func withToken(_ token: String) -> Credentials {
       Credentials(username: username, password: password, token: token)
     }
+    
+    func withoutToken() -> Credentials {
+      Credentials(username: username, password: password, token: nil)
+    }
   }
 
   enum KeychainError: Error {
@@ -408,7 +412,6 @@ import GroupActivities
       
     }
 
-    @available(*, deprecated)
     public func beginSignup(withCredentials credentials: Credentials) {
       self.service.beginRequest(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
         let newCredentialsResult = result.map { content in
@@ -420,7 +423,6 @@ import GroupActivities
         
         switch newCredentialsResult {
         case .failure(let error):
-          dump(error)
           DispatchQueue.main.async {
             self.latestError = error
           }
@@ -463,51 +465,89 @@ import GroupActivities
 
     @available(*, deprecated)
     public func beginSignIn(withCredentials credentials: Credentials) {
-      let encoder = JSONEncoder()
-      let decoder = JSONDecoder()
-      var request = URLRequest(url: Self.url(withPath: "api/v1/tokens"))
-      if let token = credentials.token {
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+      let createToken = credentials.token == nil
+      if createToken {
+        self.service.beginRequest(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
+          
+        }
       } else {
-        request.httpMethod = "POST"
-        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        let body = try! encoder.encode(CreateTokenRequestContent(emailAddress: credentials.username, password: credentials.password))
-        request.httpBody = body
-      }
-      URLSession.shared.dataTask(with: request) { data, response, error in
-        if credentials.token != nil, let response = response as? HTTPURLResponse {
-          guard response.statusCode / 100 == 2 else {
-            self.beginSignIn(withCredentials: Credentials(username: credentials.username, password: credentials.password))
+        self.service.beginRequest(SignInRefreshRequest()) { result in
+          let newCredentialsResult : Result<Credentials, Error> = result.map({ response in
+            credentials.withToken(response.token)
+          }).flatMapError { error in
+            guard !createToken else {
+              return .failure(error)
+            }
+            return .success(credentials.withoutToken())
+          }
+          let newCreds : Credentials
+          switch newCredentialsResult {
+          case .failure(let error):
+            DispatchQueue.main.async {
+              self.latestError = error
+            }
             return
+          case .success(let credentials):
+            newCreds = credentials
+          }
+          
+          switch (newCreds.token, createToken) {
+          case (.none, false):
+            self.beginSignIn(withCredentials: newCreds)
+          case (.some, _):
+            try? self.credentialsContainer.save(credentials: newCreds)
+            self.username = newCreds.username
+            self.token = newCreds.token
+          case (.none, true):
+            break
           }
         }
-        let result = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
-        let decodedResult = result.flatMap { data in
-          Result {
-            try decoder.decode(CreateTokenResponseContent.self, from: data)
-          }
-        }
-        let credentials = decodedResult.map { content in
-          credentials.withToken(content.token)
-        }
-        let savingResult = credentials.flatMap { creds in
-          Result(catching: { try self.credentialsContainer.save(credentials: creds) }).map {
-            creds
-          }
-        }
-        DispatchQueue.main.async {
-          switch savingResult {
-          case let .failure(error):
-            self.latestError = error
-
-          case let .success(creds):
-            self.token = creds.token
-            self.username = creds.username
-          }
-        }
-      }.resume()
+      }
+//      let encoder = JSONEncoder()
+//      let decoder = JSONDecoder()
+//      var request = URLRequest(url: Self.url(withPath: "api/v1/tokens"))
+//      if let token = credentials.token {
+//        request.httpMethod = "GET"
+//        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+//        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+//      } else {
+//        request.httpMethod = "POST"
+//        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+//        let body = try! encoder.encode(CreateTokenRequestContent(emailAddress: credentials.username, password: credentials.password))
+//        request.httpBody = body
+//      }
+//      URLSession.shared.dataTask(with: request) { data, response, error in
+//        if credentials.token != nil, let response = response as? HTTPURLResponse {
+//          guard response.statusCode / 100 == 2 else {
+//            self.beginSignIn(withCredentials: Credentials(username: credentials.username, password: credentials.password))
+//            return
+//          }
+//        }
+//        let result = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
+//        let decodedResult = result.flatMap { data in
+//          Result {
+//            try decoder.decode(CreateTokenResponseContent.self, from: data)
+//          }
+//        }
+//        let credentials = decodedResult.map { content in
+//          credentials.withToken(content.token)
+//        }
+//        let savingResult = credentials.flatMap { creds in
+//          Result(catching: { try self.credentialsContainer.save(credentials: creds) }).map {
+//            creds
+//          }
+//        }
+//        DispatchQueue.main.async {
+//          switch savingResult {
+//          case let .failure(error):
+//            self.latestError = error
+//
+//          case let .success(creds):
+//            self.token = creds.token
+//            self.username = creds.username
+//          }
+//        }
+//      }.resume()
     }
   }
 #endif
