@@ -14,6 +14,7 @@ import GroupActivities
   struct EmptyError: Error {}
 
   public struct CredentialsContainer {
+
     static let accessGroup = "MLT7M394S7.com.brightdigit.FloxBx"
     func upsertAccount(_ account: String, andToken token: String) throws {
       let tokenData = token.data(using: String.Encoding.utf8)!
@@ -144,6 +145,40 @@ import GroupActivities
         self = .failure(otherwise())
       }
     }
+    
+    func tryMap<NewSuccess>(_ transform: @escaping (Success) throws -> (NewSuccess) ) -> Result<NewSuccess, Error> {
+      let oldValue : Success
+      let newValue : NewSuccess
+      switch self {
+      case .success(let value):
+        oldValue = value
+      case .failure(let error):
+        return .failure(error)
+      }
+      do {
+        newValue = try transform(oldValue)
+      } catch {
+        return .failure(error)
+      }
+      return .success(newValue)
+    }
+    
+    func asError() -> Failure? where Success == Void {
+      guard case let .failure(error) = self else {
+        return nil
+      }
+      return error
+    }
+    
+    func transform<NewSuccess>(_ transform: @autoclosure () -> NewSuccess) -> Result<NewSuccess, Failure> {
+      self.map { _ in
+        transform()
+      }
+    }
+    
+    func asVoid() -> Result<Void, Failure> {
+      self.transform(())
+    }
   }
 
   public struct Credentials {
@@ -192,7 +227,9 @@ import GroupActivities
     @Published var token: String?
     @Published var username: String?
     @Published var items = [TodoContentItem]()
-
+    let service : Service = ServiceImpl(baseURLComponents: .init(string: "https://" + ProcessInfo.processInfo.environment["HOST_NAME"]!)!, headers: ["Content-Type" : "application/json; charset=utf-8"])
+    
+    @available(*, deprecated)
     let credentialsContainer = CredentialsContainer()
     let sentry = CanaryClient()
 
@@ -373,36 +410,55 @@ import GroupActivities
 
     @available(*, deprecated)
     public func beginSignup(withCredentials credentials: Credentials) {
-      var request = URLRequest(url: Self.url(withPath: "api/v1/users"))
-      request.httpMethod = "POST"
-      request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-      let body = try! ApplicationObject.encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
-      request.httpBody = body
-      URLSession.shared.dataTask(with: request) { data, _, error in
-        let result = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
-        let decodedResult = result.flatMap { data in
-          Result {
-            try ApplicationObject.decoder.decode(CreateUserResponseContent.self, from: data)
-          }
-        }
-        let credentials = decodedResult.map { content in
+      self.service.beginRequest(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
+        let newCredentialsResult = result.map { content in
           credentials.withToken(content.token)
+        }.tryMap { creds -> Credentials in
+          try self.credentialsContainer.save(credentials: creds)
+          return creds
         }
-        let savingResult = credentials.flatMap { creds in
-          Result(catching: { try self.credentialsContainer.save(credentials: creds) }).map {
-            creds
-          }
-        }
-        DispatchQueue.main.async {
-          switch savingResult {
-          case let .failure(error):
+        
+        switch newCredentialsResult {
+        case .failure(let error):
+          dump(error)
+          DispatchQueue.main.async {
             self.latestError = error
-
-          case let .success(creds):
-            self.beginSignIn(withCredentials: creds)
           }
+        case .success(let newCreds):
+          self.beginSignIn(withCredentials: newCreds)
         }
-      }.resume()
+      }
+      //self.service.beginRequest(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password)), <#T##completed: (Error?) -> Void##(Error?) -> Void#>)
+//      var request = URLRequest(url: Self.url(withPath: "api/v1/users"))
+//      request.httpMethod = "POST"
+//      request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+//      let body = try! ApplicationObject.encoder.encode(CreateUserRequestContent(emailAddress: credentials.username, password: credentials.password))
+//      request.httpBody = body
+//      URLSession.shared.dataTask(with: request) { data, _, error in
+//        let result = Result<Data, Error>(success: data, failure: error, otherwise: EmptyError())
+//        let decodedResult = result.flatMap { data in
+//          Result {
+//            try ApplicationObject.decoder.decode(CreateUserResponseContent.self, from: data)
+//          }
+//        }
+//        let credentials = decodedResult.map { content in
+//          credentials.withToken(content.token)
+//        }
+//        let savingResult = credentials.flatMap { creds in
+//          Result(catching: { try self.credentialsContainer.save(credentials: creds) }).map {
+//            creds
+//          }
+//        }
+//        DispatchQueue.main.async {
+//          switch savingResult {
+//          case let .failure(error):
+//            self.latestError = error
+//
+//          case let .success(creds):
+//            self.beginSignIn(withCredentials: creds)
+//          }
+//        }
+//      }.resume()
     }
 
     @available(*, deprecated)

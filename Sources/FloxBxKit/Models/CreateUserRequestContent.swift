@@ -1,4 +1,4 @@
-public struct SignUpRequest : ClientBodyRequest {
+public struct SignUpRequest : ClientBodySuccessRequest {
   public let body: CreateUserRequestContent
   
   public var headers: [String : String] {
@@ -9,7 +9,9 @@ public struct SignUpRequest : ClientBodyRequest {
     return false
   }
   
-  public var path: String
+  public var path: String {
+    "api/v1/users"
+  }
   
   public var parameters: [String : String] {
     return [ : ]
