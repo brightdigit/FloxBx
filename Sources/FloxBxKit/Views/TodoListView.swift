@@ -1,16 +1,15 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  struct TodoList: View {
+  struct TodoListView: View {
     @EnvironmentObject var object: ApplicationObject
 
     var body: some View {
       List {
         ForEach(self.object.items) { item in
-          TodoListItemView(item: item).onAppear{ self.object.saveItem(item, onlyNew: true)
+          TodoListItemView(item: item).onAppear { self.object.saveItem(item, onlyNew: true)
           }
         }.onDelete(perform: object.deleteItems(atIndexSet:))
-          
       }
       .toolbar(content: {
         ToolbarItemGroup {
@@ -35,7 +34,7 @@
 
   struct TodoList_Previews: PreviewProvider {
     static var previews: some View {
-      TodoList().environmentObject(ApplicationObject(items: [
+      TodoListView().environmentObject(ApplicationObject(items: [
         .init(title: "Do Stuff")
       ]))
     }
