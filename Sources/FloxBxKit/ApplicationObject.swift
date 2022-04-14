@@ -7,34 +7,68 @@ public enum Configuration {
   import Combine
   import SwiftUI
 
+
+
   #if canImport(GroupActivities)
     import GroupActivities
-  #endif
 
-  // @available(iOS 15, *)
-  // public struct FloxBxActivity : GroupActivity  {
-//  internal init(username: String) {
-//    var metadata = GroupActivityMetadata()
-//    metadata.title = "\(username) FloxBx"
-//    metadata.type = .generic
-//    self.metadata = metadata
-//  }
-//
-//
-//  public let metadata : GroupActivityMetadata
-//
-//
-//
-  // }
+   @available(iOS 15, macOS 12, *)
+   public struct FloxBxActivity : GroupActivity  {
+     
+  internal init(username: String) {
+    var metadata = GroupActivityMetadata()
+    metadata.title = "\(username) FloxBx"
+    metadata.type = .generic
+    self.metadata = metadata
+  }
+
+
+  public let metadata : GroupActivityMetadata
+
+
+
+   }
+
+#endif
+
+enum TodoListDelta : Codable {
+  case upsert(UUID?, CreateTodoRequestContent)
+  case remove([UUID])
+}
 
   public class ApplicationObject: ObservableObject {
-    // @available(iOS 15, *)
-    // @State var groupSession: GroupSession<FloxBxActivity>?
+    
+#if canImport(GroupActivities)
+     @available(iOS 15, macOS 12, *)
+     @State var groupSession: GroupSession<FloxBxActivity>?
+    
+    @available(iOS 15, macOS 12, *)
+    private(set) lazy var messenger: GroupSessionMessenger? = nil
+    
+    
+    var subscriptions = Set<AnyCancellable>()
+    var tasks = Set<Task<Void, Never>>()
+    func addDelta(_ delta: TodoListDelta) {
+        DispatchQueue.main.async {
+            self.listDeltas.append(delta)
+        }
+
+        if #available(iOS 15, macOS 12, *) {
+            if let messenger = self.messenger {
+                Task {
+                    try? await messenger.send([delta])
+                }
+            }
+        }
+    }
+    #endif
+    
     @Published public var requiresAuthentication: Bool
     @Published var latestError: Error?
     @Published var token: String?
     @Published var username: String?
     @Published var items = [TodoContentItem]()
+    @Published var listDeltas = [TodoListDelta]()
     let service: Service = ServiceImpl(host: ProcessInfo.processInfo.environment["HOST_NAME"]!, headers: ["Content-Type": "application/json; charset=utf-8"])
 
     let sentry = CanaryClient()
@@ -53,9 +87,10 @@ public enum Configuration {
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
+      
       $token.share().compactMap { $0 }.flatMap { _ in
         Future { closure in
-          self.service.beginRequest(GetTodoListRequest()) { result in
+          self.service.beginRequest(GetTodoListRequest(userID: nil)) { result in
             closure(result)
           }
         }
@@ -67,11 +102,6 @@ public enum Configuration {
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
-    @available(*, deprecated)
-    public static func url(withPath path: String) -> URL {
-      baseURL.appendingPathComponent(path)
-    }
-
     public func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
       guard let index = items.firstIndex(where: { $0.id == item.id }) else {
         return
@@ -81,8 +111,12 @@ public enum Configuration {
         return
       }
 
-      let request = UpsertTodoRequest(itemID: item.serverID, body: .init(title: item.title))
+      let content = CreateTodoRequestContent(title: item.title)
+      let request = UpsertTodoRequest(itemID: item.serverID, body: content)
 
+#if canImport(GroupActivities)
+      self.addDelta(.upsert(item.serverID, content))
+      #endif
       service.beginRequest(request) { todoItemResult in
         switch todoItemResult {
         case let .success(todoItem):
@@ -129,6 +163,8 @@ public enum Configuration {
       let deletedIds = Set(savedIndexSet.map {
         items[$0].id
       })
+      
+      
 //
       guard !deletedIds.isEmpty else {
         DispatchQueue.main.async {
@@ -137,6 +173,9 @@ public enum Configuration {
         return
       }
 
+      #if canImport(GroupActivities)
+      self.addDelta(.remove(Array(deletedIds)))
+      #endif
       let group = DispatchGroup()
 
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
@@ -147,10 +186,6 @@ public enum Configuration {
           errors[index] = error
           group.leave()
         }
-//        URLSession.shared.dataTask(with: request) { _, _, error in
-//          errors[index] = error
-//          group.leave()
-//        }.resume()
       }
       group.notify(queue: .main) {
         completed(errors.compactMap { $0 }.last)
@@ -229,5 +264,127 @@ public enum Configuration {
         }
       }
     }
+    
+#if canImport(GroupActivities)
+    @available(iOS 15, macOS 12, *)
+    func startSharing() {
+        Task {
+            do {
+              guard let username = username else {
+                return
+              }
+
+              _ = try await FloxBxActivity(username: username).activate()
+            } catch {
+                print("Failed to activate ShoppingListActivity activity: \(error)")
+            }
+        }
+    }
+    
+    @available(iOS 15, macOS 12,*)
+    func reset() {
+        // Clear local drawing canvas.
+
+        listDeltas = []
+
+        // Teardown existing groupSession.
+        messenger = nil
+        tasks.forEach { $0.cancel() }
+        tasks = []
+        subscriptions = []
+        if groupSession != nil {
+            groupSession?.leave()
+            groupSession = nil
+            startSharing()
+        }
+    }
+    
+    @available(iOS 15,macOS 12, *)
+    func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
+        listDeltas = []
+
+        self.groupSession = groupSession
+
+        let messenger = GroupSessionMessenger(session: groupSession)
+        self.messenger = messenger
+
+        self.groupSession?.$state
+            .sink(receiveValue: { state in
+                if case .invalidated = state {
+                    self.groupSession = nil
+                    self.reset()
+                }
+            }).store(in: &subscriptions)
+
+        self.groupSession?.$activeParticipants
+            .sink(receiveValue: { activeParticipants in
+                let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
+
+                Task {
+                    // try? await messenger.send(CanvasMessage(strokes: self.strokes, pointCount: self.pointCount), to: .only(newParticipants))
+                    try? await messenger.send(self.listDeltas, to: .only(newParticipants))
+                }
+            }).store(in: &subscriptions)
+        let task = Task {
+            for await(message, _) in messenger.messages(of: [TodoListDelta].self) {
+                handle(message)
+            }
+        }
+        tasks.insert(task)
+
+        groupSession.join()
+    }
+    func handle(_ deltas: [TodoListDelta]) {
+        for delta in deltas {
+            handle(delta)
+        }
+//        if requireRefresh {
+//            DispatchQueue.main.async {
+//                self.getList()
+//            }
+//        }
+    }
+
+    func handle(_ delta: TodoListDelta) {
+        //switch delta {
+//        case .remove(let array):
+//            DispatchQueue.main.async {
+//                self.list.removeAll { item in
+//                    array.contains { id in
+//                        item.item.listItemId == id
+//                    }
+//                }
+//            }
+//        case .insert(let shoppingListItem, let atIndex):
+//            DispatchQueue.main.async {
+//                self.list.insert(.init(id: UUID(), item: shoppingListItem), at: atIndex)
+//            }
+//        case .mark(let shoppingListItemID, let completed):
+//            guard let index = list.firstIndex(where: { $0.item.listItemId == shoppingListItemID }) else {
+//                break
+//            }
+//            DispatchQueue.main.async {
+//                self.list[index].item = ShoppingListItem(basedOn: self.list[index].item, isComplete: completed)
+//            }
+//        case .move(let ids, let beforeId):
+//            let fromOffsets: IndexSet
+//            let toOffset = beforeId.flatMap(index(forID:)) ?? list.endIndex
+//            let fromIndicies = indicies(forIDs: ids)
+//            fromOffsets = .init(fromIndicies)
+//            DispatchQueue.main.async {
+//                self.list.move(fromOffsets: fromOffsets, toOffset: toOffset)
+//            }
+//
+//        case .clear:
+//            DispatchQueue.main.async {
+//                self.list.removeAll()
+//            }
+        //}
+          
+        DispatchQueue.main.async {
+            self.listDeltas.append(delta)
+        }
+    }
+    #endif
   }
 #endif

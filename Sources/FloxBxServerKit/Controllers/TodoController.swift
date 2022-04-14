@@ -22,7 +22,7 @@ struct TodoController: RouteCollection {
       todo.put(use: update)
     }
 
-    let sharedTodos = routes.grouped("users", ":userID", "todos")
+    let sharedTodos = routes.grouped("group-sessions", ":sessionID", "todos")
     sharedTodos.get(use: index)
     sharedTodos.post(use: create)
     sharedTodos.group(":todoID") { todo in

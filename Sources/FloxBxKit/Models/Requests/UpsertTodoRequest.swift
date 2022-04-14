@@ -1,7 +1,30 @@
 import Foundation
 
+
+
 public struct UpsertTodoRequest: ClientBodySuccessRequest {
-  public let itemID: UUID?
+  internal init(destination: UpsertTodoRequest.Destination, body: UpsertTodoRequest.BodyType) {
+    self.destination = destination
+    self.body = body
+  }
+  
+  internal init(itemID: UUID?, body: UpsertTodoRequest.BodyType) {
+    let destination : Destination
+    
+    if let itemID = itemID {
+      destination = .itemID(itemID)
+    } else {
+      destination = .create
+    }
+    self.init(destination: destination, body: body)
+  }
+  
+  public enum Destination {
+    case userID(UUID)
+    case itemID(UUID)
+    case create
+  }
+  public let destination: Destination
   public let body: BodyType
 
   public typealias SuccessType = CreateTodoResponseContent
@@ -14,9 +37,12 @@ public struct UpsertTodoRequest: ClientBodySuccessRequest {
 
   public static let basePath = "api/v1/todos"
   public var path: String {
-    if let itemID = itemID {
+    switch destination {
+    case .userID(let userID):
+      return "api/v1/users/\(userID)/todos"
+    case .itemID(let itemID):
       return [Self.basePath, itemID.uuidString].joined(separator: "/")
-    } else {
+    case .create:
       return Self.basePath
     }
   }
@@ -26,7 +52,10 @@ public struct UpsertTodoRequest: ClientBodySuccessRequest {
   }
 
   public var method: RequestMethod {
-    itemID == nil ? .POST : .PUT
+    switch self.destination {
+    case .itemID: return .PUT
+    default: return .POST
+    }
   }
 
   public var headers: [String: String] {

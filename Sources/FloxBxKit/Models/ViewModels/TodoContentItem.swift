@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TodoContentItem: Identifiable {
+public struct TodoContentItem: Identifiable, Codable {
   internal init(clientID: UUID = .init(), serverID: UUID? = nil, title: String) {
     self.clientID = clientID
     self.serverID = serverID

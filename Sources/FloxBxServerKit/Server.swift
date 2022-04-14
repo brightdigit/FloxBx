@@ -31,6 +31,7 @@ public struct Server {
     app.migrations.add(CreateUserMigration())
     app.migrations.add(CreateTodoMigration())
     app.migrations.add(CreateUserTokenMigration())
+    app.migrations.add(CreateGroupSessionMigration())
 
     let userController = UserController()
     let tokenController = UserTokenController()
@@ -41,6 +42,7 @@ public struct Server {
     bearer.delete("tokens", use: tokenController.delete(from:))
     bearer.get("tokens", use: tokenController.get(from:))
     try TodoController().boot(routes: bearer)
+    //try GroupSessionController().boot(routes: bearer)
     // register routes
 //    try app.register(collection: TodoController())
 //    try app.register(collection: UserController())
