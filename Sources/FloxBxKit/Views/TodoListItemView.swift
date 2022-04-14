@@ -1,11 +1,5 @@
 import SwiftUI
 
-extension TodoContentItem {
-  func updatingTitle(_ title: String) -> TodoContentItem {
-    TodoContentItem(clientID: clientID, serverID: serverID, title: title)
-  }
-}
-
 struct TodoListItemView: View {
   @EnvironmentObject var object: ApplicationObject
   @State var title: String

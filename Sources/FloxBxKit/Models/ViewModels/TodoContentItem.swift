@@ -1,15 +1,5 @@
 import Foundation
 
-public struct CreateTodoResponseContent: Codable {
-  public init(id: UUID, title: String) {
-    self.id = id
-    self.title = title
-  }
-
-  public let id: UUID
-  public let title: String
-}
-
 public struct TodoContentItem: Identifiable {
   internal init(clientID: UUID = .init(), serverID: UUID? = nil, title: String) {
     self.clientID = clientID
@@ -31,5 +21,11 @@ public struct TodoContentItem: Identifiable {
 
   public var id: UUID {
     clientID
+  }
+}
+
+extension TodoContentItem {
+  func updatingTitle(_ title: String) -> TodoContentItem {
+    TodoContentItem(clientID: clientID, serverID: serverID, title: title)
   }
 }
