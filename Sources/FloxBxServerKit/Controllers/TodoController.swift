@@ -14,15 +14,14 @@ extension CreateTodoResponseContent {
 struct TodoController: RouteCollection {
   func boot(routes: RoutesBuilder) throws {
     let todos = routes.grouped("todos")
-    
+
     todos.get(use: index)
     todos.post(use: create)
     todos.group(":todoID") { todo in
       todo.delete(use: delete)
       todo.put(use: update)
     }
-    
-    
+
     let sharedTodos = routes.grouped("users", ":userID", "todos")
     sharedTodos.get(use: index)
     sharedTodos.post(use: create)

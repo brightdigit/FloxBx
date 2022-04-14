@@ -7,10 +7,9 @@
     var body: some View {
       List {
         ForEach(self.object.items) { item in
-          TodoListItemView(item: item).onAppear{ self.object.saveItem(item, onlyNew: true)
+          TodoListItemView(item: item).onAppear { self.object.saveItem(item, onlyNew: true)
           }
         }.onDelete(perform: object.deleteItems(atIndexSet:))
-          
       }
       .toolbar(content: {
         ToolbarItemGroup {

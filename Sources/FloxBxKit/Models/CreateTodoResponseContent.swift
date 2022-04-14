@@ -16,20 +16,20 @@ public struct TodoContentItem: Identifiable {
     self.serverID = serverID
     self.title = title
   }
-  
 
   public init(content: CreateTodoResponseContent) {
     self.init(clientID: content.id, serverID: content.id, title: content.title)
   }
+
   public let clientID: UUID
   public let serverID: UUID?
   public var title: String
-  
-  public var isSaved : Bool {
-    return serverID != nil
+
+  public var isSaved: Bool {
+    serverID != nil
   }
-  
-  public var id : UUID {
-    return self.clientID
+
+  public var id: UUID {
+    clientID
   }
 }
