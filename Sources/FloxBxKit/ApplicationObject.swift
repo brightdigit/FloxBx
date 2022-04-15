@@ -14,8 +14,9 @@ public enum Configuration {
 
    @available(iOS 15, macOS 12, *)
    public struct FloxBxActivity : GroupActivity  {
-     
-  internal init(username: String) {
+     let id : UUID
+     internal init(id: UUID, username: String) {
+       self.id = id
     var metadata = GroupActivityMetadata()
     metadata.title = "\(username) FloxBx"
     metadata.type = .generic
@@ -273,8 +274,9 @@ enum TodoListDelta : Codable {
               guard let username = username else {
                 return
               }
-
-              _ = try await FloxBxActivity(username: username).activate()
+        
+              let groupSession = try await self.service.request(CreateGroupSessionRequest())
+              _ = try await FloxBxActivity(id: groupSession.id ,username: username).activate()
             } catch {
                 print("Failed to activate ShoppingListActivity activity: \(error)")
             }
