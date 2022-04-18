@@ -41,6 +41,7 @@ public struct Server {
     let bearer = api.grouped(UserToken.authenticator())
     bearer.delete("tokens", use: tokenController.delete(from:))
     bearer.get("tokens", use: tokenController.get(from:))
+    bearer.get("users", use: userController.get(from:))
     try TodoController().boot(routes: bearer)
     try GroupSessionController().boot(routes: bearer)
     // register routes
