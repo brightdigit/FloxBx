@@ -80,6 +80,14 @@ enum TodoListDelta : Codable {
       components.scheme = "https"
       return components.url!
     }()
+    
+    var groupSessionID : UUID? {
+      if #available(macOS 12, *) {
+        return self.groupSession?.activity.id
+      } else {
+        return nil
+      }
+    }
 
     static let encoder = JSONEncoder()
     static let decoder = JSONDecoder()
@@ -91,7 +99,7 @@ enum TodoListDelta : Codable {
       
       $token.share().compactMap { $0 }.flatMap { _ in
         Future { closure in
-          self.service.beginRequest(GetTodoListRequest(userID: nil)) { result in
+          self.service.beginRequest(GetTodoListRequest(groupSessionID: self.groupSessionID)) { result in
             closure(result)
           }
         }
@@ -113,7 +121,7 @@ enum TodoListDelta : Codable {
       }
 
       let content = CreateTodoRequestContent(title: item.title)
-      let request = UpsertTodoRequest(itemID: item.serverID, body: content)
+      let request = UpsertTodoRequest(groupSessionID: self.groupSessionID, itemID: item.serverID, body: content)
 
 #if canImport(GroupActivities)
       self.addDelta(.upsert(item.serverID, content))
@@ -182,7 +190,7 @@ enum TodoListDelta : Codable {
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
       for (index, id) in deletedIds.enumerated() {
         group.enter()
-        let request = DeleteTodoItemRequest(itemID: id)
+        let request = DeleteTodoItemRequest(groupSessionID: self.groupSessionID, itemID: id)
         service.beginRequest(request) { error in
           errors[index] = error
           group.leave()

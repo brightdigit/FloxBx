@@ -39,6 +39,7 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
           try self.coder.decode(RequestType.SuccessType.self, from: bodyData)
         }
       }
+      dump(decodedResult)
       completed(decodedResult)
     }
   }

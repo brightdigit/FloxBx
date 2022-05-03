@@ -4,18 +4,24 @@ public struct GetTodoListRequest: ClientSuccessRequest {
 
   public typealias BodyType = Void
   
-  let userID : UUID?
+  let groupSessionID : UUID?
 
   public static var requiresCredentials: Bool {
     true
   }
 
   public var path: String {
-    if let userID = userID {
-      return "api/v1/users/\(userID)/todos"
-    } else {
-      return "api/v1/todos"
-    }
+    
+      var path = "api/v1/"
+      if let groupSessionID = groupSessionID {
+        path.append("group-sessions\(groupSessionID)/")
+        
+      }
+                    path.append("todos")
+                    
+                    return path
+
+
     
   }
   
