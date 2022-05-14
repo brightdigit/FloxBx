@@ -82,11 +82,15 @@ enum TodoListDelta : Codable {
     }()
     
     var groupSessionID : UUID? {
-      if #available(macOS 12, *) {
-        return self.groupSession?.activity.id
+#if canImport(GroupActivities)
+      if #available(macOS 12, iOS 15, *) {
+          return self.groupSession?.activity.id
       } else {
         return nil
       }
+      #else
+      return nil
+      #endif
     }
 
     static let encoder = JSONEncoder()
