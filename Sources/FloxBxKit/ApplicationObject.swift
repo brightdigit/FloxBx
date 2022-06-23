@@ -233,13 +233,30 @@ enum TodoListDelta : Codable {
       }
     }
 
+    fileprivate func saveCredentials(_ newCreds: Credentials) {
+      try? self.service.save(credentials: newCreds)
+      DispatchQueue.main.async {
+        self.username = newCreds.username
+        self.token = newCreds.token
+      }
+    }
+    
     public func beginSignIn(withCredentials credentials: Credentials) {
       let createToken = credentials.token == nil
       if createToken {
-        service.beginRequest(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { _ in
+        service.beginRequest(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
+          switch result {
+          case .failure(let error):
+            DispatchQueue.main.async {
+              self.latestError = error
+            }
+          case .success(let tokenContainer):
+            let newCreds = credentials.withToken(tokenContainer.token)
+            self.saveCredentials(newCreds)
+          }
         }
       } else {
-        service.beginRequest(SignInRefreshRequest()) { result in
+        service.beginRequest(SignInRefreshRequest()) { [self] result in
           let newCredentialsResult: Result<Credentials, Error> = result.map { response in
             credentials.withToken(response.token)
           }.flatMapError { error in
@@ -265,11 +282,7 @@ enum TodoListDelta : Codable {
             self.beginSignIn(withCredentials: newCreds)
 
           case (.some, _):
-            try? self.service.save(credentials: newCreds)
-            DispatchQueue.main.async {
-              self.username = newCreds.username
-              self.token = newCreds.token
-            }
+            self.saveCredentials(newCreds)
 
           case (.none, true):
             break
