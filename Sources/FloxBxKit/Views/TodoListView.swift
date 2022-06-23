@@ -14,17 +14,24 @@
       .toolbar(content: {
         ToolbarItemGroup {
           HStack {
-            #if os(iOS)
 
-              EditButton()
-
-            #endif
+            Button {
+              
+            } label: {
+              Image(systemName: "shareplay")
+            }
 
             Button {
               self.object.items.append(.init(title: "New Item"))
             } label: {
               Image(systemName: "plus.circle.fill")
             }
+            
+              #if os(iOS)
+
+                EditButton()
+
+              #endif
           }
         }
       })
