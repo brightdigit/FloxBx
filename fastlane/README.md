@@ -13,6 +13,17 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
+### prepare_development
+
+```sh
+[bundle exec] fastlane prepare_development
+```
+
+
+
+----
+
+
 ## iOS
 
 ### ios beta
