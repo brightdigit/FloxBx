@@ -16,7 +16,13 @@
           HStack {
 
             Button {
-              
+              #if canImport(GroupActivities)
+              if #available(iOS 15, *) {
+                object.startSharing()
+              } else {
+                // Fallback on earlier versions
+              }
+              #endif
             } label: {
               Image(systemName: "shareplay")
             }

@@ -19,9 +19,11 @@ final class Todo: Model, Content {
 
   init() {}
 
-  init(id: UUID? = nil, title: String, userID: UUID) {
+  init(id: UUID? = nil, title: String, userID: UUID? = nil) {
     self.id = id
     self.title = title
-    $user.id = userID
+    if let userID = userID {
+      $user.id = userID
+    }
   }
 }

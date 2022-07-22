@@ -47,7 +47,7 @@ public struct UpsertTodoRequest: ClientBodySuccessRequest {
     
       var path = "api/v1/"
       if let groupSessionID = groupSessionID {
-        path.append("group-sessions\(groupSessionID)/")
+        path.append("group-sessions/\(groupSessionID)/")
         
       }
                     path.append("todos")

@@ -40,10 +40,8 @@ enum TodoListDelta : Codable {
   public class ApplicationObject: ObservableObject {
     
 #if canImport(GroupActivities)
-     @available(iOS 15, macOS 12, *)
-     @State var groupSession: GroupSession<FloxBxActivity>?
+     @Published var groupSession: GroupSession<FloxBxActivity>?
     
-    @available(iOS 15, macOS 12, *)
     private(set) lazy var messenger: GroupSessionMessenger? = nil
     
     
@@ -101,9 +99,17 @@ enum TodoListDelta : Codable {
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
       
-      $token.share().compactMap { $0 }.flatMap { _ in
+      
+  #if canImport(GroupActivities)
+      let groupSessionIDPub = self.$groupSession.compactMap{ groupSession -> UUID? in
+        groupSession?.activity.id
+      }.map{$0 as UUID?}
+      #else
+      let groupSessionIDPub = Just<UUID?>(nil)
+      #endif
+      $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupSessionID in
         Future { closure in
-          self.service.beginRequest(GetTodoListRequest(groupSessionID: self.groupSessionID)) { result in
+          self.service.beginRequest(GetTodoListRequest(groupSessionID: groupSessionID)) { result in
             closure(result)
           }
         }
@@ -112,6 +118,7 @@ enum TodoListDelta : Codable {
       }
       .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
 
+      
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
