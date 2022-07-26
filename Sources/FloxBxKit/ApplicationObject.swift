@@ -33,7 +33,7 @@ public enum Configuration {
 #endif
 
 enum TodoListDelta : Codable {
-  case upsert(UUID?, CreateTodoRequestContent)
+  case upsert(UUID, CreateTodoRequestContent)
   case remove([UUID])
 }
 
@@ -101,9 +101,9 @@ enum TodoListDelta : Codable {
       
       
   #if canImport(GroupActivities)
-      let groupSessionIDPub = self.$groupSession.compactMap{ groupSession -> UUID? in
+      let groupSessionIDPub = self.$groupSession.map{ groupSession -> UUID? in
         groupSession?.activity.id
-      }.map{$0 as UUID?}
+      }
       #else
       let groupSessionIDPub = Just<UUID?>(nil)
       #endif
@@ -134,14 +134,16 @@ enum TodoListDelta : Codable {
       let content = CreateTodoRequestContent(title: item.title)
       let request = UpsertTodoRequest(groupSessionID: self.groupSessionID, itemID: item.serverID, body: content)
 
-#if canImport(GroupActivities)
-      self.addDelta(.upsert(item.serverID, content))
-      #endif
+
+      
       service.beginRequest(request) { todoItemResult in
         switch todoItemResult {
         case let .success(todoItem):
 
           DispatchQueue.main.async {
+#if canImport(GroupActivities)
+            self.addDelta(.upsert(todoItem.id, content))
+      #endif
             self.items[index] = .init(content: todoItem)
           }
 
@@ -380,7 +382,7 @@ enum TodoListDelta : Codable {
     }
 
     func handle(_ delta: TodoListDelta) {
-        //switch delta {
+        switch delta {
 //        case .remove(let array):
 //            DispatchQueue.main.async {
 //                self.list.removeAll { item in
@@ -413,7 +415,32 @@ enum TodoListDelta : Codable {
 //            DispatchQueue.main.async {
 //                self.list.removeAll()
 //            }
-        //}
+        case let .upsert(id, content):
+
+          let index = self.items.firstIndex { item in
+            item.serverID == id
+          }
+          if let index = index {
+            DispatchQueue.main.async {
+              self.items[index] = self.items[index].updatingTitle(content.title)
+            }
+          } else {
+            DispatchQueue.main.async {
+              self.items.append(.init(serverID: id, title: content.title))
+            }
+          }
+        case let .remove(ids):
+          let indicies = ids.compactMap { id in
+            self.items.firstIndex{ item in
+              item.serverID == id
+            }
+          }
+          
+          DispatchQueue.main.async {
+            self.items.remove(atOffsets: IndexSet(indicies))
+            
+          }
+        }
           
         DispatchQueue.main.async {
             self.listDeltas.append(delta)

@@ -26,10 +26,14 @@ struct TodoListItemView: View {
   }
 
   var body: some View {
-    if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
-      TextField("", text: self.$title).onSubmit(self.beginSave).foregroundColor(self.item.isSaved ? .primary : .secondary)
-    } else {
-      TextField("", text: self.$title, onEditingChanged: self.beginSave(hasFinished:), onCommit: self.beginSave)
+    Group {
+      if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
+        TextField("", text: self.$title).onSubmit(self.beginSave).foregroundColor(self.item.isSaved ? .primary : .secondary)
+      } else {
+        TextField("", text: self.$title, onEditingChanged: self.beginSave(hasFinished:), onCommit: self.beginSave)
+      }
+    }.onChange(of: item.title) { newValue in
+      self.title = newValue
     }
   }
 }
