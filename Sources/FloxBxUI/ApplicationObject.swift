@@ -1,3 +1,6 @@
+import FloxBxModels
+import FloxBxNetworking
+import FloxBxAuth
 public enum Configuration {
   public static let dsn = "https://d2a8d5241ccf44bba597074b56eb692d@o919385.ingest.sentry.io/5868822"
 }
@@ -14,7 +17,7 @@ public enum Configuration {
 
    @available(iOS 15, macOS 12, *)
    public struct FloxBxActivity : GroupActivity  {
-     let id : UUID
+     public let id : UUID
      internal init(id: UUID, username: String) {
        self.id = id
     var metadata = GroupActivityMetadata()
@@ -37,7 +40,7 @@ enum TodoListDelta : Codable {
   case remove([UUID])
 }
 
-  public class ApplicationObject: ObservableObject {
+public class ApplicationObject: ObservableObject {
     
 #if canImport(GroupActivities)
      @Published var groupSession: GroupSession<FloxBxActivity>?
@@ -93,8 +96,8 @@ enum TodoListDelta : Codable {
 
     static let encoder = JSONEncoder()
     static let decoder = JSONDecoder()
-    static let server = "floxbx.work"
-    public init(items _: [TodoContentItem] = []) {
+    //static let server = "floxbx.work"
+    public init(_: [TodoContentItem] = []) {
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)

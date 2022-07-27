@@ -35,16 +35,29 @@ let package = Package(
     .target(
       name: "FloxBxKit",
       dependencies: [
-        "Canary"
+        "Canary",
+        "FloxBxModels",
+        "FloxBxAuth",
+        "FloxBxUI"
       ]
     ),
+    .target(name: "FloxBxModels",
+           dependencies: ["FloxBxNetworking"]),
+    .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
+    .target(name: "FloxBxUI",dependencies: [
+      
+        "Canary",
+      "FloxBxModels",
+      "FloxBxAuth"
+    ]),
+    .target(name: "FloxBxAuth"),
     .target(
       name: "FloxBxServerKit",
       dependencies: [
         .product(name: "Fluent", package: "fluent"),
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
         .product(name: "Vapor", package: "vapor"),
-        "FloxBxKit"
+        "FloxBxModels"
       ],
       swiftSettings: [
         // Enable better optimizations when building in Release configuration. Despite the use of
