@@ -182,8 +182,8 @@ public class ApplicationObject: ObservableObject {
     public func beginDeleteItems(atIndexSet indexSet: IndexSet, _ completed: @escaping (Error?) -> Void) {
       let savedIndexSet = indexSet.filteredIndexSet(includeInteger: { items[$0].isSaved })
 
-      let deletedIds = Set(savedIndexSet.map {
-        items[$0].id
+      let deletedIds = Set(savedIndexSet.compactMap {
+        items[$0].serverID
       })
       
       
