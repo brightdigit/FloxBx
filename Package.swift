@@ -9,8 +9,8 @@ let package = Package(
   products: [
     // Products define the executables and libraries a package produces, and make them visible to other packages.
     .library(
-      name: "FloxBxKit",
-      targets: ["FloxBxKit"]
+      name: "FloxBxUI",
+      targets: ["FloxBxUI"]
     ),
     .library(
       name: "FloxBxServerKit",
@@ -32,15 +32,6 @@ let package = Package(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
     ),
-    .target(
-      name: "FloxBxKit",
-      dependencies: [
-        "Canary",
-        "FloxBxModels",
-        "FloxBxAuth",
-        "FloxBxUI"
-      ]
-    ),
     .target(name: "FloxBxModels",
            dependencies: ["FloxBxNetworking"]),
     .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
@@ -57,7 +48,8 @@ let package = Package(
         .product(name: "Fluent", package: "fluent"),
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
         .product(name: "Vapor", package: "vapor"),
-        "FloxBxModels"
+        "FloxBxModels",
+        "Canary"
       ],
       swiftSettings: [
         // Enable better optimizations when building in Release configuration. Despite the use of
