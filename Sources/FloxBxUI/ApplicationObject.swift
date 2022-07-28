@@ -1,6 +1,7 @@
 import FloxBxModels
 import FloxBxNetworking
 import FloxBxAuth
+import FloxBxGroupActivities
 
 #if canImport(Combine) && canImport(SwiftUI)
   import Canary
@@ -8,29 +9,150 @@ import FloxBxAuth
   import SwiftUI
 
 
+#if canImport(GroupActivities)
+import GroupActivities
+#endif
 
-  #if canImport(GroupActivities)
-    import GroupActivities
 
-   @available(iOS 15, macOS 12, *)
-   public struct FloxBxActivity : GroupActivity  {
-     public let id : UUID
-     internal init(id: UUID, username: String) {
-       self.id = id
-    var metadata = GroupActivityMetadata()
-    metadata.title = "\(username) FloxBx"
-    metadata.type = .generic
-    self.metadata = metadata
+class SharePlayObject : ObservableObject{
+  @Published private(set) var listDeltas = [TodoListDelta]()
+  private let startSharingSubject = PassthroughSubject<Void, Never>()
+  private let messageSubject = PassthroughSubject<[TodoListDelta], Never>()
+  private var tasks = Set<Task<Void, Never>>()
+  private var subscriptions = Set<AnyCancellable>()
+#if canImport(GroupActivities)
+  @Published var session: Any?
+ 
+ private(set) lazy var messenger: Any? = nil
+  
+  
+  
+  
+  @available(iOS 15, *)
+  var groupSession: GroupSession<FloxBxActivity>? {
+    get {
+      return session as? GroupSession<FloxBxActivity>
+    }
+    set {
+      self.session = newValue
+    }
   }
 
+  @available(iOS 15, *)
+  var groupSessionMessenger: GroupSessionMessenger? {
+    self.messenger as? GroupSessionMessenger
+  }
+  
+  @available(iOS 15, *)
+  func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
+    listDeltas = []
 
-  public let metadata : GroupActivityMetadata
+      self.groupSession = groupSession
 
+      let messenger = GroupSessionMessenger(session: groupSession)
+      self.messenger = messenger
 
+      self.groupSession?.$state
+          .sink(receiveValue: { state in
+              if case .invalidated = state {
+                  self.groupSession = nil
+                  self.reset()
+              }
+          }).store(in: &subscriptions)
 
-   }
+      self.groupSession?.$activeParticipants
+          .sink(receiveValue: { activeParticipants in
+              let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
 
+              Task {
+                  // try? await messenger.send(CanvasMessage(strokes: self.strokes, pointCount: self.pointCount), to: .only(newParticipants))
+                  try? await messenger.send(self.listDeltas, to: .only(newParticipants))
+              }
+          }).store(in: &subscriptions)
+      let task = Task {
+          for await(message, _) in messenger.messages(of: [TodoListDelta].self) {
+            messageSubject.send(message)
+              //handle(message)
+          }
+      }
+      tasks.insert(task)
+
+      groupSession.join()
+  }
+  
+  @available(iOS 15, *)
+  func sessions () -> GroupSession<FloxBxActivity>.Sessions {
+    return FloxBxActivity.sessions()
+  }
+  
+  @available(iOS 15, *)
+  func activity (forGroupSession groupSession: CreateGroupSessionResponseContent, withUserName username: String) async throws -> FloxBxActivity {
+    
+    let activity = FloxBxActivity(id: groupSession.id ,username: username)
+    _ = try await activity.activate()
+    return activity
+  }
+  #endif
+  
+  func reset() {
+    if #available(iOS 15, *) {
+#if canImport(GroupActivities)
+      // Clear local drawing canvas.
+      
+      listDeltas = []
+      
+      // Teardown existing groupSession.
+      messenger = nil
+      tasks.forEach { $0.cancel() }
+      tasks = []
+      subscriptions = []
+      if groupSession != nil {
+        groupSession?.leave()
+        groupSession = nil
+        self.startSharingSubject.send()
+      }
 #endif
+    } else {
+      // Fallback on earlier versions
+    }
+  }
+  @Published var groupSessionID : UUID?
+  
+  var messagePublisher : AnyPublisher<[TodoListDelta], Never> {
+    self.messageSubject.eraseToAnyPublisher()
+  }
+  
+  var startSharingPublisher : AnyPublisher<Void, Never> {
+    self.startSharingSubject.eraseToAnyPublisher()
+  }
+  func send (_ deltas: [TodoListDelta]) {
+#if canImport(GroupActivities)
+            if #available(iOS 15, macOS 12, *) {
+                if let groupSessionMessenger = self.groupSessionMessenger {
+                    Task {
+                        try? await groupSessionMessenger.send(deltas)
+                    }
+                }
+            }
+    #endif
+  }
+  
+  func append(delta: TodoListDelta) {
+    DispatchQueue.main.async {
+      self.listDeltas.append(delta)
+    }
+  }
+  
+  
+  
+  
+  var sessionID: UUID? {
+    self.groupSessionID
+  }
+
+}
+
+
 
 enum TodoListDelta : Codable {
   case upsert(UUID, CreateTodoRequestContent)
@@ -38,36 +160,30 @@ enum TodoListDelta : Codable {
 }
 
 public class ApplicationObject: ObservableObject {
+  @StateObject var shareplayObject = SharePlayObject()
+  
+  var cancellables = [AnyCancellable]()
     
-#if canImport(GroupActivities)
-     @Published var groupSession: GroupSession<FloxBxActivity>?
-    
-    private(set) lazy var messenger: GroupSessionMessenger? = nil
-    
-    
-    var subscriptions = Set<AnyCancellable>()
-    var tasks = Set<Task<Void, Never>>()
     func addDelta(_ delta: TodoListDelta) {
-        DispatchQueue.main.async {
-            self.listDeltas.append(delta)
-        }
+//        DispatchQueue.main.async {
+//            self.listDeltas.append(delta)
+//        }
 
-        if #available(iOS 15, macOS 12, *) {
-            if let messenger = self.messenger {
-                Task {
-                    try? await messenger.send([delta])
-                }
-            }
-        }
+      self.shareplayObject.send([delta])
+//        if #available(iOS 15, macOS 12, *) {
+//            if let messenger = self.messenger {
+//                Task {
+//                    try? await messenger.send([delta])
+//                }
+//            }
+//        }
     }
-    #endif
     
     @Published public var requiresAuthentication: Bool
     @Published var latestError: Error?
     @Published var token: String?
     @Published var username: String?
     @Published var items = [TodoContentItem]()
-    @Published var listDeltas = [TodoListDelta]()
     let service: Service = ServiceImpl(host: ProcessInfo.processInfo.environment["HOST_NAME"]!, headers: ["Content-Type": "application/json; charset=utf-8"])
 
     let sentry = CanaryClient()
@@ -80,33 +196,30 @@ public class ApplicationObject: ObservableObject {
     }()
     
     var groupSessionID : UUID? {
-#if canImport(GroupActivities)
-      if #available(macOS 12, iOS 15, *) {
-          return self.groupSession?.activity.id
-      } else {
-        return nil
-      }
-      #else
-      return nil
-      #endif
+      return self.shareplayObject.sessionID
+//#if canImport(GroupActivities)
+//      if #available(macOS 12, iOS 15, *) {
+//          return self.groupSession?.activity.id
+//      } else {
+//        return nil
+//      }
+//      #else
+//      return nil
+//      #endif
     }
 
     static let encoder = JSONEncoder()
     static let decoder = JSONDecoder()
     //static let server = "floxbx.work"
     public init(_: [TodoContentItem] = []) {
+      //self.shareplayObject = SharePlayObject()
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
       
       
-  #if canImport(GroupActivities)
-      let groupSessionIDPub = self.$groupSession.map{ groupSession -> UUID? in
-        groupSession?.activity.id
-      }
-      #else
-      let groupSessionIDPub = Just<UUID?>(nil)
-      #endif
+      let groupSessionIDPub = self.shareplayObject.$groupSessionID
+      
       $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupSessionID in
         Future { closure in
           self.service.beginRequest(GetTodoListRequest(groupSessionID: groupSessionID)) { result in
@@ -117,8 +230,14 @@ public class ApplicationObject: ObservableObject {
         content.map(TodoContentItem.init)
       }
       .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
-
-      
+      if #available(iOS 15, *) {
+#if canImport(GroupActivities)
+        self.shareplayObject.startSharingPublisher.sink(receiveValue: self.startSharing).store(in: &self.cancellables)
+        self.shareplayObject.messagePublisher.sink(receiveValue: self.handle(_:)).store(in: &self.cancellables)
+#endif
+      } else {
+        // Fallback on earlier versions
+      }
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
@@ -310,7 +429,8 @@ public class ApplicationObject: ObservableObject {
               }
         
               let groupSession = try await self.service.request(CreateGroupSessionRequest())
-              _ = try await FloxBxActivity(id: groupSession.id ,username: username).activate()
+              _ = try await self.shareplayObject.activity(forGroupSession: groupSession, withUserName: username)
+              //
             } catch {
                 print("Failed to activate ShoppingListActivity activity: \(error)")
             }
@@ -321,100 +441,64 @@ public class ApplicationObject: ObservableObject {
     func reset() {
         // Clear local drawing canvas.
 
-        listDeltas = []
+        //listDeltas = []
 
         // Teardown existing groupSession.
-        messenger = nil
-        tasks.forEach { $0.cancel() }
-        tasks = []
-        subscriptions = []
-        if groupSession != nil {
-            groupSession?.leave()
-            groupSession = nil
-            startSharing()
-        }
+//        messenger = nil
+//        tasks.forEach { $0.cancel() }
+//        tasks = []
+//        subscriptions = []
+//        if groupSession != nil {
+//            groupSession?.leave()
+//            groupSession = nil
+//            startSharing()
+//        }
     }
     
     @available(iOS 15,macOS 12, *)
     func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
-        listDeltas = []
+        
 
-        self.groupSession = groupSession
-
-        let messenger = GroupSessionMessenger(session: groupSession)
-        self.messenger = messenger
-
-        self.groupSession?.$state
-            .sink(receiveValue: { state in
-                if case .invalidated = state {
-                    self.groupSession = nil
-                    self.reset()
-                }
-            }).store(in: &subscriptions)
-
-        self.groupSession?.$activeParticipants
-            .sink(receiveValue: { activeParticipants in
-                let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
-
-                Task {
-                    // try? await messenger.send(CanvasMessage(strokes: self.strokes, pointCount: self.pointCount), to: .only(newParticipants))
-                    try? await messenger.send(self.listDeltas, to: .only(newParticipants))
-                }
-            }).store(in: &subscriptions)
-        let task = Task {
-            for await(message, _) in messenger.messages(of: [TodoListDelta].self) {
-                handle(message)
-            }
-        }
-        tasks.insert(task)
-
-        groupSession.join()
+      self.shareplayObject.configureGroupSession(groupSession)
+//        self.groupSession = groupSession
+//
+//        let messenger = GroupSessionMessenger(session: groupSession)
+//        self.messenger = messenger
+//
+//        self.groupSession?.$state
+//            .sink(receiveValue: { state in
+//                if case .invalidated = state {
+//                    self.groupSession = nil
+//                    self.reset()
+//                }
+//            }).store(in: &subscriptions)
+//
+//        self.groupSession?.$activeParticipants
+//            .sink(receiveValue: { activeParticipants in
+//                let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
+//
+//                Task {
+//                    // try? await messenger.send(CanvasMessage(strokes: self.strokes, pointCount: self.pointCount), to: .only(newParticipants))
+//                    try? await messenger.send(self.listDeltas, to: .only(newParticipants))
+//                }
+//            }).store(in: &subscriptions)
+//        let task = Task {
+//            for await(message, _) in messenger.messages(of: [TodoListDelta].self) {
+//                handle(message)
+//            }
+//        }
+//        tasks.insert(task)
+//
+//        groupSession.join()
     }
     func handle(_ deltas: [TodoListDelta]) {
         for delta in deltas {
             handle(delta)
         }
-//        if requireRefresh {
-//            DispatchQueue.main.async {
-//                self.getList()
-//            }
-//        }
     }
 
     func handle(_ delta: TodoListDelta) {
         switch delta {
-//        case .remove(let array):
-//            DispatchQueue.main.async {
-//                self.list.removeAll { item in
-//                    array.contains { id in
-//                        item.item.listItemId == id
-//                    }
-//                }
-//            }
-//        case .insert(let shoppingListItem, let atIndex):
-//            DispatchQueue.main.async {
-//                self.list.insert(.init(id: UUID(), item: shoppingListItem), at: atIndex)
-//            }
-//        case .mark(let shoppingListItemID, let completed):
-//            guard let index = list.firstIndex(where: { $0.item.listItemId == shoppingListItemID }) else {
-//                break
-//            }
-//            DispatchQueue.main.async {
-//                self.list[index].item = ShoppingListItem(basedOn: self.list[index].item, isComplete: completed)
-//            }
-//        case .move(let ids, let beforeId):
-//            let fromOffsets: IndexSet
-//            let toOffset = beforeId.flatMap(index(forID:)) ?? list.endIndex
-//            let fromIndicies = indicies(forIDs: ids)
-//            fromOffsets = .init(fromIndicies)
-//            DispatchQueue.main.async {
-//                self.list.move(fromOffsets: fromOffsets, toOffset: toOffset)
-//            }
-//
-//        case .clear:
-//            DispatchQueue.main.async {
-//                self.list.removeAll()
-//            }
         case let .upsert(id, content):
 
           let index = self.items.firstIndex { item in
@@ -442,9 +526,7 @@ public class ApplicationObject: ObservableObject {
           }
         }
           
-        DispatchQueue.main.async {
-            self.listDeltas.append(delta)
-        }
+      self.shareplayObject.append(delta: delta)
     }
     #endif
   }

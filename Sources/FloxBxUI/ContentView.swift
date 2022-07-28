@@ -1,9 +1,7 @@
 #if canImport(SwiftUI)
   import SwiftUI
+import FloxBxGroupActivities
 
-#if canImport(GroupActivities)
-import GroupActivities
-#endif
 public  struct ContentView: View {
   public init() {
   }
@@ -25,7 +23,9 @@ public  struct ContentView: View {
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
             #if canImport(GroupActivities)
             innerView.task {
-              for await session in FloxBxActivity.sessions() {                
+              
+              
+              for await session in self.object.shareplayObject.sessions() {                
                 self.object.configureGroupSession(session)
               }
             }
