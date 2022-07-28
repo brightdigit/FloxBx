@@ -26,7 +26,7 @@ public  struct ContentView: View {
               
               
               for await session in self.object.shareplayObject.sessions() {                
-                self.object.configureGroupSession(session)
+                self.object.shareplayObject.configureGroupSession(session)
               }
             }
             #else
