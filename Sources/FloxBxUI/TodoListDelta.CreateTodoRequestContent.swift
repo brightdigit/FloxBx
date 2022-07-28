@@ -1,17 +1,9 @@
-//
-//  File.swift
-//  
-//
-//  Created by Leo Dion on 7/28/22.
-//
-
-import Foundation
-import FloxBxModels
 import FloxBxGroupActivities
+import FloxBxModels
+import Foundation
 
 public extension TodoListDelta {
-  static func upsert (_ id: UUID, _ content: CreateTodoRequestContent) -> Self {
-    return .upsert(id, ItemContent(title: content.title))
+  static func upsert(_ id: UUID, _ content: CreateTodoRequestContent) -> Self {
+    .upsert(id, ItemContent(title: content.title))
   }
 }
-

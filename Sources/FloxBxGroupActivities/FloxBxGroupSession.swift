@@ -1,20 +1,27 @@
+////
+////  File.swift
+////
+////
+////  Created by Leo Dion on 7/28/22.
+////
 //
-//  File.swift
-//  
+// import Foundation
 //
-//  Created by Leo Dion on 7/28/22.
-//
-
-import Foundation
-
-
 #if canImport(GroupActivities)
-import GroupActivities
+  import GroupActivities
 #endif
+//
+// public protocol FloxBxGroupSession {
+// #if canImport(GroupActivities)
+//  @available(iOS 15, macOS 12, *)
+//  func getValue () -> GroupSession<FloxBxActivity>
+//  #endif
+// }
 
-public protocol FloxBxGroupSession {
-#if canImport(GroupActivities)
-  @available(iOS 15, macOS 12,  *)
-  func getValue () -> GroupSession<FloxBxActivity>
+public protocol ActivityGroupSessionContainer {
+  #if canImport(GroupActivities)
+
+    @available(iOS 15, macOS 12, *)
+    func getValue<ActivityType: GroupActivity>() -> GroupSession<ActivityType>?
   #endif
 }

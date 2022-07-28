@@ -1,10 +1,3 @@
-//
-//  File.swift
-//  
-//
-//  Created by Leo Dion on 7/26/22.
-//
-
 import Foundation
 
 public enum Configuration {

@@ -33,14 +33,13 @@ let package = Package(
       dependencies: ["FloxBxServerKit"]
     ),
     .target(name: "FloxBxModels",
-           dependencies: ["FloxBxNetworking"]),
+            dependencies: ["FloxBxNetworking"]),
     .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
-    .target(name: "FloxBxUI",dependencies: [
-      
-        "Canary",
+    .target(name: "FloxBxUI", dependencies: [
+      "Canary",
       "FloxBxModels",
       "FloxBxAuth",
-        "FloxBxGroupActivities"
+      "FloxBxGroupActivities"
     ]),
     .target(name: "FloxBxGroupActivities"),
     .target(name: "FloxBxAuth"),

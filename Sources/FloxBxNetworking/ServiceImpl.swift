@@ -1,5 +1,5 @@
-import Foundation
 import FloxBxAuth
+import Foundation
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
@@ -141,7 +141,7 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
   }
 
   var baseURLComponents: URLComponents
-  let credentialsContainer = CredentialsContainer(accessGroup:  "MLT7M394S7.com.brightdigit.FloxBx", serviceName: "floxbx.work")
+  let credentialsContainer = CredentialsContainer(accessGroup: "MLT7M394S7.com.brightdigit.FloxBx", serviceName: "floxbx.work")
   let coder: CoderType
   let session: SessionType
   let builder: RequestBuilderType

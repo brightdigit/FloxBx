@@ -4,7 +4,7 @@ public struct SignInCreateRequest: ClientBodySuccessRequest {
   public init(body: SignInCreateRequest.BodyType) {
     self.body = body
   }
-  
+
   public let body: BodyType
 
   public typealias SuccessType = CreateTokenResponseContent
