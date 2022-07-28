@@ -16,6 +16,7 @@ import GroupActivities
 
 class SharePlayObject : ObservableObject{
   @Published private(set) var listDeltas = [TodoListDelta]()
+  @Published private(set) var groupSessionID : UUID?
   private let startSharingSubject = PassthroughSubject<Void, Never>()
   private let messageSubject = PassthroughSubject<[TodoListDelta], Never>()
   private var tasks = Set<Task<Void, Never>>()
@@ -26,9 +27,18 @@ class SharePlayObject : ObservableObject{
  private(set) lazy var messenger: Any? = nil
   
   
+  public init () {
+    if #available(iOS 15, *) {
+      self.$session.compactMap {
+        $0 as? GroupSession<FloxBxActivity>
+        
+      }.map {
+        $0.activity.id as UUID?
+      }.assign(to: &self.$groupSessionID)
+    }
+  }
   
-  
-  @available(iOS 15, *)
+  @available(macOS 12, iOS 15, *)
   var groupSession: GroupSession<FloxBxActivity>? {
     get {
       return session as? GroupSession<FloxBxActivity>
@@ -38,12 +48,12 @@ class SharePlayObject : ObservableObject{
     }
   }
 
-  @available(iOS 15, *)
+  @available(macOS 12, iOS 15, *)
   var groupSessionMessenger: GroupSessionMessenger? {
     self.messenger as? GroupSessionMessenger
   }
   
-  @available(iOS 15, *)
+  @available(macOS 12, iOS 15, *)
   func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
     listDeltas = []
 
@@ -80,12 +90,12 @@ class SharePlayObject : ObservableObject{
       groupSession.join()
   }
   
-  @available(iOS 15, *)
+  @available(macOS 12, iOS 15, *)
   func sessions () -> GroupSession<FloxBxActivity>.Sessions {
     return FloxBxActivity.sessions()
   }
   
-  @available(iOS 15, *)
+  @available(macOS 12, iOS 15, *)
   func activity (forGroupSession groupSession: CreateGroupSessionResponseContent, withUserName username: String) async throws -> FloxBxActivity {
     
     let activity = FloxBxActivity(id: groupSession.id ,username: username)
@@ -95,7 +105,7 @@ class SharePlayObject : ObservableObject{
   #endif
   
   func reset() {
-    if #available(iOS 15, *) {
+    if #available(macOS 12, iOS 15, *){
 #if canImport(GroupActivities)
       // Clear local drawing canvas.
       
@@ -116,7 +126,6 @@ class SharePlayObject : ObservableObject{
       // Fallback on earlier versions
     }
   }
-  @Published var groupSessionID : UUID?
   
   var messagePublisher : AnyPublisher<[TodoListDelta], Never> {
     self.messageSubject.eraseToAnyPublisher()
@@ -146,9 +155,6 @@ class SharePlayObject : ObservableObject{
   
   
   
-  var sessionID: UUID? {
-    self.groupSessionID
-  }
 
 }
 
@@ -160,7 +166,7 @@ enum TodoListDelta : Codable {
 }
 
 public class ApplicationObject: ObservableObject {
-  @StateObject var shareplayObject = SharePlayObject()
+  @Published var shareplayObject = SharePlayObject()
   
   var cancellables = [AnyCancellable]()
     
@@ -195,18 +201,18 @@ public class ApplicationObject: ObservableObject {
       return components.url!
     }()
     
-    var groupSessionID : UUID? {
-      return self.shareplayObject.sessionID
-//#if canImport(GroupActivities)
-//      if #available(macOS 12, iOS 15, *) {
-//          return self.groupSession?.activity.id
-//      } else {
-//        return nil
-//      }
-//      #else
-//      return nil
-//      #endif
-    }
+//    var groupSessionID : UUID? {
+//      return self.shareplayObject.sessionID
+////#if canImport(GroupActivities)
+////      if #available(macOS 12, iOS 15, *) {
+////          return self.groupSession?.activity.id
+////      } else {
+////        return nil
+////      }
+////      #else
+////      return nil
+////      #endif
+//    }
 
     static let encoder = JSONEncoder()
     static let decoder = JSONDecoder()
@@ -230,7 +236,7 @@ public class ApplicationObject: ObservableObject {
         content.map(TodoContentItem.init)
       }
       .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
-      if #available(iOS 15, *) {
+      if #available(iOS 15, macOS 12, *) {
 #if canImport(GroupActivities)
         self.shareplayObject.startSharingPublisher.sink(receiveValue: self.startSharing).store(in: &self.cancellables)
         self.shareplayObject.messagePublisher.sink(receiveValue: self.handle(_:)).store(in: &self.cancellables)
@@ -250,8 +256,9 @@ public class ApplicationObject: ObservableObject {
         return
       }
 
+      
       let content = CreateTodoRequestContent(title: item.title)
-      let request = UpsertTodoRequest(groupSessionID: self.groupSessionID, itemID: item.serverID, body: content)
+      let request = UpsertTodoRequest(groupSessionID: self.shareplayObject.groupSessionID, itemID: item.serverID, body: content)
 
 
       
@@ -322,7 +329,7 @@ public class ApplicationObject: ObservableObject {
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
       for (index, id) in deletedIds.enumerated() {
         group.enter()
-        let request = DeleteTodoItemRequest(groupSessionID: self.groupSessionID, itemID: id)
+        let request = DeleteTodoItemRequest(groupSessionID: self.shareplayObject.groupSessionID, itemID: id)
         service.beginRequest(request) { error in
           errors[index] = error
           group.leave()
