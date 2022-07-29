@@ -13,7 +13,7 @@ public struct URLSessionResponse: SessionResponse {
     self.data = data
   }
 
-  var statusCode: Int {
+  public var statusCode: Int {
     httpURLResponse.statusCode
   }
 

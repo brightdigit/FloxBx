@@ -29,7 +29,6 @@ public struct KeychainContainer: CredentialsContainer {
                                   kSecAttrService as String: serviceName,
                                   kSecAttrAccessGroup as String: accessGroup]
 
-      // on success
       let status = SecItemAdd(query as CFDictionary, nil)
       guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
     } else {

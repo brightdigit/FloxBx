@@ -66,14 +66,12 @@ public class SharePlayObject<DeltaType: Codable>: ObservableObject {
           let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
 
           Task {
-            // try? await messenger.send(CanvasMessage(strokes: self.strokes, pointCount: self.pointCount), to: .only(newParticipants))
             try? await messenger.send(self.listDeltas, to: .only(newParticipants))
           }
         }).store(in: &subscriptions)
       let task = Task {
         for await(message, _) in messenger.messages(of: [DeltaType].self) {
           messageSubject.send(message)
-          // handle(message)
         }
       }
       tasks.insert(task)
@@ -112,11 +110,7 @@ public class SharePlayObject<DeltaType: Codable>: ObservableObject {
   func reset() {
     if #available(macOS 12, iOS 15, *) {
       #if canImport(GroupActivities)
-        // Clear local drawing canvas.
-
         listDeltas = []
-
-        // Teardown existing groupSession.
         messenger = nil
         tasks.forEach { $0.cancel() }
         tasks = []
