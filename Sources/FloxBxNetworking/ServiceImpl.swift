@@ -166,11 +166,13 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
   }
 }
 
-public extension ServiceImpl {
-  convenience init(host: String, accessGroup: String, serviceName: String, coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()), session: URLSession = .shared, headers: [String: String]) where RequestBuilderType == URLRequestBuilder, SessionType == URLSession, CoderType == JSONCoder {
-    var baseURLComponents = URLComponents()
-    baseURLComponents.host = host
-    baseURLComponents.scheme = "https"
-    self.init(baseURLComponents: baseURLComponents, coder: coder, session: session, builder: .init(), credentialsContainer: KeychainContainer(accessGroup: accessGroup, serviceName: serviceName), headers: headers)
+#if canImport(Security)
+  public extension ServiceImpl {
+    convenience init(host: String, accessGroup: String, serviceName: String, coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()), session: URLSession = .shared, headers: [String: String]) where RequestBuilderType == URLRequestBuilder, SessionType == URLSession, CoderType == JSONCoder {
+      var baseURLComponents = URLComponents()
+      baseURLComponents.host = host
+      baseURLComponents.scheme = "https"
+      self.init(baseURLComponents: baseURLComponents, coder: coder, session: session, builder: .init(), credentialsContainer: KeychainContainer(accessGroup: accessGroup, serviceName: serviceName), headers: headers)
+    }
   }
-}
+#endif

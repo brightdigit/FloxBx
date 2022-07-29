@@ -1,10 +1,10 @@
+import Canary
 import FloxBxAuth
 import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
 
 #if canImport(Combine) && canImport(SwiftUI)
-  import Canary
   import Combine
   import SwiftUI
 

@@ -1,7 +1,8 @@
 import FloxBxGroupActivities
 import FloxBxModels
 import Foundation
-#if canImport(GroupActivities)
+
+#if canImport(GroupActivities) && canImport(Combine) && canImport(SwiftUI)
   import GroupActivities
 
   extension ApplicationObject {
