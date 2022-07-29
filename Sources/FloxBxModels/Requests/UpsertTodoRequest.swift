@@ -20,7 +20,7 @@ public struct UpsertTodoRequest: ClientBodySuccessRequest {
     true
   }
 
-  public static let basePath = "api/v1/todos"
+//  public static let basePath = "api/v1/todos"
   public var path: String {
     var path = "api/v1/"
     if let groupSessionID = groupSessionID {

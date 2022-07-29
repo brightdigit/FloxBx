@@ -13,13 +13,13 @@ public struct URLSessionResponse: SessionResponse {
     self.data = data
   }
 
-  public var statusCode: Int {
+  var statusCode: Int {
     httpURLResponse.statusCode
   }
 
   public typealias DataType = Data
 
-  public let httpURLResponse: HTTPURLResponse
+  let httpURLResponse: HTTPURLResponse
 
   public let data: Data?
 }

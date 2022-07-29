@@ -1,13 +1,13 @@
 public extension Result {
-  init(success: Success?, failure: Failure?, otherwise: @autoclosure () -> Failure) {
-    if let failure = failure {
-      self = .failure(failure)
-    } else if let success = success {
-      self = .success(success)
-    } else {
-      self = .failure(otherwise())
-    }
-  }
+//  init(success: Success?, failure: Failure?, otherwise: @autoclosure () -> Failure) {
+//    if let failure = failure {
+//      self = .failure(failure)
+//    } else if let success = success {
+//      self = .success(success)
+//    } else {
+//      self = .failure(otherwise())
+//    }
+//  }
 
   func tryMap<NewSuccess>(_ transform: @escaping (Success) throws -> (NewSuccess)) -> Result<NewSuccess, Error> {
     let oldValue: Success
