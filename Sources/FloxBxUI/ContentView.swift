@@ -2,8 +2,8 @@
   import FloxBxGroupActivities
   import SwiftUI
 
-  public struct ContentView: View {
-    public init() {}
+  struct ContentView: View {
+    init() {}
 
     @EnvironmentObject var object: ApplicationObject
 
@@ -16,7 +16,7 @@
       #endif
     }
 
-    public var body: some View {
+    var body: some View {
       TabView {
         NavigationView {
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {

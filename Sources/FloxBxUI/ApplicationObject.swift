@@ -8,7 +8,7 @@ import FloxBxNetworking
   import Combine
   import SwiftUI
 
-  public class ApplicationObject: ObservableObject {
+  class ApplicationObject: ObservableObject {
     @Published var shareplayObject = SharePlayObject<TodoListDelta>()
 
     var cancellables = [AnyCancellable]()
@@ -17,7 +17,7 @@ import FloxBxNetworking
       shareplayObject.send([delta])
     }
 
-    @Published public var requiresAuthentication: Bool
+    @Published var requiresAuthentication: Bool
     @Published var latestError: Error?
     @Published var token: String?
     @Published var username: String?
@@ -32,14 +32,7 @@ import FloxBxNetworking
 
     let sentry = CanaryClient()
 
-    static let baseURL: URL = {
-      var components = URLComponents()
-      components.host = ProcessInfo.processInfo.environment["HOST_NAME"]
-      components.scheme = "https"
-      return components.url!
-    }()
-
-    public init(_ items: [TodoContentItem] = []) {
+    init(_ items: [TodoContentItem] = []) {
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
@@ -68,7 +61,7 @@ import FloxBxNetworking
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
-    public func begin() {
+    func begin() {
       let credentials: Credentials?
       let error: Error?
 
@@ -91,7 +84,7 @@ import FloxBxNetworking
       }
     }
 
-    public func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
+    func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
       guard let index = items.firstIndex(where: { $0.id == item.id }) else {
         return
       }
@@ -122,7 +115,7 @@ import FloxBxNetworking
       }
     }
 
-    public func beginDeleteItems(atIndexSet indexSet: IndexSet, _ completed: @escaping (Error?) -> Void) {
+    func beginDeleteItems(atIndexSet indexSet: IndexSet, _ completed: @escaping (Error?) -> Void) {
       let savedIndexSet = indexSet.filteredIndexSet(includeInteger: { items[$0].isSaved })
 
       let deletedIds = Set(savedIndexSet.compactMap {
@@ -154,14 +147,14 @@ import FloxBxNetworking
       }
     }
 
-    public func deleteItems(atIndexSet indexSet: IndexSet) {
+    func deleteItems(atIndexSet indexSet: IndexSet) {
       beginDeleteItems(atIndexSet: indexSet) { error in
         self.items.remove(atOffsets: indexSet)
         self.latestError = error
       }
     }
 
-    public func beginSignup(withCredentials credentials: Credentials) {
+    func beginSignup(withCredentials credentials: Credentials) {
       service.beginRequest(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
         let newCredentialsResult = result.map { content in
           credentials.withToken(content.token)
@@ -190,7 +183,7 @@ import FloxBxNetworking
       }
     }
 
-    public func beginSignIn(withCredentials credentials: Credentials) {
+    func beginSignIn(withCredentials credentials: Credentials) {
       let createToken = credentials.token == nil
       if createToken {
         service.beginRequest(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
