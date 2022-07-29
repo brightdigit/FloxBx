@@ -23,7 +23,12 @@ import FloxBxNetworking
     @Published var username: String?
     @Published var items = [TodoContentItem]()
 
-    let service: Service = ServiceImpl(host: ProcessInfo.processInfo.environment["HOST_NAME"]!, headers: ["Content-Type": "application/json; charset=utf-8"])
+    let service: Service = ServiceImpl(
+      host: ProcessInfo.processInfo.environment["HOST_NAME"]!,
+      accessGroup: Configuration.accessGroup,
+      serviceName: Configuration.serviceName,
+      headers: ["Content-Type": "application/json; charset=utf-8"]
+    )
 
     let sentry = CanaryClient()
 

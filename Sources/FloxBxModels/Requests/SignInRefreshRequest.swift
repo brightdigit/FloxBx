@@ -5,7 +5,7 @@ public struct SignInRefreshRequest: ClientSuccessRequest {
 
   public typealias SuccessType = CreateTokenResponseContent
 
-  public static let requiresCredentials: Bool = true
+  public static let requiresCredentials = true
 
   public let path: String = "api/v1/tokens"
 

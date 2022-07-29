@@ -11,7 +11,7 @@ public struct SignInCreateRequest: ClientBodySuccessRequest {
 
   public typealias BodyType = CreateTokenRequestContent
 
-  public static let requiresCredentials: Bool = false
+  public static let requiresCredentials = false
 
   public let path: String = "api/v1/tokens"
 
