@@ -2,6 +2,7 @@
 import Foundation
 import XCTest
 import XCTVapor
+import FloxBxModels
 
 final class AppTests: XCTestCase {
   func testHelloWorld() throws {
