@@ -116,11 +116,9 @@ public struct FloxBxActivityIdentifiableContainer : Identifiable {
             $0.activity.id as UUID?
           }.assign(to: &self.$groupSessionID)
           
-          let activityPublisher = self.activityConfigurationSubject.map(
+          self.activityConfigurationSubject.map(
             FloxBxActivity.init(configuration:)
-          )
-            
-          activityPublisher.map { activity in
+          ).map { activity in
             Future { () -> Result<FloxBxActivity, Error> in
               print("activating ", activity.id)
               do {
