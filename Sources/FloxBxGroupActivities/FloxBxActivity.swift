@@ -4,7 +4,7 @@ import Foundation
   import GroupActivities
 
   @available(iOS 15, macOS 12, *)
-  public struct FloxBxActivity: GroupActivity {
+  public struct FloxBxActivity: GroupActivity, Identifiable {
     public let id: UUID
     public init(id: UUID, username: String) {
       self.id = id
@@ -16,5 +16,12 @@ import Foundation
 
     public let metadata: GroupActivityMetadata
   }
+
+@available(iOS 15, macOS 12, *)
+extension FloxBxActivity {
+  init(configuration: GroupActivityConfiguration) {
+    self.init(id: configuration.groupSessionID, username: configuration.username)
+  }
+}
 
 #endif

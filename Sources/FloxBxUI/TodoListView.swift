@@ -17,7 +17,8 @@
             Button {
               #if canImport(GroupActivities)
                 if #available(iOS 15, macOS 12, *) {
-                  object.startSharing()
+                  
+                  object.requestSharing()
                 } else {
                   // Fallback on earlier versions
                 }

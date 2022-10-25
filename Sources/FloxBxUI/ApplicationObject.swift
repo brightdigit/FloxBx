@@ -52,7 +52,7 @@ import FloxBxNetworking
 
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
-          self.shareplayObject.startSharingPublisher.sink(receiveValue: self.startSharing).store(in: &self.cancellables)
+        self.shareplayObject.startSharingPublisher.sink(receiveValue: self.requestSharing).store(in: &self.cancellables)
           self.shareplayObject.messagePublisher.sink(receiveValue: self.handle(_:)).store(in: &self.cancellables)
         #endif
       }

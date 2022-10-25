@@ -11,25 +11,26 @@ import UIKit
 import GroupActivities
 
 @available(iOS 15.4, *)
-struct GroupActivitySharingView<ActivityType : GroupActivity> : UIViewControllerRepresentable {
-  internal init(activity: ActivityType) throws {
-    self.controller = try GroupActivitySharingController(activity)
+public struct GroupActivitySharingView<ActivityType : GroupActivity> : UIViewControllerRepresentable {
+  public init(activity: ActivityType) {
+    print("viewing ", activity)
+    self.controller = try! GroupActivitySharingController(activity)
   }
   
   let controller : GroupActivitySharingController
   
   
-  func makeUIViewController(context: Context) -> GroupActivitySharingController {
+  public func makeUIViewController(context: Context) -> GroupActivitySharingController {
     return controller
     
     
   }
   
-  func updateUIViewController(_ uiViewController: GroupActivitySharingController, context: Context) {
+  public func updateUIViewController(_ uiViewController: GroupActivitySharingController, context: Context) {
     
   }
   
-  typealias UIViewControllerType = GroupActivitySharingController
+  public typealias UIViewControllerType = GroupActivitySharingController
   
   
 }

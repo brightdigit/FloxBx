@@ -6,7 +6,9 @@
     init() {}
 
     @EnvironmentObject var object: ApplicationObject
-
+    #if canImport(GroupActivities)
+    @State var activity: FloxBxActivityIdentifiableContainer?
+    #endif
     var innerView: some View {
       let view = TodoListView()
       #if os(macOS)
@@ -16,19 +18,19 @@
       #endif
     }
 
-    var body: some View {
-      TabView {
+    var mainView : some View {
+      return TabView {
         NavigationView {
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
-            #if canImport(GroupActivities)
-              innerView.task {
-                for await session in self.object.shareplayObject.sessions() {
-                  self.object.shareplayObject.configureGroupSession(session)
-                }
+#if canImport(GroupActivities)
+            innerView.task {
+              for await session in self.object.shareplayObject.sessions() {
+                self.object.shareplayObject.configureGroupSession(session)
               }
-            #else
-              innerView
-            #endif
+            }
+#else
+            innerView
+#endif
           } else {
             innerView
           }
@@ -36,9 +38,31 @@
       }
       .sheet(isPresented: self.$object.requiresAuthentication, content: {
         LoginView()
-      }).onAppear(perform: {
-        self.object.begin()
       })
+    }
+    
+    var body: some View {
+      if #available(iOS 15.4, *) {
+#if canImport(GroupActivities)
+        mainView.sheet(item: self.$activity) { activity in
+          GroupActivitySharingView(activity: activity.groupActivity)
+        }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
+          self.activity = activity
+        })
+        .onAppear(perform: {
+          self.object.begin()
+        })
+        
+#else
+        mainView.onAppear(perform: {
+          self.object.begin()
+        })
+#endif
+      } else {
+        mainView.onAppear(perform: {
+          self.object.begin()
+        })
+      }
     }
   }
 
