@@ -4,6 +4,7 @@
 //
 //  Created by Leo Dion on 10/24/22.
 //
+#if canImport(SwiftUI) && canImport(UIKit) && canImport(GroupActivities)
 
 import SwiftUI
 import UIKit
@@ -32,3 +33,4 @@ struct GroupActivitySharingView<ActivityType : GroupActivity> : UIViewController
   
   
 }
+#endif
