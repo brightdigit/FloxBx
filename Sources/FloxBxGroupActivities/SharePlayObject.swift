@@ -51,33 +51,23 @@ extension Future where Failure == Never {
   #if canImport(GroupActivities)
     import GroupActivities
 
-public struct FloxBxActivityIdentifiableContainer : Identifiable {
-  public var id: UUID {
-    if #available(iOS 15, *) {
-      guard let actvitiy = activity as? FloxBxActivity else {
-        preconditionFailure()
-      }
-      return actvitiy.id
-    } else {
-      preconditionFailure()
-      // Fallback on earlier versions
-    }
-  }
+public struct ActivityIdentifiableContainer<IDType : Hashable> : Identifiable {
+  public let id: IDType
   
   let activity : Any
   
   @available(iOS 15, *)
-  public var groupActivity : FloxBxActivity {
-    
-      guard let actvitiy = activity as? FloxBxActivity else {
-        preconditionFailure()
-      }
+  public func getGroupActivity<GroupActivityType> () -> GroupActivityType where GroupActivityType : GroupActivity {
+    guard let actvitiy = activity as? GroupActivityType else {
+      preconditionFailure()
+    }
     return actvitiy
   }
   
   @available(iOS 15, *)
-  init(activity: FloxBxActivity) {
+  init<GroupActivityType : Identifiable & GroupActivity>(activity: GroupActivityType) where GroupActivityType : GroupActivity, GroupActivityType.ID == IDType {
     self.activity = activity
+    self.id = activity.id
   }
 }
 
@@ -133,7 +123,7 @@ public struct FloxBxActivityIdentifiableContainer : Identifiable {
               print("resulting ", $0)
               return try? $0.get()
             }
-            .map(FloxBxActivityIdentifiableContainer.init(activity:))
+            .map(ActivityIdentifiableContainer.init(activity:))
             .receive(on: DispatchQueue.main)
             .assign(to: &self.$activity)
           
@@ -143,7 +133,7 @@ public struct FloxBxActivityIdentifiableContainer : Identifiable {
 
     #if canImport(GroupActivities)
       @Published var session: Any?
-      @Published public var activity: FloxBxActivityIdentifiableContainer?
+      @Published public var activity: ActivityIdentifiableContainer<UUID>?
 
       private(set) lazy var messenger: Any? = nil
 
@@ -197,10 +187,10 @@ public struct FloxBxActivityIdentifiableContainer : Identifiable {
     @available(macOS 12, iOS 15, *)
     var groupActivity: FloxBxActivity? {
       get {
-        return self.activity?.groupActivity
+        return self.activity?.getGroupActivity()
       }
       set {
-        activity = newValue.map(FloxBxActivityIdentifiableContainer.init(activity:))
+        activity = newValue.map(ActivityIdentifiableContainer.init(activity:))
       }
     }
 

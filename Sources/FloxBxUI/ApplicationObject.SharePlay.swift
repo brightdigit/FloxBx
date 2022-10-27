@@ -9,6 +9,7 @@ import Foundation
     @available(iOS 15, macOS 12, *)
     func requestSharing() {
       Task {
+        
         do {
           guard let username = username else {
             return

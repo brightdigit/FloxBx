@@ -7,7 +7,7 @@
 
     @EnvironmentObject var object: ApplicationObject
     #if canImport(GroupActivities)
-    @State var activity: FloxBxActivityIdentifiableContainer?
+    @State var activity: ActivityIdentifiableContainer<UUID>?
     #endif
     var innerView: some View {
       let view = TodoListView()
@@ -45,7 +45,7 @@
       if #available(iOS 15.4, *) {
 #if canImport(GroupActivities)
         mainView.sheet(item: self.$activity) { activity in
-          GroupActivitySharingView(activity: activity.groupActivity)
+          GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
         }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
           self.activity = activity
         })
