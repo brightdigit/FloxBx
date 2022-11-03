@@ -20,7 +20,7 @@ import Foundation
   @available(iOS 15, macOS 12, *)
   extension FloxBxActivity {
     init(configuration: GroupActivityConfiguration) {
-      self.init(id: configuration.groupSessionID, username: configuration.username)
+      self.init(id: configuration.groupActivityID, username: configuration.username)
     }
   }
 

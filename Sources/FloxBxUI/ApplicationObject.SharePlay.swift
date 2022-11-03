@@ -15,7 +15,7 @@ import Foundation
           }
 
           let groupSession = try await self.service.request(CreateGroupSessionRequest())
-          self.shareplayObject.beginRequest(forConfiguration: .init(groupSessionID: groupSession.id, username: username))
+          self.shareplayObject.beginRequest(forConfiguration: .init(groupActivityID: groupSession.id, username: username))
           //
         } catch {
           print("Failed to activate ShoppingListActivity activity: \(error)")

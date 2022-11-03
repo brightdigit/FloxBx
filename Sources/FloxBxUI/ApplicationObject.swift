@@ -37,13 +37,11 @@ import FloxBxNetworking
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
 
-      let groupSessionIDPub = shareplayObject.$activity.compactMap {
-        $0?.id
-      }
+      let groupSessionIDPub = shareplayObject.$groupActivityID
 
-      $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupSessionID in
+      $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupActivityID in
         Future { closure in
-          self.service.beginRequest(GetTodoListRequest(groupSessionID: groupSessionID)) { result in
+          self.service.beginRequest(GetTodoListRequest(groupActivityID: groupActivityID)) { result in
             closure(result)
           }
         }
@@ -95,7 +93,7 @@ import FloxBxNetworking
       }
 
       let content = CreateTodoRequestContent(title: item.title)
-      let request = UpsertTodoRequest(groupSessionID: shareplayObject.activity?.id, itemID: item.serverID, body: content)
+      let request = UpsertTodoRequest(groupActivityID: shareplayObject.groupActivityID, itemID: item.serverID, body: content)
 
       service.beginRequest(request) { todoItemResult in
         switch todoItemResult {
@@ -137,7 +135,7 @@ import FloxBxNetworking
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
       for (index, id) in deletedIds.enumerated() {
         group.enter()
-        let request = DeleteTodoItemRequest(groupSessionID: shareplayObject.activity?.id, itemID: id)
+        let request = DeleteTodoItemRequest(groupActivityID: shareplayObject.groupActivityID, itemID: id)
         service.beginRequest(request) { error in
           errors[index] = error
           group.leave()
@@ -177,10 +175,28 @@ import FloxBxNetworking
     }
 
     fileprivate func saveCredentials(_ newCreds: Credentials) {
-      try? service.save(credentials: newCreds)
+      do {
+        try service.save(credentials: newCreds)
+      } catch {
+        latestError = error
+        return
+      }
       DispatchQueue.main.async {
         self.username = newCreds.username
         self.token = newCreds.token
+      }
+    }
+
+    func logout() {
+      do {
+        try service.clearCredentials()
+      } catch {
+        latestError = error
+        return
+      }
+      DispatchQueue.main.async {
+        self.username = nil
+        self.token = nil
       }
     }
 

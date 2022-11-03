@@ -7,7 +7,7 @@ import Foundation
 
 public class SharePlayObject<DeltaType: Codable>: ObservableObject {
   @Published internal private(set) var listDeltas = [DeltaType]()
-  // @Published internal private(set) var groupSessionID: UUID?
+  @Published public private(set) var groupActivityID: UUID?
   @Published public private(set) var activity: ActivityIdentifiableContainer<UUID>?
   private let sharingRequestSubject = PassthroughSubject<GroupActivityConfiguration, Never>()
   private let startSharingSubject = PassthroughSubject<Void, Never>()
@@ -17,27 +17,10 @@ public class SharePlayObject<DeltaType: Codable>: ObservableObject {
   private var subscriptions = Set<AnyCancellable>()
   private var cancellable: AnyCancellable?
 
-  func configureGroupSession(_ groupSessionWrapped: ActivityGroupSessionContainer) {
-    if #available(iOS 15, macOS 12, *) {
-      #if canImport(GroupActivities)
-        let groupSession: GroupSession<FloxBxActivity> = groupSessionWrapped.getValue()
-        self.configureGroupSession(groupSession)
-      #else
-        return
-      #endif
-    } else {
-      return
-    }
-  }
-
   public init() {
     #if canImport(GroupActivities)
       if #available(iOS 15, macOS 12, *) {
-//                self.$session.compactMap {
-//                    $0 as? GroupSession<FloxBxActivity>
-//                }.map {
-//                    $0.activity.id as UUID?
-//                }.assign(to: &self.$groupSessionID)
+        self.$session.map { $0?.activityID }.assign(to: &self.$groupActivityID)
 
         self.cancellable = self.sharingRequestSubject.subscribe(self.activityPreparationSubject)
 
@@ -72,7 +55,7 @@ public class SharePlayObject<DeltaType: Codable>: ObservableObject {
   }
 
   #if canImport(GroupActivities)
-    @Published var session: Any?
+    @Published var session: GroupSessionContainer<UUID>?
     @Published var groupState = GroupStateContainer()
 
     private(set) lazy var messenger: Any? = nil
@@ -117,10 +100,12 @@ public class SharePlayObject<DeltaType: Codable>: ObservableObject {
     @available(macOS 12, iOS 15, *)
     var groupSession: GroupSession<FloxBxActivity>? {
       get {
-        session as? GroupSession<FloxBxActivity>
+        session?.getGroupSession()
       }
       set {
-        session = newValue
+        session = newValue.map {
+          GroupSessionContainer(groupSession: $0)
+        }
       }
     }
 

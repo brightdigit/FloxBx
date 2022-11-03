@@ -15,6 +15,12 @@
         ToolbarItemGroup {
           HStack {
             Button {
+              self.object.logout()
+            } label: {
+              Image(systemName: "person.crop.circle.fill.badge.xmark")
+            }
+
+            Button {
               #if canImport(GroupActivities)
                 if #available(iOS 15, macOS 12, *) {
                   object.requestSharing()

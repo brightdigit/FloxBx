@@ -161,6 +161,10 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
     try credentialsContainer.save(credentials: credentials)
   }
 
+  public func clearCredentials() throws -> CredentialsClearResult {
+    try credentialsContainer.clear()
+  }
+
   public func fetchCredentials() throws -> Credentials? {
     try credentialsContainer.fetch()
   }
