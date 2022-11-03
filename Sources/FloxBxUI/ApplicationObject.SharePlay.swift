@@ -9,14 +9,13 @@ import Foundation
     @available(iOS 15, macOS 12, *)
     func requestSharing() {
       Task {
-        
         do {
           guard let username = username else {
             return
           }
 
           let groupSession = try await self.service.request(CreateGroupSessionRequest())
-          self.shareplayObject.beginPreparingActivity(forConfiguration: .init(groupSessionID: groupSession.id, username: username))
+          self.shareplayObject.beginRequest(forConfiguration: .init(groupSessionID: groupSession.id, username: username))
           //
         } catch {
           print("Failed to activate ShoppingListActivity activity: \(error)")

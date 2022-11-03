@@ -37,7 +37,9 @@ import FloxBxNetworking
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
 
-      let groupSessionIDPub = shareplayObject.$groupSessionID
+      let groupSessionIDPub = shareplayObject.$activity.compactMap {
+        $0?.id
+      }
 
       $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupSessionID in
         Future { closure in
@@ -52,7 +54,6 @@ import FloxBxNetworking
 
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
-        self.shareplayObject.startSharingPublisher.sink(receiveValue: self.requestSharing).store(in: &self.cancellables)
           self.shareplayObject.messagePublisher.sink(receiveValue: self.handle(_:)).store(in: &self.cancellables)
         #endif
       }
@@ -94,7 +95,7 @@ import FloxBxNetworking
       }
 
       let content = CreateTodoRequestContent(title: item.title)
-      let request = UpsertTodoRequest(groupSessionID: shareplayObject.groupSessionID, itemID: item.serverID, body: content)
+      let request = UpsertTodoRequest(groupSessionID: shareplayObject.activity?.id, itemID: item.serverID, body: content)
 
       service.beginRequest(request) { todoItemResult in
         switch todoItemResult {
@@ -136,7 +137,7 @@ import FloxBxNetworking
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
       for (index, id) in deletedIds.enumerated() {
         group.enter()
-        let request = DeleteTodoItemRequest(groupSessionID: shareplayObject.groupSessionID, itemID: id)
+        let request = DeleteTodoItemRequest(groupSessionID: shareplayObject.activity?.id, itemID: id)
         service.beginRequest(request) { error in
           errors[index] = error
           group.leave()

@@ -1,260 +1,191 @@
-public enum GroupActivitiesError : Error {
-  case invalidActivity(Any)
-}
+import Combine
+import Foundation
 
-public struct GroupActivityConfiguration {
-  public init(groupSessionID: UUID, username: String) {
-    self.groupSessionID = groupSessionID
-    self.username = username
+#if canImport(GroupActivities)
+  import GroupActivities
+#endif
+
+public class SharePlayObject<DeltaType: Codable>: ObservableObject {
+  @Published internal private(set) var listDeltas = [DeltaType]()
+  // @Published internal private(set) var groupSessionID: UUID?
+  @Published public private(set) var activity: ActivityIdentifiableContainer<UUID>?
+  private let sharingRequestSubject = PassthroughSubject<GroupActivityConfiguration, Never>()
+  private let startSharingSubject = PassthroughSubject<Void, Never>()
+  private let activityPreparationSubject = PassthroughSubject<GroupActivityConfiguration, Never>()
+  private let messageSubject = PassthroughSubject<[DeltaType], Never>()
+  private var tasks = Set<Task<Void, Never>>()
+  private var subscriptions = Set<AnyCancellable>()
+  private var cancellable: AnyCancellable?
+
+  func configureGroupSession(_ groupSessionWrapped: ActivityGroupSessionContainer) {
+    if #available(iOS 15, macOS 12, *) {
+      #if canImport(GroupActivities)
+        let groupSession: GroupSession<FloxBxActivity> = groupSessionWrapped.getValue()
+        self.configureGroupSession(groupSession)
+      #else
+        return
+      #endif
+    } else {
+      return
+    }
   }
-  
- let groupSessionID: UUID
-  let username: String
-}
 
-public enum ActivationResult {
+  public init() {
+    #if canImport(GroupActivities)
+      if #available(iOS 15, macOS 12, *) {
+//                self.$session.compactMap {
+//                    $0 as? GroupSession<FloxBxActivity>
+//                }.map {
+//                    $0.activity.id as UUID?
+//                }.assign(to: &self.$groupSessionID)
 
-    case activationPreferred
-    case activationDisabled
-    case cancelled
+        self.cancellable = self.sharingRequestSubject.subscribe(self.activityPreparationSubject)
 
-}
-
-
-extension Future where Failure == Error {
-    convenience init(_ asyncFunc: @escaping () async throws -> Output) {
-        self.init { promise in
-            Task {
-                do {
-                    let result = try await asyncFunc()
-                    promise(.success(result))
-                } catch {
-                    promise(.failure(error))
-                }
+        self.activityPreparationSubject.map {
+          FloxBxActivity(configuration: $0)
+        }.map { activity in
+          Future { () -> Result<FloxBxActivity, Error> in
+            do {
+              _ = try await activity.activate()
+            } catch {
+              return .failure(error)
             }
-        }
-    }
-}
-extension Future where Failure == Never {
-    convenience init(_ asyncFunc: @escaping () async -> Output) {
-        self.init { promise in
-            Task {
-              promise(.success(await asyncFunc()))
-            }
-        }
-    }
-}
-#if canImport(Combine)
-  import Combine
-  import Foundation
+            return .success(activity)
+          }
+        }.switchToLatest()
+          .compactMap {
+            self.isEligible ? nil : try? $0.get()
+          }
+          .map(ActivityIdentifiableContainer.init(activity:))
+          .receive(on: DispatchQueue.main)
+          .assign(to: &self.$activity)
+      }
+    #endif
+  }
+
+  var isEligible: Bool {
+    #if canImport(GroupActivities)
+      return groupState.isEligible
+    #else
+      return false
+    #endif
+  }
 
   #if canImport(GroupActivities)
-    import GroupActivities
+    @Published var session: Any?
+    @Published var groupState = GroupStateContainer()
 
-public struct ActivityIdentifiableContainer<IDType : Hashable> : Identifiable {
-  public let id: IDType
-  
-  let activity : Any
-  
-  @available(iOS 15, *)
-  public func getGroupActivity<GroupActivityType> () -> GroupActivityType where GroupActivityType : GroupActivity {
-    guard let actvitiy = activity as? GroupActivityType else {
-      preconditionFailure()
-    }
-    return actvitiy
-  }
-  
-  @available(iOS 15, *)
-  init<GroupActivityType : Identifiable & GroupActivity>(activity: GroupActivityType) where GroupActivityType : GroupActivity, GroupActivityType.ID == IDType {
-    self.activity = activity
-    self.id = activity.id
-  }
-}
+    private(set) lazy var messenger: Any? = nil
 
-  #endif
+    @available(iOS 15, macOS 12, *)
+    public func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
+      listDeltas = []
 
-  public class SharePlayObject<DeltaType: Codable>: ObservableObject {
-    @Published public private(set) var listDeltas = [DeltaType]()
-    @Published public private(set) var groupSessionID: UUID?
-    
-    private let startSharingSubject = PassthroughSubject<Void, Never>()
-    private let activityConfigurationSubject = PassthroughSubject<GroupActivityConfiguration, Never>()
-    private let messageSubject = PassthroughSubject<[DeltaType], Never>()
-    private var tasks = Set<Task<Void, Never>>()
-    private var subscriptions = Set<AnyCancellable>()
+      self.groupSession = groupSession
 
-    public func configureGroupSession(_ groupSessionWrapped: ActivityGroupSessionContainer) {
-      if #available(iOS 15, macOS 12, *) {
-        #if canImport(GroupActivities)
-          if let groupSession = groupSessionWrapped.getValue() as? GroupSession<FloxBxActivity> {
-            self.configureGroupSession(groupSession)
+      let messenger = GroupSessionMessenger(session: groupSession)
+      self.messenger = messenger
+
+      self.groupSession?.$state
+        .sink(receiveValue: { state in
+          if case .invalidated = state {
+            self.groupSession = nil
+            self.reset()
           }
-        #else
-          return
-        #endif
-      } else {
-        return
-      }
-    }
+        }).store(in: &subscriptions)
 
-    public init() {
-      #if canImport(GroupActivities)
-        if #available(iOS 15, macOS 12, *) {
-          self.$session.compactMap {
-            $0 as? GroupSession<FloxBxActivity>
-          }.map {
-            $0.activity.id as UUID?
-          }.assign(to: &self.$groupSessionID)
-          
-          self.activityConfigurationSubject.map(
-            FloxBxActivity.init(configuration:)
-          ).map { activity in
-            Future { () -> Result<FloxBxActivity, Error> in
-              print("activating ", activity.id)
-              do {
-                try await activity.activate()
-              } catch {
-                return .failure(error)
-              }
-              return .success(activity)
-            }
-          }.switchToLatest()
-            .compactMap{
-              print("resulting ", $0)
-              return try? $0.get()
-            }
-            .map(ActivityIdentifiableContainer.init(activity:))
-            .receive(on: DispatchQueue.main)
-            .assign(to: &self.$activity)
-          
-        }
-      #endif
-    }
+      self.groupSession?.$activeParticipants
+        .sink(receiveValue: { activeParticipants in
+          let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
 
-    #if canImport(GroupActivities)
-      @Published var session: Any?
-      @Published public var activity: ActivityIdentifiableContainer<UUID>?
-
-      private(set) lazy var messenger: Any? = nil
-
-      @available(iOS 15, macOS 12, *)
-      private func configureGroupSession(_ groupSession: GroupSession<FloxBxActivity>) {
-        listDeltas = []
-
-        self.groupSession = groupSession
-
-        let messenger = GroupSessionMessenger(session: groupSession)
-        self.messenger = messenger
-
-        self.groupSession?.$state
-          .sink(receiveValue: { state in
-            if case .invalidated = state {
-              self.groupSession = nil
-              self.reset()
-            }
-          }).store(in: &subscriptions)
-
-        self.groupSession?.$activeParticipants
-          .sink(receiveValue: { activeParticipants in
-            let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
-
-            Task {
-              try? await messenger.send(self.listDeltas, to: .only(newParticipants))
-            }
-          }).store(in: &subscriptions)
-        let task = Task {
-          for await(message, _) in messenger.messages(of: [DeltaType].self) {
-            messageSubject.send(message)
+          Task {
+            do {
+              try await messenger.send(self.listDeltas, to: .only(newParticipants))
+            } catch {}
           }
-        }
-        tasks.insert(task)
-
-        groupSession.join()
-      }
-
-      @available(macOS 12, iOS 15, *)
-      var groupSession: GroupSession<FloxBxActivity>? {
-        get {
-          session as? GroupSession<FloxBxActivity>
-        }
-        set {
-          session = newValue
+        }).store(in: &subscriptions)
+      let task = Task {
+        for await(message, _) in messenger.messages(of: [DeltaType].self) {
+          messageSubject.send(message)
         }
       }
-    
-    
+      tasks.insert(task)
+
+      groupSession.join()
+    }
+
+    @available(macOS 12, iOS 15, *)
+    var groupSession: GroupSession<FloxBxActivity>? {
+      get {
+        session as? GroupSession<FloxBxActivity>
+      }
+      set {
+        session = newValue
+      }
+    }
 
     @available(macOS 12, iOS 15, *)
     var groupActivity: FloxBxActivity? {
-      get {
-        return self.activity?.getGroupActivity()
-      }
-      set {
-        activity = newValue.map(ActivityIdentifiableContainer.init(activity:))
-      }
+      activity?.getGroupActivity()
     }
 
-      @available(macOS 12, iOS 15, *)
-      var groupSessionMessenger: GroupSessionMessenger? {
-        messenger as? GroupSessionMessenger
-      }
-
-      @available(macOS 12, iOS 15, *)
-      public func sessions() -> GroupSession<FloxBxActivity>.Sessions {
-        FloxBxActivity.sessions()
-      }
-
-      @available(macOS 12, iOS 15, *)
-      public func beginPreparingActivity(forConfiguration configuration: GroupActivityConfiguration) {
-        self.activityConfigurationSubject.send(configuration)
-        
-        
-      }
-    
-    
-    #endif
-
-    func reset() {
-      if #available(macOS 12, iOS 15, *) {
-        #if canImport(GroupActivities)
-          listDeltas = []
-          messenger = nil
-          tasks.forEach { $0.cancel() }
-          tasks = []
-          subscriptions = []
-          if groupSession != nil {
-            groupSession?.leave()
-            groupSession = nil
-            self.startSharingSubject.send()
-          }
-        #endif
-      }
+    @available(macOS 12, iOS 15, *)
+    var groupSessionMessenger: GroupSessionMessenger? {
+      messenger as? GroupSessionMessenger
     }
 
-    public var messagePublisher: AnyPublisher<[DeltaType], Never> {
-      messageSubject.eraseToAnyPublisher()
+    @available(macOS 12, iOS 15, *)
+    public func sessions() -> GroupSession<FloxBxActivity>.Sessions {
+      FloxBxActivity.sessions()
     }
 
-    public var startSharingPublisher: AnyPublisher<Void, Never> {
-      startSharingSubject.eraseToAnyPublisher()
+    public func beginRequest(forConfiguration configuration: GroupActivityConfiguration) {
+      sharingRequestSubject.send(configuration)
     }
+  #endif
 
-    public func send(_ deltas: [DeltaType]) {
+  func reset() {
+    if #available(macOS 12, iOS 15, *) {
       #if canImport(GroupActivities)
-        if #available(iOS 15, macOS 12, *) {
-          if let groupSessionMessenger = self.groupSessionMessenger {
-            Task {
-              try? await groupSessionMessenger.send(deltas)
-            }
-          }
+        listDeltas = []
+        messenger = nil
+        tasks.forEach { $0.cancel() }
+        tasks = []
+        subscriptions = []
+        if let groupSession {
+          groupSession.leave()
+          self.groupSession = nil
+          self.startSharingSubject.send()
         }
       #endif
     }
+  }
 
-    public func append(delta: DeltaType) {
-      DispatchQueue.main.async {
-        self.listDeltas.append(delta)
+  public var messagePublisher: AnyPublisher<[DeltaType], Never> {
+    messageSubject.eraseToAnyPublisher()
+  }
+
+  var startSharingPublisher: AnyPublisher<Void, Never> {
+    startSharingSubject.eraseToAnyPublisher()
+  }
+
+  public func send(_ deltas: [DeltaType]) {
+    #if canImport(GroupActivities)
+      if #available(iOS 15, macOS 12, *) {
+        if let groupSessionMessenger = self.groupSessionMessenger {
+          Task {
+            do {
+              try await groupSessionMessenger.send(deltas)
+            } catch {}
+          }
+        }
       }
+    #endif
+  }
+
+  public func append(delta: DeltaType) {
+    DispatchQueue.main.async {
+      self.listDeltas.append(delta)
     }
   }
-#endif
+}

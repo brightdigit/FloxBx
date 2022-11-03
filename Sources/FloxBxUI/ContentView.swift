@@ -7,7 +7,7 @@
 
     @EnvironmentObject var object: ApplicationObject
     #if canImport(GroupActivities)
-    @State var activity: ActivityIdentifiableContainer<UUID>?
+      @State var activity: ActivityIdentifiableContainer<UUID>?
     #endif
     var innerView: some View {
       let view = TodoListView()
@@ -18,19 +18,19 @@
       #endif
     }
 
-    var mainView : some View {
-      return TabView {
+    var mainView: some View {
+      TabView {
         NavigationView {
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
-#if canImport(GroupActivities)
-            innerView.task {
-              for await session in self.object.shareplayObject.sessions() {
-                self.object.shareplayObject.configureGroupSession(session)
+            #if canImport(GroupActivities)
+              innerView.task {
+                for await session in self.object.shareplayObject.sessions() {
+                  self.object.shareplayObject.configureGroupSession(session)
+                }
               }
-            }
-#else
-            innerView
-#endif
+            #else
+              innerView
+            #endif
           } else {
             innerView
           }
@@ -40,24 +40,24 @@
         LoginView()
       })
     }
-    
+
     var body: some View {
       if #available(iOS 15.4, *) {
-#if canImport(GroupActivities)
-        mainView.sheet(item: self.$activity) { activity in
-          GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
-        }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
-          self.activity = activity
-        })
-        .onAppear(perform: {
-          self.object.begin()
-        })
-        
-#else
-        mainView.onAppear(perform: {
-          self.object.begin()
-        })
-#endif
+        #if canImport(GroupActivities)
+          mainView.sheet(item: self.$activity) { activity in
+            GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
+          }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
+            self.activity = activity
+          })
+          .onAppear(perform: {
+            self.object.begin()
+          })
+
+        #else
+          mainView.onAppear(perform: {
+            self.object.begin()
+          })
+        #endif
       } else {
         mainView.onAppear(perform: {
           self.object.begin()
