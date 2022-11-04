@@ -9,7 +9,7 @@ import FloxBxNetworking
   import SwiftUI
 
   class ApplicationObject: ObservableObject {
-    @Published var shareplayObject = SharePlayObject<TodoListDelta>()
+    @Published var shareplayObject: SharePlayObject<TodoListDelta, GroupActivityConfiguration, UUID>
 
     var cancellables = [AnyCancellable]()
 
@@ -33,6 +33,15 @@ import FloxBxNetworking
     let sentry = CanaryClient()
 
     init(_ items: [TodoContentItem] = []) {
+      if #available(iOS 15, *) {
+        #if canImport(GroupActivities)
+          self.shareplayObject = .init(FloxBxActivity.self)
+        #else
+          self.shareplayObject = .init()
+        #endif
+      } else {
+        shareplayObject = .init()
+      }
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)

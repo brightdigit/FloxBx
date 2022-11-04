@@ -24,7 +24,7 @@
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
             #if canImport(GroupActivities)
               innerView.task {
-                for await session in self.object.shareplayObject.sessions() {
+                for await session in self.object.shareplayObject.getSessions(FloxBxActivity.self) {
                   self.object.shareplayObject.configureGroupSession(session)
                 }
               }

@@ -1,11 +1,11 @@
 import Foundation
 
 public struct GroupActivityConfiguration {
-  public init(groupSessionID: UUID, username: String) {
-    self.groupSessionID = groupSessionID
+  public init(groupActivityID: UUID, username: String) {
+    self.groupActivityID = groupActivityID
     self.username = username
   }
 
-  let groupSessionID: UUID
+  let groupActivityID: UUID
   let username: String
 }
