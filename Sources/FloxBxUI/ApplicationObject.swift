@@ -189,7 +189,7 @@ import FloxBxNetworking
 
     func logout() {
       do {
-        try service.clearCredentials()
+        try service.resetCredentials()
       } catch {
         latestError = error
         return

@@ -163,7 +163,7 @@
       }
     }
 
-    public func clear() throws -> CredentialsClearResult {
+    public func reset() throws -> Credentials.ResetResult {
       let didDeleteToken = try deleteToken()
       let didDeletePassword = try deletePassword()
       return .init(didDeletePassword: didDeletePassword, didDeleteToken: didDeleteToken)

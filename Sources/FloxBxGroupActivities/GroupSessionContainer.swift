@@ -4,19 +4,11 @@ import Foundation
   import GroupActivities
 #endif
 
-public protocol ActivityGroupSessionContainer {
-  #if canImport(GroupActivities)
-
-    @available(iOS 15, macOS 12, *)
-    func getValue<ActivityType: GroupActivity>() -> GroupSession<ActivityType>
-  #endif
-}
-
 public struct GroupSessionContainer<IDType: Hashable> {
   let session: Any
   public let activityID: IDType
-  #if canImport(GroupActivities)
 
+  #if canImport(GroupActivities)
     @available(iOS 15, *)
     init<ActivityType: GroupActivity & Identifiable>(groupSession: GroupSession<ActivityType>) where ActivityType.ID == IDType {
       session = groupSession

@@ -5,7 +5,7 @@ public protocol Service {
   func save(credentials: Credentials) throws
 
   @discardableResult
-  func clearCredentials() throws -> CredentialsClearResult
+  func resetCredentials() throws -> Credentials.ResetResult
 
   func fetchCredentials() throws -> Credentials?
 
