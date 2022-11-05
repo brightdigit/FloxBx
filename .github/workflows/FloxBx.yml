@@ -46,11 +46,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: macos-11
-            xcode: "/Applications/Xcode_13.2.1.app"
-            iOSVersion: 15.2
-            watchOSVersion: 8.3
-            watchName: "Apple Watch Series 7 - 41mm"  
           - runs-on: macos-12
             xcode: "/Applications/Xcode_13.3.app"
             iOSVersion: 15.4
@@ -77,11 +72,10 @@ jobs:
         run: echo "XCODE_NAME=$(basename -- ${{ matrix.xcode }} | sed 's/\.[^.]*$//' | cut -d'_' -f2)" >> $GITHUB_ENV
       - name: Setup Xcode
         run: sudo xcode-select -s ${{ matrix.xcode }}/Contents/Developer
-      - name: Install awscli and awsebcli
+      - name: Install mint
         run: |
           brew update
           brew install mint
-          brew upgrade
       - name: Build
         run: swift build
       - name: Lint
