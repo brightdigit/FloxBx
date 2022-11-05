@@ -1,3 +1,4 @@
+#if canImport(Combine)
 import Foundation
 
 #if canImport(GroupActivities)
@@ -24,3 +25,4 @@ class GroupStateContainer {
     #endif
   }
 }
+#endif

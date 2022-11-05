@@ -2,9 +2,9 @@
 
 export MINT_PATH="$PWD/.mint"
 MINT_ARGS="-n -m ../../Mintfile --silent"
-MINT_RUN="/opt/homebrew/bin/mint run $MINT_ARGS"
+MINT_RUN="mint run $MINT_ARGS"
 
-/opt/homebrew/bin/mint bootstrap
+mint bootstrap
 
 if [ -z "$SRCROOT" ]; then
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )

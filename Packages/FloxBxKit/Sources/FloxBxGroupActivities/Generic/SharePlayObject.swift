@@ -1,3 +1,4 @@
+#if canImport(Combine)
 import Combine
 import Foundation
 
@@ -175,3 +176,4 @@ public class SharePlayObject<DeltaType: Codable, ActivityConfigurationType, Acti
     }
   }
 }
+#endif

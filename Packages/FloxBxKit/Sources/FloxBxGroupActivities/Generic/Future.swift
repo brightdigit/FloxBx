@@ -1,4 +1,4 @@
-import Foundation
+#if canImport(Combine)
 
 import Combine
 import Foundation
@@ -12,3 +12,5 @@ public extension Future where Failure == Never {
     }
   }
 }
+
+#endif
