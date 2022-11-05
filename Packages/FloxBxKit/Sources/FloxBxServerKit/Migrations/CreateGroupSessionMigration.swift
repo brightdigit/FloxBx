@@ -5,7 +5,12 @@ struct CreateGroupSessionMigration: Migration {
     database.schema(GroupSession.schema)
       .id()
       .field(GroupSession.FieldKeys.userID, .uuid, .required)
-      .foreignKey(GroupSession.FieldKeys.userID, references: User.schema, .id, onDelete: .cascade, onUpdate: .cascade)
+      .foreignKey(
+        GroupSession.FieldKeys.userID,
+        references: User.schema, .id,
+        onDelete: .cascade,
+        onUpdate: .cascade
+      )
       .create()
   }
 

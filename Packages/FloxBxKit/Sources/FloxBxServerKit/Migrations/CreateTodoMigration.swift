@@ -6,7 +6,12 @@ struct CreateTodoMigration: Migration {
       .id()
       .field(Todo.FieldKeys.userID, .uuid, .required)
       .field(Todo.FieldKeys.title, .string, .required)
-      .foreignKey(Todo.FieldKeys.userID, references: User.schema, .id, onDelete: .cascade, onUpdate: .cascade)
+      .foreignKey(
+        Todo.FieldKeys.userID,
+        references: User.schema, .id,
+        onDelete: .cascade,
+        onUpdate: .cascade
+      )
       .create()
   }
 

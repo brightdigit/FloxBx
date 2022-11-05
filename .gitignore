@@ -168,4 +168,5 @@ xcuserdata
 
 .bundle
 vendor
+.mint
 # End of https://www.toptal.com/developers/gitignore/api/xcode,macos

@@ -48,20 +48,29 @@ import FloxBxNetworking
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
-      $token.share().compactMap { $0 }.combineLatest(groupSessionIDPub).map(\.1).flatMap { groupActivityID in
-        Future { closure in
-          self.service.beginRequest(GetTodoListRequest(groupActivityID: groupActivityID)) { result in
-            closure(result)
+      $token
+        .share()
+        .compactMap { $0 }
+        .combineLatest(groupSessionIDPub)
+        .map(\.1)
+        .flatMap { groupActivityID in
+          Future { closure in
+            self.service.beginRequest(
+              GetTodoListRequest(groupActivityID: groupActivityID)
+            ) { result in
+              closure(result)
+            }
           }
+        }.map { content in
+          content.map(TodoContentItem.init)
         }
-      }.map { content in
-        content.map(TodoContentItem.init)
-      }
-      .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
+        .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
 
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
-          self.shareplayObject.messagePublisher.sink(receiveValue: self.handle(_:)).store(in: &self.cancellables)
+          self.shareplayObject.messagePublisher
+            .sink(receiveValue: self.handle(_:))
+            .store(in: &self.cancellables)
         #endif
       }
 
@@ -102,7 +111,11 @@ import FloxBxNetworking
       }
 
       let content = CreateTodoRequestContent(title: item.title)
-      let request = UpsertTodoRequest(groupActivityID: shareplayObject.groupActivityID, itemID: item.serverID, body: content)
+      let request = UpsertTodoRequest(
+        groupActivityID: shareplayObject.groupActivityID,
+        itemID: item.serverID,
+        body: content
+      )
 
       service.beginRequest(request) { todoItemResult in
         switch todoItemResult {
@@ -123,7 +136,10 @@ import FloxBxNetworking
       }
     }
 
-    func beginDeleteItems(atIndexSet indexSet: IndexSet, _ completed: @escaping (Error?) -> Void) {
+    func beginDeleteItems(
+      atIndexSet indexSet: IndexSet,
+      _ completed: @escaping (Error?) -> Void
+    ) {
       let savedIndexSet = indexSet.filteredIndexSet(includeInteger: { items[$0].isSaved })
 
       let deletedIds = Set(savedIndexSet.compactMap {
@@ -144,7 +160,10 @@ import FloxBxNetworking
       var errors = [Error?].init(repeating: nil, count: deletedIds.count)
       for (index, id) in deletedIds.enumerated() {
         group.enter()
-        let request = DeleteTodoItemRequest(groupActivityID: shareplayObject.groupActivityID, itemID: id)
+        let request = DeleteTodoItemRequest(
+          groupActivityID: shareplayObject.groupActivityID,
+          itemID: id
+        )
         service.beginRequest(request) { error in
           errors[index] = error
           group.leave()
@@ -155,7 +174,9 @@ import FloxBxNetworking
       }
     }
 
-    func deleteItems(atIndexSet indexSet: IndexSet) {
+    func deleteItems(
+      atIndexSet indexSet: IndexSet
+    ) {
       beginDeleteItems(atIndexSet: indexSet) { error in
         self.items.remove(atOffsets: indexSet)
         self.latestError = error
@@ -163,7 +184,14 @@ import FloxBxNetworking
     }
 
     func beginSignup(withCredentials credentials: Credentials) {
-      service.beginRequest(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
+      service.beginRequest(
+        SignUpRequest(
+          body: .init(
+            emailAddress: credentials.username,
+            password: credentials.password
+          )
+        )
+      ) { result in
         let newCredentialsResult = result.map { content in
           credentials.withToken(content.token)
         }.tryMap { creds -> Credentials in
@@ -212,7 +240,13 @@ import FloxBxNetworking
     func beginSignIn(withCredentials credentials: Credentials) {
       let createToken = credentials.token == nil
       if createToken {
-        service.beginRequest(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))) { result in
+        service.beginRequest(
+          SignInCreateRequest(body: .init(
+            emailAddress: credentials.username,
+            password: credentials.password
+          )
+          )
+        ) { result in
           switch result {
           case let .failure(error):
             DispatchQueue.main.async {

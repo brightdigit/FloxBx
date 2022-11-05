@@ -39,7 +39,7 @@
         .keyboardType(.emailAddress)
         .autocapitalization(.none)
       #elseif os(macOS)
-        .textCase(.none)
+          .textCase(.none)
       #endif
     }
 

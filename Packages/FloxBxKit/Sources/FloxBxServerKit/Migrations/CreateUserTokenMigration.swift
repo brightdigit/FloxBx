@@ -7,7 +7,12 @@ struct CreateUserTokenMigration: Migration {
       .field(UserToken.FieldKeys.userID, .uuid, .required)
       .field(UserToken.FieldKeys.value, .string, .required)
       .field(UserToken.FieldKeys.expiresAt, .datetime)
-      .foreignKey(UserToken.FieldKeys.userID, references: User.schema, .id, onDelete: .cascade, onUpdate: .cascade)
+      .foreignKey(
+        UserToken.FieldKeys.userID,
+        references: User.schema, .id,
+        onDelete: .cascade,
+        onUpdate: .cascade
+      )
       .create()
   }
 

@@ -24,7 +24,9 @@ public struct ActivityIdentifiableContainer<IDType: Hashable>: Identifiable {
 
   #if canImport(GroupActivities)
     @available(iOS 15, macOS 12, *)
-    init<GroupActivityType: Identifiable & GroupActivity>(activity: GroupActivityType) where GroupActivityType: GroupActivity, GroupActivityType.ID == IDType {
+    init<GroupActivityType: Identifiable & GroupActivity>(
+      activity: GroupActivityType
+    ) where GroupActivityType: GroupActivity, GroupActivityType.ID == IDType {
       self.activity = activity
       id = activity.id
     }

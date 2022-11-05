@@ -5,7 +5,9 @@
 
   @available(iOS 15.4, *)
   /// SwiftUI View for `GroupActivitySharingController`
-  public struct GroupActivitySharingView<ActivityType: GroupActivity>: UIViewControllerRepresentable {
+  public struct GroupActivitySharingView<
+    ActivityType: GroupActivity
+  >: UIViewControllerRepresentable {
     public init(activity: ActivityType) {
       controller = try! GroupActivitySharingController(activity)
     }

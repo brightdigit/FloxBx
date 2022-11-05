@@ -24,9 +24,8 @@
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
             #if canImport(GroupActivities)
               innerView.task {
-                for await session in self.object.shareplayObject.getSessions(FloxBxActivity.self) {
-                  self.object.shareplayObject.configureGroupSession(session)
-                }
+                await self.object.shareplayObject
+                  .listenForSessions(forActivity: FloxBxActivity.self)
               }
             #else
               innerView
@@ -44,14 +43,16 @@
     var body: some View {
       if #available(iOS 15.4, *) {
         #if canImport(GroupActivities) && os(iOS)
-          mainView.sheet(item: self.$activity) { activity in
+          mainView.sheet(
+            item: self.$activity
+          ) { activity in
             GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
           }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
             self.activity = activity
           })
-          .onAppear(perform: {
-            self.object.begin()
-          })
+            .onAppear(perform: {
+              self.object.begin()
+            })
 
         #else
           mainView.onAppear(perform: {

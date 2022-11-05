@@ -22,7 +22,12 @@ final class GroupSession: Model, Content {
 }
 
 extension GroupSession {
-  static func user(forGroupSessionWithID groupSessionID: UUID?, otherwise user: User, on db: Database, eventLoop: EventLoop) -> EventLoopFuture<User> {
+  static func user(
+    forGroupSessionWithID groupSessionID: UUID?,
+    otherwise user: User,
+    on db: Database,
+    eventLoop: EventLoop
+  ) -> EventLoopFuture<User> {
     let userF: EventLoopFuture<User>
     if let sessionID: UUID = groupSessionID {
       let session = GroupSession.find(sessionID, on: db).unwrap(orError: Abort(.notFound))
@@ -35,7 +40,10 @@ extension GroupSession {
     return userF
   }
 
-  static func user(fromRequest request: Request, otherwise user: User) -> EventLoopFuture<User> {
+  static func user(
+    fromRequest request: Request,
+    otherwise user: User
+  ) -> EventLoopFuture<User> {
     let sessionID = request.parameters.get("sessionID", as: UUID.self)
     let database = request.db
     let eventLoop = request.eventLoop

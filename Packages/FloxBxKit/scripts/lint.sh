@@ -1,18 +1,17 @@
 #!/bin/sh
 
-export MINT_PATH="$PWD/.mint"
-MINT_ARGS="-n -m ../../Mintfile --silent"
-MINT_RUN="mint run $MINT_ARGS"
-
-mint bootstrap
-
 if [ -z "$SRCROOT" ]; then
 	SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-	PACKAGE_DIR="${SCRIPT_DIR}/../Packages/FloxBxKit"
+	PACKAGE_DIR="${SCRIPT_DIR}/.."
 else
 	PACKAGE_DIR="${SRCROOT}/Packages/FloxBxKit" 	
 fi
 
+export MINT_PATH="$PACKAGE_DIR/.mint"
+MINT_ARGS="-n -m $PACKAGE_DIR/Mintfile --silent"
+MINT_RUN="/opt/homebrew/bin/mint run $MINT_ARGS"
+
+mint bootstrap
 
 if [ "$LINT_MODE" == "NONE" ]; then
 	exit
@@ -31,8 +30,6 @@ pushd $PACKAGE_DIR
 if [ -z "$CI" ]; then
 	$MINT_RUN swiftformat .
 	$MINT_RUN swiftlint autocorrect
-else 
-	set -e
 fi
 
 $MINT_RUN periphery scan 
