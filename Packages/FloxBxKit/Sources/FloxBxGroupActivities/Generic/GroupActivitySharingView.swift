@@ -14,11 +14,16 @@
 
     private let controller: GroupActivitySharingController
 
-    public func makeUIViewController(context _: Context) -> GroupActivitySharingController {
+    public func makeUIViewController(
+      context _: Context
+    ) -> GroupActivitySharingController {
       controller
     }
 
-    public func updateUIViewController(_: GroupActivitySharingController, context _: Context) {}
+    public func updateUIViewController(
+      _: GroupActivitySharingController,
+      context _: Context
+    ) {}
 
     public typealias UIViewControllerType = GroupActivitySharingController
   }

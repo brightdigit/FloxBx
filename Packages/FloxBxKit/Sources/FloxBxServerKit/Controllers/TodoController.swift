@@ -31,16 +31,20 @@ struct TodoController: RouteCollection {
     }
   }
 
-  func index(from request: Request) throws -> EventLoopFuture<[CreateTodoResponseContent]> {
+  func index(
+    from request: Request
+  ) throws -> EventLoopFuture<[CreateTodoResponseContent]> {
     let user = try request.auth.require(User.self)
 
-    let userF: EventLoopFuture<User> = GroupSession.user(fromRequest: request, otherwise: user)
+    let userF = GroupSession.user(fromRequest: request, otherwise: user)
     return userF.flatMap { user in
       user.$items.get(on: request.db)
     }.flatMapEachThrowing(CreateTodoResponseContent.init(todoItem:))
   }
 
-  func create(from request: Request) throws -> EventLoopFuture<CreateTodoResponseContent> {
+  func create(
+    from request: Request
+  ) throws -> EventLoopFuture<CreateTodoResponseContent> {
     let user = try request.auth.require(User.self)
     let content = try request.content.decode(CreateTodoRequestContent.self)
     let todo = Todo(title: content.title)
@@ -54,7 +58,9 @@ struct TodoController: RouteCollection {
     }
   }
 
-  func update(from request: Request) throws -> EventLoopFuture<CreateTodoResponseContent> {
+  func update(
+    from request: Request
+  ) throws -> EventLoopFuture<CreateTodoResponseContent> {
     let user = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
     let content = try request.content.decode(CreateTodoRequestContent.self)

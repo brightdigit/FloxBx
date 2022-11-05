@@ -10,13 +10,16 @@ public struct GroupSessionContainer<IDType: Hashable> {
 
   #if canImport(GroupActivities)
     @available(iOS 15, macOS 12, *)
-    init<ActivityType: GroupActivity & Identifiable>(groupSession: GroupSession<ActivityType>) where ActivityType.ID == IDType {
+    init<ActivityType: SharePlayActivity>(
+      groupSession: GroupSession<ActivityType>
+    ) where ActivityType.ID == IDType {
       session = groupSession
       activityID = groupSession.activity.id
     }
 
     @available(iOS 15, macOS 12, *)
-    func getGroupSession<ActivityType: GroupActivity & Identifiable>() -> GroupSession<ActivityType> where ActivityType.ID == IDType {
+    func getGroupSession<ActivityType: SharePlayActivity>()
+      -> GroupSession<ActivityType> where ActivityType.ID == IDType {
       guard let session = session as? GroupSession<ActivityType> else {
         preconditionFailure()
       }

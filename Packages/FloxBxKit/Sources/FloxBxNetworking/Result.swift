@@ -1,5 +1,7 @@
 public extension Result {
-  func tryMap<NewSuccess>(_ transform: @escaping (Success) throws -> (NewSuccess)) -> Result<NewSuccess, Error> {
+  func tryMap<NewSuccess>(
+    _ transform: @escaping (Success) throws -> (NewSuccess)
+  ) -> Result<NewSuccess, Error> {
     let oldValue: Success
     let newValue: NewSuccess
     switch self {
@@ -24,7 +26,9 @@ public extension Result {
     return error
   }
 
-  func transform<NewSuccess>(_ transform: @autoclosure () -> NewSuccess) -> Result<NewSuccess, Failure> {
+  func transform<NewSuccess>(
+    _ transform: @autoclosure () -> NewSuccess
+  ) -> Result<NewSuccess, Failure> {
     map { _ in
       transform()
     }

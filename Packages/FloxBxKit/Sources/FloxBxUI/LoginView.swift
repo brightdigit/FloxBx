@@ -69,11 +69,15 @@
         #if !os(watchOS)
           Spacer()
           Image("Logo").resizable().scaledToFit().layoutPriority(-1)
-          Text("FloxBx").font(/*@START_MENU_TOKEN@*/ .title/*@END_MENU_TOKEN@*/).fontWeight(.ultraLight).padding()
+          Text("FloxBx")
+            .font(/*@START_MENU_TOKEN@*/ .title/*@END_MENU_TOKEN@*/)
+            .fontWeight(.ultraLight)
+            .padding()
           Spacer()
         #endif
         VStack {
-          TextField("Email Address", text: $emailAddress).textFieldStyle(FBTextFieldStyle())
+          TextField("Email Address", text: $emailAddress)
+            .textFieldStyle(FBTextFieldStyle())
             .forEmailAddress()
 
           SecureField("Password", text: $password).textFieldStyle(FBTextFieldStyle())
@@ -83,21 +87,33 @@
           Button(action: {
             self.presentLoginOrSignup = true
           }, label: {
-            Text("Get Started").fontWeight(.bold)
+            Text("Get Started")
+              .fontWeight(.bold)
           })
         #else
           HStack {
             Button(action: {
-              self.object.beginSignIn(withCredentials: .init(username: self.emailAddress, password: self.password))
+              self.object.beginSignIn(
+                withCredentials: .init(
+                  username: self.emailAddress,
+                  password: self.password
+                ))
             }, label: {
               Text("Sign In").fontWeight(.light)
             }).buttonStyle(FBButtonStyle())
             Spacer()
-            Button(action: {
-              self.object.beginSignup(withCredentials: .init(username: self.emailAddress, password: self.password))
-            }, label: {
-              Text("Sign Up").fontWeight(.bold)
-            })
+            Button(
+              action: {
+                self.object.beginSignup(
+                  withCredentials: .init(
+                    username: self.emailAddress,
+                    password: self.password
+                  )
+                )
+              }, label: {
+                Text("Sign Up").fontWeight(.bold)
+              }
+            )
           }.padding()
         #endif
         Spacer()
@@ -111,10 +127,17 @@
             Text("Sign up new account or sign in existing?")
             Spacer()
             Button("Sign Up") {
-              self.object.beginSignup(withCredentials: .init(username: self.emailAddress, password: self.password))
+              self.object.beginSignup(withCredentials:
+                .init(username: self.emailAddress, password: self.password)
+              )
             }
             Button("Sign In") {
-              self.object.beginSignIn(withCredentials: .init(username: self.emailAddress, password: self.password))
+              self.object.beginSignIn(
+                withCredentials: .init(
+                  username: self.emailAddress,
+                  password: self.password
+                )
+              )
             }
           }
         })

@@ -11,7 +11,8 @@ struct GroupSessionController: RouteCollection {
     group.post(use: create(from:))
   }
 
-  func create(from request: Request) throws -> EventLoopFuture<CreateGroupSessionResponseContent> {
+  func create(from request: Request) throws
+    -> EventLoopFuture<CreateGroupSessionResponseContent> {
     let user = try request.auth.require(User.self)
     let userID = try user.requireID()
     let groupSession = GroupSession(userID: userID)

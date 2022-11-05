@@ -4,8 +4,20 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderType: RequestBuilder>: Service where SessionType.SessionRequestType == RequestBuilderType.SessionRequestType, RequestBuilderType.SessionRequestType.DataType == CoderType.DataType, SessionType.SessionResponseType.DataType == CoderType.DataType {
-  public func beginRequest<RequestType>(_ request: RequestType, _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void) where RequestType: ClientRequest, RequestType.BodyType: Encodable, RequestType.SuccessType: Decodable {
+public class ServiceImpl<
+  CoderType: Coder,
+  SessionType: Session,
+  RequestBuilderType: RequestBuilder
+>: Service where
+  SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
+  RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
+  SessionType.SessionResponseType.DataType == CoderType.DataType {
+  public func beginRequest<RequestType>(
+    _ request: RequestType,
+    _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void
+  ) where RequestType: ClientRequest,
+    RequestType.BodyType: Encodable,
+    RequestType.SuccessType: Decodable {
     let sessionRequest: SessionType.SessionRequestType
     let creds: Credentials?
     do {
@@ -25,7 +37,12 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
       rhs
     }
     do {
-      sessionRequest = try builder.build(request: request, withBaseURL: baseURLComponents, withHeaders: headers, withEncoder: coder)
+      sessionRequest = try builder.build(
+        request: request,
+        withBaseURL: baseURLComponents,
+        withHeaders: headers,
+        withEncoder: coder
+      )
     } catch {
       return
     }
@@ -44,7 +61,12 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
     }
   }
 
-  public func beginRequest<RequestType>(_ request: RequestType, _ completed: @escaping (Error?) -> Void) where RequestType: ClientRequest, RequestType.BodyType: Encodable, RequestType.SuccessType == Void {
+  public func beginRequest<RequestType>(
+    _ request: RequestType,
+    _ completed: @escaping (Error?) -> Void
+  ) where RequestType: ClientRequest,
+    RequestType.BodyType: Encodable,
+    RequestType.SuccessType == Void {
     let sessionRequest: SessionType.SessionRequestType
     let creds: Credentials?
     do {
@@ -64,7 +86,12 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
       rhs
     }
     do {
-      sessionRequest = try builder.build(request: request, withBaseURL: baseURLComponents, withHeaders: headers, withEncoder: coder)
+      sessionRequest = try builder.build(
+        request: request,
+        withBaseURL: baseURLComponents,
+        withHeaders: headers,
+        withEncoder: coder
+      )
     } catch {
       return
     }
@@ -73,7 +100,13 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
     }
   }
 
-  public func beginRequest<RequestType>(_ request: RequestType, _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void) where RequestType: ClientRequest, RequestType.BodyType == Void, RequestType.SuccessType: Decodable {
+  public func beginRequest<RequestType>(
+    _ request: RequestType,
+    _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void
+  ) where
+    RequestType: ClientRequest,
+    RequestType.BodyType == Void,
+    RequestType.SuccessType: Decodable {
     let sessionRequest: SessionType.SessionRequestType
     let creds: Credentials?
     do {
@@ -93,7 +126,12 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
       rhs
     }
     do {
-      sessionRequest = try builder.build(request: request, withBaseURL: baseURLComponents, withHeaders: headers, withEncoder: coder)
+      sessionRequest = try builder.build(
+        request: request,
+        withBaseURL: baseURLComponents,
+        withHeaders: headers,
+        withEncoder: coder
+      )
     } catch {
       return
     }
@@ -111,7 +149,13 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
     }
   }
 
-  public func beginRequest<RequestType>(_ request: RequestType, _ completed: @escaping (Error?) -> Void) where RequestType: ClientRequest, RequestType.BodyType == Void, RequestType.SuccessType == Void {
+  public func beginRequest<RequestType>(
+    _ request: RequestType,
+    _ completed: @escaping (Error?) -> Void
+  ) where
+    RequestType: ClientRequest,
+    RequestType.BodyType == Void,
+    RequestType.SuccessType == Void {
     let sessionRequest: SessionType.SessionRequestType
     let creds: Credentials?
     do {
@@ -131,7 +175,12 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
       rhs
     }
     do {
-      sessionRequest = try builder.build(request: request, withBaseURL: baseURLComponents, withHeaders: headers, withEncoder: coder)
+      sessionRequest = try builder.build(
+        request: request,
+        withBaseURL: baseURLComponents,
+        withHeaders: headers,
+        withEncoder: coder
+      )
     } catch {
       return
     }
@@ -148,7 +197,14 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
 
   let headers: [String: String]
 
-  internal init(baseURLComponents: URLComponents, coder: CoderType, session: SessionType, builder: RequestBuilderType, credentialsContainer: CredentialsContainer, headers: [String: String]) {
+  internal init(
+    baseURLComponents: URLComponents,
+    coder: CoderType,
+    session: SessionType,
+    builder: RequestBuilderType,
+    credentialsContainer: CredentialsContainer,
+    headers: [String: String]
+  ) {
     self.baseURLComponents = baseURLComponents
     self.coder = coder
     self.session = session
@@ -172,11 +228,32 @@ public class ServiceImpl<CoderType: Coder, SessionType: Session, RequestBuilderT
 
 #if canImport(Security)
   public extension ServiceImpl {
-    convenience init(host: String, accessGroup: String, serviceName: String, coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()), session: URLSession = .shared, headers: [String: String]) where RequestBuilderType == URLRequestBuilder, SessionType == URLSession, CoderType == JSONCoder {
+    convenience init(
+      host: String,
+      accessGroup: String,
+      serviceName: String,
+      coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
+      session: URLSession = .shared,
+      headers: [String: String]
+    ) where
+      RequestBuilderType == URLRequestBuilder,
+      SessionType == URLSession,
+      CoderType == JSONCoder {
       var baseURLComponents = URLComponents()
       baseURLComponents.host = host
       baseURLComponents.scheme = "https"
-      self.init(baseURLComponents: baseURLComponents, coder: coder, session: session, builder: .init(), credentialsContainer: KeychainContainer(accessGroup: accessGroup, serviceName: serviceName), headers: headers)
+      self.init(
+        baseURLComponents: baseURLComponents,
+        coder: coder,
+        session: session,
+        builder: .init(),
+        credentialsContainer:
+        KeychainContainer(
+          accessGroup: accessGroup,
+          serviceName: serviceName
+        ),
+        headers: headers
+      )
     }
   }
 #endif

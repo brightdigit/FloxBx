@@ -46,7 +46,9 @@
           mainView.sheet(
             item: self.$activity
           ) { activity in
-            GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
+            GroupActivitySharingView<FloxBxActivity>(
+              activity: activity.getGroupActivity()
+            )
           }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
             self.activity = activity
           })

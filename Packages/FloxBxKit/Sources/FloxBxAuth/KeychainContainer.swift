@@ -14,7 +14,10 @@
 
     let accessGroup: String
     let serviceName: String
-    func upsertAccount(_ account: String, andToken token: String) throws {
+    func upsertAccount(
+      _ account: String,
+      andToken token: String
+    ) throws {
       let tokenData = token.data(using: String.Encoding.utf8)!
       let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                        kSecAttrService as String: serviceName,
@@ -39,10 +42,14 @@
         let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                          kSecAttrService as String: serviceName,
                                          kSecAttrAccessGroup as String: accessGroup]
-        guard tokenStatus == errSecSuccess else { throw KeychainError.unhandledError(status: tokenStatus) }
+        guard tokenStatus == errSecSuccess else {
+          throw KeychainError.unhandledError(status: tokenStatus)
+        }
 
-        let attributes: [String: Any] = [kSecAttrAccount as String: account,
-                                         kSecValueData as String: tokenData]
+        let attributes: [String: Any] = [
+          kSecAttrAccount as String: account,
+          kSecValueData as String: tokenData
+        ]
         let status = SecItemUpdate(tokenQuery as CFDictionary, attributes as CFDictionary)
         guard status != errSecItemNotFound else { throw KeychainError.noPassword }
         guard status == errSecSuccess else {
@@ -51,7 +58,10 @@
       }
     }
 
-    func upsertAccount(_ account: String, andPassword password: String) throws {
+    func upsertAccount(
+      _ account: String,
+      andPassword password: String
+    ) throws {
       let passwordData = password.data(using: String.Encoding.utf8)!
       let query: [String: Any] = [
         kSecClass as String: kSecClassInternetPassword,
@@ -104,13 +114,15 @@
     }
 
     public func fetch() throws -> Credentials? {
-      let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
-                                  kSecAttrServer as String: serviceName,
-                                  kSecMatchLimit as String: kSecMatchLimitOne,
-                                  kSecReturnAttributes as String: true,
-                                  kSecReturnData as String: true,
-                                  kSecAttrAccessGroup as String: accessGroup,
-                                  kSecAttrSynchronizable as String: kSecAttrSynchronizableAny]
+      let query: [String: Any] = [
+        kSecClass as String: kSecClassInternetPassword,
+        kSecAttrServer as String: serviceName,
+        kSecMatchLimit as String: kSecMatchLimitOne,
+        kSecReturnAttributes as String: true,
+        kSecReturnData as String: true,
+        kSecAttrAccessGroup as String: accessGroup,
+        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
+      ]
       var item: CFTypeRef?
       let status = SecItemCopyMatching(query as CFDictionary, &item)
       guard status != errSecItemNotFound else {
