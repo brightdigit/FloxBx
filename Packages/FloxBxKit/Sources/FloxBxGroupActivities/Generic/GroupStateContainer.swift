@@ -12,7 +12,7 @@ class GroupStateContainer {
 
   init() {
     #if canImport(GroupActivities)
-      if #available(iOS 15, *) {
+      if #available(macOS 12, iOS 15, *) {
         let observer = GroupStateObserver()
         self._observer = observer
         observer.$isEligibleForGroupSession.assign(to: &self.$isEligible)

@@ -19,7 +19,7 @@ public class SharePlayObject<DeltaType: Codable, ActivityConfigurationType, Acti
   private var cancellable: AnyCancellable?
 
   #if canImport(GroupActivities)
-    @available(iOS 15, *)
+    @available(iOS 15, macOS 12, *)
     public init<ActivityType: SharePlayActivity>(_: ActivityType.Type) where ActivityType.ConfigurationType == ActivityConfigurationType, ActivityIDType == ActivityType.ID {
       $session.map { $0?.activityID }.assign(to: &$groupActivityID)
 
@@ -133,7 +133,7 @@ public class SharePlayObject<DeltaType: Codable, ActivityConfigurationType, Acti
   #endif
 
   #if canImport(GroupActivities)
-    @available(iOS 15, *)
+    @available(iOS 15, macOS 12, *)
     func reset<ActivityType: SharePlayActivity>(_ activityType: ActivityType.Type) where ActivityType.ID == ActivityIDType {
       listDeltas = []
       messenger = nil

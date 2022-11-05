@@ -43,7 +43,7 @@
 
     var body: some View {
       if #available(iOS 15.4, *) {
-        #if canImport(GroupActivities)
+        #if canImport(GroupActivities) && os(iOS)
           mainView.sheet(item: self.$activity) { activity in
             GroupActivitySharingView<FloxBxActivity>(activity: activity.getGroupActivity())
           }.onReceive(self.object.shareplayObject.$activity, perform: { activity in

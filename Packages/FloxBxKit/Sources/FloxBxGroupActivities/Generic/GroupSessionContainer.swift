@@ -9,7 +9,7 @@ public struct GroupSessionContainer<IDType: Hashable> {
   public let activityID: IDType
 
   #if canImport(GroupActivities)
-    @available(iOS 15, *)
+    @available(iOS 15, macOS 12, *)
     init<ActivityType: GroupActivity & Identifiable>(groupSession: GroupSession<ActivityType>) where ActivityType.ID == IDType {
       session = groupSession
       activityID = groupSession.activity.id

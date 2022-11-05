@@ -33,7 +33,7 @@ import FloxBxNetworking
     let sentry = CanaryClient()
 
     init(_ items: [TodoContentItem] = []) {
-      if #available(iOS 15, *) {
+      if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
           self.shareplayObject = .init(FloxBxActivity.self)
         #else
