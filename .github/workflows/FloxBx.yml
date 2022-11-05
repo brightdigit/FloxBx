@@ -36,16 +36,6 @@ jobs:
         run: echo "$GITHUB_WORKSPACE/swift-${SWIFT_VER}-RELEASE-ubuntu${RELEASE_DOT}/usr/bin" >> $GITHUB_PATH
       - name: Build
         run: swift build
-      - name: Run tests
-        run: swift test --enable-test-discovery --enable-code-coverage
-      - uses: sersoft-gmbh/swift-coverage-action@v2
-      - name: Upload SPM coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: true
-          flags: spm,${{ env.RELEASE_NAME }},${{ env.SWIFT_VER }}
-          verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
   build-macos:
     name: Build on macOS
     runs-on: ${{ matrix.runs-on }}
@@ -87,49 +77,12 @@ jobs:
         run: echo "XCODE_NAME=$(basename -- ${{ matrix.xcode }} | sed 's/\.[^.]*$//' | cut -d'_' -f2)" >> $GITHUB_ENV
       - name: Setup Xcode
         run: sudo xcode-select -s ${{ matrix.xcode }}/Contents/Developer
-      - name: Install fjcaetano/mint-action-test-package
-        uses: fjcaetano/mint-actionv@v1.0.2
+      - name: Install awscli and awsebcli
+        run: |
+          brew update
+          brew install mint
+          brew upgrade
       - name: Build
         run: swift build
       - name: Lint
         run: ./scripts/lint.sh 
-      - name: Run Swift Package tests
-        run: swift test -v --enable-code-coverage
-      - uses: sersoft-gmbh/swift-coverage-action@v2
-      - name: Upload SPM coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: true
-          flags: spm
-          verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-      - name: Clean up spm build directory
-        run: rm -rf .build
-      - name: Lint
-        if: startsWith(github.ref, 'refs/tags/') != true
-        run: swift run swiftformat --lint . && swift run swiftlint
-      - name: Dump PIF
-        run: |
-          swift package dump-pif > /dev/null
-          xcodebuild clean -scheme SundialKit -destination 'generic/platform=iOS' > /dev/null
-        if: matrix.xcode == '/Applications/Xcode_14.1.app'
-      - name: Run iOS target tests
-        run: xcodebuild test -scheme SundialKit -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}' -enableCodeCoverage YES build test
-      - uses: sersoft-gmbh/swift-coverage-action@v2
-      - name: Upload iOS coverage to Codecov
-        uses: codecov/codecov-action@v2        
-        with:
-          fail_ci_if_error: true
-          flags: iOS,iOS-${{ matrix.iOSVersion }}
-          verbose: true        
-          token: ${{ secrets.CODECOV_TOKEN }}          
-      - name: Run watchOS target tests
-        run: xcodebuild test -scheme SundialKit -sdk watchsimulator -destination 'platform=watchOS Simulator,name=${{ matrix.watchName }},OS=${{ matrix.watchOSVersion }}' -enableCodeCoverage YES build test
-      - uses: sersoft-gmbh/swift-coverage-action@v2
-      - name: Upload watchOS coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: true
-          flags: watchOS,watchOS${{ matrix.watchOSVersion }}
-          verbose: true
-          token: ${{ secrets.CODECOV_TOKEN }}
