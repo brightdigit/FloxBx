@@ -25,7 +25,12 @@ final class UserToken: Model, Content {
 
   init() {}
 
-  init(id: UUID? = nil, value: String, userID: User.IDValue, expiresAt: Date = Date(timeInterval: 60 * 60 * 5, since: .init())) {
+  init(
+    id: UUID? = nil,
+    value: String,
+    userID: User.IDValue,
+    expiresAt: Date = Date(timeInterval: 60 * 60 * 5, since: .init())
+  ) {
     self.id = id
     self.value = value
     $user.id = userID

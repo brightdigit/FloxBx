@@ -9,7 +9,9 @@ import FloxBxNetworking
   import SwiftUI
 
   class ApplicationObject: ObservableObject {
-    @Published var shareplayObject: SharePlayObject<TodoListDelta, GroupActivityConfiguration, UUID>
+    @Published var shareplayObject: SharePlayObject<
+      TodoListDelta, GroupActivityConfiguration, UUID
+    >
 
     var cancellables = [AnyCancellable]()
 

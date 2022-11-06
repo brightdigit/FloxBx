@@ -10,7 +10,9 @@ struct UserTokenController: RouteCollection {
   func create(from request: Request) -> EventLoopFuture<CreateTokenResponseContent> {
     let createTokenRequestContent: CreateTokenRequestContent
     do {
-      createTokenRequestContent = try request.content.decode(CreateTokenRequestContent.self)
+      createTokenRequestContent = try request.content.decode(
+        CreateTokenRequestContent.self
+      )
     } catch {
       return request.eventLoop.makeFailedFuture(error)
     }

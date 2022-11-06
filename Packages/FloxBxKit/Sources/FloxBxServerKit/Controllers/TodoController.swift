@@ -49,7 +49,7 @@ struct TodoController: RouteCollection {
     let content = try request.content.decode(CreateTodoRequestContent.self)
     let todo = Todo(title: content.title)
 
-    let userF: EventLoopFuture<User> = GroupSession.user(fromRequest: request, otherwise: user)
+    let userF = GroupSession.user(fromRequest: request, otherwise: user)
 
     return userF.flatMap { user in
       user.$items.create(todo, on: request.db).flatMapThrowing {
@@ -64,7 +64,7 @@ struct TodoController: RouteCollection {
     let user = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
     let content = try request.content.decode(CreateTodoRequestContent.self)
-    let userF: EventLoopFuture<User> = GroupSession.user(fromRequest: request, otherwise: user)
+    let userF = GroupSession.user(fromRequest: request, otherwise: user)
 
     return userF.flatMap { user in
       user.$items.query(on: request.db)
@@ -80,7 +80,7 @@ struct TodoController: RouteCollection {
   func delete(from request: Request) throws -> EventLoopFuture<HTTPStatus> {
     let user = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
-    let userF: EventLoopFuture<User> = GroupSession.user(fromRequest: request, otherwise: user)
+    let userF = GroupSession.user(fromRequest: request, otherwise: user)
     return userF.flatMap { user in
       user.$items.query(on: request.db).filter(\.$id == todoID).all()
         .flatMap { $0.delete(on: request.db) }

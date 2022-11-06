@@ -6,26 +6,32 @@
     import GroupActivities
   #endif
 
-  public class SharePlayObject<DeltaType: Codable, ActivityConfigurationType, ActivityIDType: Hashable>: ObservableObject {
+  public class SharePlayObject<
+    DeltaType: Codable,
+    ActivityConfigurationType,
+    ActivityIDType: Hashable
+  >: ObservableObject {
     @Published internal private(set) var listDeltas = [DeltaType]()
     @Published public private(set) var groupActivityID: ActivityIDType?
-    @Published public private(set) var activity: ActivityIdentifiableContainer<ActivityIDType>?
-    private let sharingRequestSubject = PassthroughSubject<ActivityConfigurationType, Never>()
+    @Published public private(set) var activity: ActivityIdentifiableContainer<
+      ActivityIDType
+    >?
+    private let sharingRequestSubject =
+      PassthroughSubject<ActivityConfigurationType, Never>()
     private let startSharingSubject = PassthroughSubject<Void, Never>()
-    private let activityPreparationSubject = PassthroughSubject<ActivityConfigurationType, Never>()
-    private let messageSubject = PassthroughSubject<[DeltaType], Never>()
+    private let messageSubject =
+      PassthroughSubject<[DeltaType], Never>()
     private var tasks = Set<Task<Void, Never>>()
     private var subscriptions = Set<AnyCancellable>()
-    private var cancellable: AnyCancellable?
 
     #if canImport(GroupActivities)
       @available(iOS 15, macOS 12, *)
-      public init<ActivityType: SharePlayActivity>(_: ActivityType.Type) where ActivityType.ConfigurationType == ActivityConfigurationType, ActivityIDType == ActivityType.ID {
+      public init<ActivityType: SharePlayActivity>(_: ActivityType.Type)
+        where ActivityType.ConfigurationType == ActivityConfigurationType,
+        ActivityIDType == ActivityType.ID {
         $session.map { $0?.activityID }.assign(to: &$groupActivityID)
 
-        cancellable = sharingRequestSubject.subscribe(activityPreparationSubject)
-
-        activityPreparationSubject.map {
+        sharingRequestSubject.map {
           ActivityType(configuration: $0)
         }.map { activity in
           Future { () -> Result<ActivityType, Error> in
@@ -63,7 +69,9 @@
       private(set) lazy var messenger: Any? = nil
 
       @available(iOS 15, macOS 12, *)
-      public func configureGroupSession<ActivityType: SharePlayActivity>(_ groupSession: GroupSession<ActivityType>) where ActivityType.ID == ActivityIDType {
+      public func configureGroupSession<ActivityType: SharePlayActivity>(
+        _ groupSession: GroupSession<ActivityType>
+      ) where ActivityType.ID == ActivityIDType {
         listDeltas = []
 
         session = .init(groupSession: groupSession)
@@ -82,7 +90,9 @@
 
         groupSession.$activeParticipants
           .sink(receiveValue: { activeParticipants in
-            let newParticipants = activeParticipants.subtracting(groupSession.activeParticipants)
+            let newParticipants = activeParticipants.subtracting(
+              groupSession.activeParticipants
+            )
 
             Task {
               do {
@@ -105,20 +115,20 @@
         messenger as? GroupSessionMessenger
       }
 
-      public func beginRequest(forConfiguration configuration: ActivityConfigurationType) {
+      public func beginRequest(
+        forConfiguration configuration: ActivityConfigurationType
+      ) {
         sharingRequestSubject.send(configuration)
       }
 
       @available(macOS 12, iOS 15, *)
-      func getGroupSession<ActivityType: SharePlayActivity>(_: ActivityType.Type) -> GroupSession<ActivityType>? where ActivityType.ID == ActivityIDType {
-        // get {
+      func getGroupSession<
+        ActivityType: SharePlayActivity
+      >(
+        _: ActivityType.Type
+      ) -> GroupSession<ActivityType>?
+        where ActivityType.ID == ActivityIDType {
         session?.getGroupSession()
-        // }
-//    set {
-//      session = newValue.map {
-//        GroupSessionContainer(groupSession: $0)
-//      }
-//    }
       }
 
       @available(macOS 12, iOS 15, *)
@@ -127,12 +137,20 @@
       }
 
       @available(macOS 12, iOS 15, *)
-      public func getSessions<ActivityType: SharePlayActivity>(_: ActivityType.Type) -> GroupSession<ActivityType>.Sessions {
+      public func getSessions<
+        ActivityType: SharePlayActivity
+      >(
+        _: ActivityType.Type
+      ) -> GroupSession<ActivityType>.Sessions {
         ActivityType.sessions()
       }
 
       @available(macOS 12, iOS 15, *)
-      public func listenForSessions<ActivityType: SharePlayActivity>(forActivity _: ActivityType.Type) async where ActivityType.ID == ActivityIDType {
+      public func listenForSessions<
+        ActivityType: SharePlayActivity
+      >(
+        forActivity _: ActivityType.Type
+      ) async where ActivityType.ID == ActivityIDType {
         for await session in getSessions(ActivityType.self) {
           configureGroupSession(session)
         }
@@ -141,7 +159,11 @@
 
     #if canImport(GroupActivities)
       @available(iOS 15, macOS 12, *)
-      func reset<ActivityType: SharePlayActivity>(_ activityType: ActivityType.Type) where ActivityType.ID == ActivityIDType {
+      func reset<
+        ActivityType: SharePlayActivity
+      >(
+        _ activityType: ActivityType.Type
+      ) where ActivityType.ID == ActivityIDType {
         listDeltas = []
         messenger = nil
         tasks.forEach { $0.cancel() }
