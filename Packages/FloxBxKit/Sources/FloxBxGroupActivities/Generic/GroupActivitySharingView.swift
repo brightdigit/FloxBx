@@ -9,7 +9,11 @@
     ActivityType: GroupActivity
   >: UIViewControllerRepresentable {
     public init(activity: ActivityType) {
-      controller = try! GroupActivitySharingController(activity)
+      do {
+        controller = try GroupActivitySharingController(activity)
+      } catch {
+        preconditionFailure(error.localizedDescription)
+      }
     }
 
     private let controller: GroupActivitySharingController
