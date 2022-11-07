@@ -14,7 +14,7 @@ import Foundation
             return
           }
 
-          let groupSession = try await self.service.request(CreateGroupSessionRequest())
+          let groupSession = try await self.createGroupSession()
           self.shareplayObject
             .beginRequest(
               forConfiguration: .init(
@@ -35,7 +35,7 @@ import Foundation
       }
     }
 
-    func handle(_ delta: TodoListDelta) {
+    private func handle(_ delta: TodoListDelta) {
       switch delta {
       case let .upsert(id, content):
 
@@ -44,11 +44,11 @@ import Foundation
         }
         if let index = index {
           DispatchQueue.main.async {
-            self.items[index] = self.items[index].updatingTitle(content.title)
+            self.updateItem(at: index, with: self.items[index].updatingTitle(content.title))
           }
         } else {
           DispatchQueue.main.async {
-            self.items.append(.init(serverID: id, title: content.title))
+            self.addItem(.init(serverID: id, title: content.title))
           }
         }
 
@@ -60,7 +60,7 @@ import Foundation
         }
 
         DispatchQueue.main.async {
-          self.items.remove(atOffsets: IndexSet(indicies))
+          self.removeItems(atOffsets: IndexSet(indicies))
         }
       }
 

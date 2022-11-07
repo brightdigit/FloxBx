@@ -30,7 +30,6 @@ opt_in_rules:
   - file_name
   - file_name_no_space
   - file_types_order
-  - first_where
   - flatmap_over_map_reduce
   - force_unwrapping
   - function_default_parameter_at_end
@@ -88,7 +87,6 @@ opt_in_rules:
   - unavailable_function
   - unneeded_parentheses_in_closure_argument
   - unowned_variable_capture
-  - untyped_error_in_catch
   - unused_declaration
   - unused_import
   - vertical_parameter_alignment_on_call
@@ -102,10 +100,10 @@ cyclomatic_complexity:
   - 9
 file_length:
   - 200
-  - 200
+  - 400
 function_body_length:
-  - 15
   - 25
+  - 40
 function_parameter_count: 8
 line_length:
   - 90
@@ -114,9 +112,8 @@ identifier_name:
   excluded:
     - id
 excluded:
-  - Tests/*/XCTestManifests.swift
+  - Tests
   - DerivedData
   - .build
-  - Tests/LinuxMain.swift
 indentation_width:
   indentation_width: 2

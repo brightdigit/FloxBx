@@ -14,43 +14,29 @@
 
     let accessGroup: String
     let serviceName: String
+
     func upsertAccount(
       _ account: String,
       andToken token: String
     ) throws {
-      let tokenData = token.data(using: String.Encoding.utf8)!
-      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                       kSecAttrService as String: serviceName,
-                                       kSecMatchLimit as String: kSecMatchLimitOne,
-                                       kSecReturnAttributes as String: true,
-                                       kSecReturnData as String: true,
-                                       kSecAttrAccessGroup as String: accessGroup]
       var tokenItem: CFTypeRef?
-      let tokenStatus = SecItemCopyMatching(tokenQuery as CFDictionary, &tokenItem)
+      let tokenStatus = SecItemCopyMatching(tokenAccountQuery, &tokenItem)
       if tokenStatus == errSecItemNotFound {
-        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                    kSecAttrAccount as String: account,
-                                    kSecValueData as String: tokenData,
-                                    kSecAttrService as String: serviceName,
-                                    kSecAttrAccessGroup as String: accessGroup]
-
-        let status = SecItemAdd(query as CFDictionary, nil)
+        let status = SecItemAdd(
+          queryForAdding(account: account, token: token),
+          nil
+        )
         guard status == errSecSuccess else {
           throw KeychainError.unhandledError(status: status)
         }
       } else {
-        let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                         kSecAttrService as String: serviceName,
-                                         kSecAttrAccessGroup as String: accessGroup]
         guard tokenStatus == errSecSuccess else {
           throw KeychainError.unhandledError(status: tokenStatus)
         }
-
-        let attributes: [String: Any] = [
-          kSecAttrAccount as String: account,
-          kSecValueData as String: tokenData
-        ]
-        let status = SecItemUpdate(tokenQuery as CFDictionary, attributes as CFDictionary)
+        let status = SecItemUpdate(
+          tokenUpdateQuery,
+          attributesForUpdating(account: account, token: token)
+        )
         guard status != errSecItemNotFound else { throw KeychainError.noPassword }
         guard status == errSecSuccess else {
           throw KeychainError.unhandledError(status: status)
@@ -62,28 +48,10 @@
       _ account: String,
       andPassword password: String
     ) throws {
-      let passwordData = password.data(using: String.Encoding.utf8)!
-      let query: [String: Any] = [
-        kSecClass as String: kSecClassInternetPassword,
-        kSecAttrServer as String: serviceName,
-        kSecMatchLimit as String: kSecMatchLimitOne,
-        kSecReturnAttributes as String: true,
-        kSecReturnData as String: true,
-        kSecAttrAccessGroup as String: accessGroup,
-        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
-      ]
       var item: CFTypeRef?
-      let status = SecItemCopyMatching(query as CFDictionary, &item)
+      let status = SecItemCopyMatching(passwordAccountQuery, &item)
       if status == errSecItemNotFound {
-        let query: [String: Any] = [kSecClass as String: kSecClassInternetPassword,
-                                    kSecAttrAccount as String: account,
-                                    kSecAttrServer as String: serviceName,
-                                    kSecValueData as String: passwordData,
-                                    kSecAttrAccessGroup as String: accessGroup,
-                                    kSecAttrSynchronizable as String: kCFBooleanTrue!]
-
-        // on success
-        let status = SecItemAdd(query as CFDictionary, nil)
+        let status = SecItemAdd(queryForAdding(account: account, password: password), nil)
         guard status == errSecSuccess else {
           throw KeychainError.unhandledError(status: status)
         }
@@ -91,19 +59,10 @@
         guard status == errSecSuccess else {
           throw KeychainError.unhandledError(status: status)
         }
-
-        let query: [String: Any] = [
-          kSecClass as String: kSecClassInternetPassword,
-          kSecAttrServer as String: serviceName,
-          kSecAttrAccessGroup as String: accessGroup,
-          kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
-        ]
-        let attributes: [String: Any] = [
-          kSecAttrAccount as String: account,
-          kSecValueData as String: passwordData,
-          kSecAttrSynchronizable as String: kCFBooleanTrue!
-        ]
-        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        let status = SecItemUpdate(
+          passwordUpdateQuery,
+          attributesForUpdating(account: account, password: password)
+        )
         guard status != errSecItemNotFound else {
           throw KeychainError.noPassword
         }
@@ -114,17 +73,8 @@
     }
 
     public func fetch() throws -> Credentials? {
-      let query: [String: Any] = [
-        kSecClass as String: kSecClassInternetPassword,
-        kSecAttrServer as String: serviceName,
-        kSecMatchLimit as String: kSecMatchLimitOne,
-        kSecReturnAttributes as String: true,
-        kSecReturnData as String: true,
-        kSecAttrAccessGroup as String: accessGroup,
-        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
-      ]
       var item: CFTypeRef?
-      let status = SecItemCopyMatching(query as CFDictionary, &item)
+      let status = SecItemCopyMatching(passwordAccountQuery, &item)
       guard status != errSecItemNotFound else {
         return nil
       }
@@ -138,15 +88,8 @@
       else {
         throw KeychainError.unexpectedPasswordData
       }
-
-      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                       kSecAttrService as String: serviceName,
-                                       kSecMatchLimit as String: kSecMatchLimitOne,
-                                       kSecReturnAttributes as String: true,
-                                       kSecReturnData as String: true,
-                                       kSecAttrAccessGroup as String: accessGroup]
       var tokenItem: CFTypeRef?
-      let tokenStatus = SecItemCopyMatching(tokenQuery as CFDictionary, &tokenItem)
+      let tokenStatus = SecItemCopyMatching(tokenAccountQuery, &tokenItem)
 
       if let existingItem = tokenItem as? [String: Any],
          let passwordData = existingItem[kSecValueData as String] as? Data,
@@ -179,13 +122,7 @@
 
     @discardableResult
     fileprivate func deletePassword() throws -> Bool {
-      let query: [String: Any] = [
-        kSecClass as String: kSecClassInternetPassword,
-        kSecAttrServer as String: serviceName,
-        kSecAttrAccessGroup as String: accessGroup,
-        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
-      ]
-      let tokenStatus = SecItemDelete(query as CFDictionary)
+      let tokenStatus = SecItemDelete(deletePasswordQuery)
 
       switch tokenStatus {
       case errSecItemNotFound:

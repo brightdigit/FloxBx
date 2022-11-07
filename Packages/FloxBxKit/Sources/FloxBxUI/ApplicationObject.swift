@@ -8,33 +8,31 @@ import FloxBxNetworking
   import Combine
   import SwiftUI
 
-  class ApplicationObject: ObservableObject {
-    @Published var shareplayObject: SharePlayObject<
+  internal class ApplicationObject: ObservableObject {
+    @Published internal private(set) var shareplayObject: SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID
     >
 
-    var cancellables = [AnyCancellable]()
+    private var cancellables = [AnyCancellable]()
 
-    func addDelta(_ delta: TodoListDelta) {
-      shareplayObject.send([delta])
-    }
+    @Published internal private(set) var requiresAuthentication: Bool
+    @Published internal private(set) var latestError: Error?
+    @Published internal private(set) var token: String?
+    @Published internal private(set) var username: String?
+    @Published internal private(set) var items = [TodoContentItem]()
 
-    @Published var requiresAuthentication: Bool
-    @Published var latestError: Error?
-    @Published var token: String?
-    @Published var username: String?
-    @Published var items = [TodoContentItem]()
-
-    let service: Service = ServiceImpl(
+    private let service: Service = ServiceImpl(
+      // swiftlint:disable:next force_unwrapping
       host: ProcessInfo.processInfo.environment["HOST_NAME"]!,
       accessGroup: Configuration.accessGroup,
       serviceName: Configuration.serviceName,
       headers: ["Content-Type": "application/json; charset=utf-8"]
     )
 
-    let sentry = CanaryClient()
+    private let sentry = CanaryClient()
 
-    init(_ items: [TodoContentItem] = []) {
+    // swiftlint:disable:next function_body_length
+    internal init(_ items: [TodoContentItem] = []) {
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
           self.shareplayObject = .init(FloxBxActivity.self)
@@ -63,10 +61,13 @@ import FloxBxNetworking
               closure(result)
             }
           }
-        }.map { content in
+        }
+        .map { content in
           content.map(TodoContentItem.init)
         }
-        .replaceError(with: []).receive(on: DispatchQueue.main).assign(to: &$items)
+        .replaceError(with: [])
+        .receive(on: DispatchQueue.main)
+        .assign(to: &$items)
 
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
@@ -77,10 +78,15 @@ import FloxBxNetworking
       }
 
       self.items = items
+      // swiftlint:disable:next force_try
       try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
     }
 
-    func begin() {
+    internal func addDelta(_ delta: TodoListDelta) {
+      shareplayObject.send([delta])
+    }
+
+    internal func begin() {
       let credentials: Credentials?
       let error: Error?
 
@@ -103,7 +109,7 @@ import FloxBxNetworking
       }
     }
 
-    func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
+    internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
       guard let index = items.firstIndex(where: { $0.id == item.id }) else {
         return
       }
@@ -138,7 +144,7 @@ import FloxBxNetworking
       }
     }
 
-    func beginDeleteItems(
+    private func beginDeleteItems(
       atIndexSet indexSet: IndexSet,
       _ completed: @escaping (Error?) -> Void
     ) {
@@ -176,7 +182,7 @@ import FloxBxNetworking
       }
     }
 
-    func deleteItems(
+    internal func deleteItems(
       atIndexSet indexSet: IndexSet
     ) {
       beginDeleteItems(atIndexSet: indexSet) { error in
@@ -185,7 +191,7 @@ import FloxBxNetworking
       }
     }
 
-    func beginSignup(withCredentials credentials: Credentials) {
+    internal func beginSignup(withCredentials credentials: Credentials) {
       service.beginRequest(
         SignUpRequest(
           body: .init(
@@ -213,7 +219,7 @@ import FloxBxNetworking
       }
     }
 
-    fileprivate func saveCredentials(_ newCreds: Credentials) {
+    private func saveCredentials(_ newCreds: Credentials) {
       do {
         try service.save(credentials: newCreds)
       } catch {
@@ -226,7 +232,7 @@ import FloxBxNetworking
       }
     }
 
-    func logout() {
+    internal func logout() {
       do {
         try service.resetCredentials()
       } catch {
@@ -239,61 +245,91 @@ import FloxBxNetworking
       }
     }
 
-    func beginSignIn(withCredentials credentials: Credentials) {
-      let createToken = credentials.token == nil
-      if createToken {
-        service.beginRequest(
-          SignInCreateRequest(body: .init(
-            emailAddress: credentials.username,
-            password: credentials.password
-          )
-          )
-        ) { result in
-          switch result {
-          case let .failure(error):
-            DispatchQueue.main.async {
-              self.latestError = error
-            }
-
-          case let .success(tokenContainer):
-            let newCreds = credentials.withToken(tokenContainer.token)
-            self.saveCredentials(newCreds)
-          }
-        }
-      } else {
-        service.beginRequest(SignInRefreshRequest()) { [self] result in
-          let newCredentialsResult: Result<Credentials, Error> = result.map { response in
-            credentials.withToken(response.token)
-          }.flatMapError { error in
-            guard !createToken else {
-              return .failure(error)
-            }
-            return .success(credentials.withoutToken())
-          }
-          let newCreds: Credentials
-          switch newCredentialsResult {
-          case let .failure(error):
-            DispatchQueue.main.async {
-              self.latestError = error
-            }
-            return
-
-          case let .success(credentials):
-            newCreds = credentials
+    private func signWithCredentials(_ credentials: Credentials) {
+      service.beginRequest(
+        SignInCreateRequest(body: .init(
+          emailAddress: credentials.username,
+          password: credentials.password
+        )
+        )
+      ) { result in
+        switch result {
+        case let .failure(error):
+          DispatchQueue.main.async {
+            self.latestError = error
           }
 
-          switch (newCreds.token, createToken) {
-          case (.none, false):
-            self.beginSignIn(withCredentials: newCreds)
-
-          case (.some, _):
-            self.saveCredentials(newCreds)
-
-          case (.none, true):
-            break
-          }
+        case let .success(tokenContainer):
+          let newCreds = credentials.withToken(tokenContainer.token)
+          self.saveCredentials(newCreds)
         }
       }
+    }
+
+    private func beginRefreshToken(_ credentials: Credentials, _ createToken: Bool) {
+      service.beginRequest(SignInRefreshRequest()) { [self] result in
+        let newCredentialsResult: Result<Credentials, Error> = result.map { response in
+          credentials.withToken(response.token)
+        }.flatMapError { error in
+          guard !createToken else {
+            return .failure(error)
+          }
+          return .success(credentials.withoutToken())
+        }
+        let newCreds: Credentials
+        switch newCredentialsResult {
+        case let .failure(error):
+          DispatchQueue.main.async {
+            self.latestError = error
+          }
+          return
+
+        case let .success(credentials):
+          newCreds = credentials
+        }
+
+        switch (newCreds.token, createToken) {
+        case (.none, false):
+          self.beginSignIn(withCredentials: newCreds)
+
+        case (.some, _):
+          self.saveCredentials(newCreds)
+
+        case (.none, true):
+          break
+        }
+      }
+    }
+
+    internal func beginSignIn(withCredentials credentials: Credentials) {
+      let createToken = credentials.token == nil
+      if createToken {
+        signWithCredentials(credentials)
+      } else {
+        beginRefreshToken(credentials, createToken)
+      }
+    }
+
+    internal func addItem(_ item: TodoContentItem) {
+      DispatchQueue.main.async {
+        self.items.append(item)
+      }
+    }
+
+    internal func removeItems(atOffsets offsets: IndexSet) {
+      DispatchQueue.main.async {
+        self.items.remove(atOffsets: offsets)
+      }
+    }
+
+    internal func updateItem(at index: Int, with item: TodoContentItem) {
+      DispatchQueue.main.async {
+        self.items[index] = item
+      }
+    }
+
+    internal func createGroupSession() async throws -> CreateGroupSessionResponseContent {
+      try await service.request(CreateGroupSessionRequest())
     }
   }
 #endif

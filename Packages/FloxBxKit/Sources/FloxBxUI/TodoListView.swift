@@ -34,7 +34,7 @@
             }
 
             Button {
-              self.object.items.append(.init(title: "New Item"))
+              self.object.addItem(.init(title: "New Item"))
             } label: {
               Image(systemName: "plus.circle.fill")
             }

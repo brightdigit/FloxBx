@@ -9,6 +9,8 @@
     #if canImport(GroupActivities)
       @State var activity: ActivityIdentifiableContainer<UUID>?
     #endif
+    @State var shouldDisplayLoginView: Bool = false
+
     var innerView: some View {
       let view = TodoListView()
       #if os(macOS)
@@ -35,9 +37,13 @@
           }
         }
       }
-      .sheet(isPresented: self.$object.requiresAuthentication, content: {
+      .sheet(isPresented: self.$shouldDisplayLoginView, content: {
         LoginView()
-      })
+      }).onReceive(self.object.$requiresAuthentication) { requiresAuthentication in
+        DispatchQueue.main.async {
+          self.shouldDisplayLoginView = requiresAuthentication
+        }
+      }
     }
 
     var body: some View {

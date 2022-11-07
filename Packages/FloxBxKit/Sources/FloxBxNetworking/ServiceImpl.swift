@@ -12,6 +12,7 @@ public class ServiceImpl<
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
   SessionType.SessionResponseType.DataType == CoderType.DataType {
+  // swiftlint:disable:next function_body_length
   public func beginRequest<RequestType>(
     _ request: RequestType,
     _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void
@@ -100,6 +101,7 @@ public class ServiceImpl<
     }
   }
 
+  // swiftlint:disable:next function_body_length
   public func beginRequest<RequestType>(
     _ request: RequestType,
     _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void
