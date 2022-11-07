@@ -11,7 +11,9 @@ export MINT_PATH="$PACKAGE_DIR/.mint"
 MINT_ARGS="-n -m $PACKAGE_DIR/Mintfile --silent"
 MINT_RUN="/opt/homebrew/bin/mint run $MINT_ARGS"
 
-mint bootstrap
+pushd $PACKAGE_DIR
+
+/opt/homebrew/bin/mint bootstrap -m Mintfile
 
 if [ "$LINT_MODE" == "NONE" ]; then
 	exit
