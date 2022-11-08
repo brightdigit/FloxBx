@@ -1,7 +1,7 @@
 import Fluent
 
-struct CreateUserTokenMigration: Migration {
-  func prepare(on database: Database) -> EventLoopFuture<Void> {
+internal struct CreateUserTokenMigration: Migration {
+  internal func prepare(on database: Database) -> EventLoopFuture<Void> {
     database.schema(UserToken.schema)
       .id()
       .field(UserToken.FieldKeys.userID, .uuid, .required)
@@ -16,7 +16,7 @@ struct CreateUserTokenMigration: Migration {
       .create()
   }
 
-  func revert(on database: Database) -> EventLoopFuture<Void> {
+  internal func revert(on database: Database) -> EventLoopFuture<Void> {
     database.schema(User.schema).delete()
   }
 }

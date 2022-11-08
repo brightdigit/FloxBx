@@ -12,13 +12,12 @@ public class ServiceImpl<
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
   SessionType.SessionResponseType.DataType == CoderType.DataType {
-  var baseURLComponents: URLComponents
-  let credentialsContainer: CredentialsContainer
-  let coder: CoderType
-  let session: SessionType
-  let builder: RequestBuilderType
-
-  let headers: [String: String]
+  private let baseURLComponents: URLComponents
+  private let credentialsContainer: CredentialsContainer
+  private let coder: CoderType
+  private let session: SessionType
+  private let builder: RequestBuilderType
+  private let headers: [String: String]
 
   internal init(
     baseURLComponents: URLComponents,
@@ -234,9 +233,9 @@ public class ServiceImpl<
       host: String,
       accessGroup: String,
       serviceName: String,
+      headers: [String: String],
       coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
-      session: URLSession = .shared,
-      headers: [String: String]
+      session: URLSession = .shared
     ) where
       RequestBuilderType == URLRequestBuilder,
       SessionType == URLSession,

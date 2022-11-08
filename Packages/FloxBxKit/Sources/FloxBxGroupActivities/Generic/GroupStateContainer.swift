@@ -6,11 +6,11 @@
   #endif
 
   /// Contains the state of whether a GroupActivity can be started.
-  class GroupStateContainer {
-    let anyObserver: Any?
-    @Published private(set) var isEligible = false
+  internal class GroupStateContainer {
+    private let anyObserver: Any?
+    @Published internal private(set) var isEligible = false
 
-    init() {
+    internal init() {
       #if canImport(GroupActivities)
         if #available(macOS 12, iOS 15, *) {
           let observer = GroupStateObserver()

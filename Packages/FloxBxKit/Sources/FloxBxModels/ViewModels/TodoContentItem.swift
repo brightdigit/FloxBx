@@ -13,19 +13,19 @@ public struct TodoContentItem: Identifiable, Codable {
     clientID
   }
 
-  public init(clientID: UUID = .init(), serverID: UUID? = nil, title: String) {
+  public init(title: String, clientID: UUID = .init(), serverID: UUID? = nil) {
     self.clientID = clientID
     self.serverID = serverID
     self.title = title
   }
 
   public init(content: CreateTodoResponseContent) {
-    self.init(clientID: content.id, serverID: content.id, title: content.title)
+    self.init(title: content.title, clientID: content.id, serverID: content.id)
   }
 }
 
 extension TodoContentItem {
   public func updatingTitle(_ title: String) -> TodoContentItem {
-    TodoContentItem(clientID: clientID, serverID: serverID, title: title)
+    TodoContentItem(title: title, clientID: clientID, serverID: serverID)
   }
 }

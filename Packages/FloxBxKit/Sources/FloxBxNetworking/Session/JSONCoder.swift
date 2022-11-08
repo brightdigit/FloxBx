@@ -7,8 +7,9 @@ import Foundation
 public struct JSONCoder: Coder {
   public typealias DataType = Data
 
-  let encoder: JSONEncoder
-  let decoder: JSONDecoder
+  private let encoder: JSONEncoder
+  private let decoder: JSONDecoder
+
   public init(encoder: JSONEncoder, decoder: JSONDecoder) {
     self.encoder = encoder
     self.decoder = decoder

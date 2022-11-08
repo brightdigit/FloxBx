@@ -7,15 +7,15 @@
   #endif
 
   public struct KeychainContainer: CredentialsContainer {
-    let accessGroup: String
-    let serviceName: String
+    internal let accessGroup: String
+    internal let serviceName: String
 
     public init(accessGroup: String, serviceName: String) {
       self.accessGroup = accessGroup
       self.serviceName = serviceName
     }
 
-    func upsertAccount(
+    private func upsertAccount(
       _ account: String,
       andToken token: String
     ) throws {
@@ -44,7 +44,7 @@
       }
     }
 
-    func upsertAccount(
+    private func upsertAccount(
       _ account: String,
       andPassword password: String
     ) throws {
@@ -102,10 +102,12 @@
     }
 
     @discardableResult
-    fileprivate func deleteToken() throws -> Bool {
-      let tokenQuery: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                       kSecAttrService as String: serviceName,
-                                       kSecAttrAccessGroup as String: accessGroup]
+    private func deleteToken() throws -> Bool {
+      let tokenQuery: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrService as String: serviceName,
+        kSecAttrAccessGroup as String: accessGroup
+      ]
       let tokenStatus = SecItemDelete(tokenQuery as CFDictionary)
 
       switch tokenStatus {
@@ -121,7 +123,7 @@
     }
 
     @discardableResult
-    fileprivate func deletePassword() throws -> Bool {
+    private func deletePassword() throws -> Bool {
       let tokenStatus = SecItemDelete(deletePasswordQuery)
 
       switch tokenStatus {

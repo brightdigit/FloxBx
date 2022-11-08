@@ -40,7 +40,7 @@ public protocol Service {
 }
 
 extension CheckedContinuation where T == Void {
-  func resume(with error: E?) {
+  public func resume(with error: E?) {
     if let error = error {
       return resume(throwing: error)
     } else {

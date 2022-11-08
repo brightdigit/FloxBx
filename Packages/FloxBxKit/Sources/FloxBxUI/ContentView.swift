@@ -39,7 +39,8 @@
       }
       .sheet(isPresented: self.$shouldDisplayLoginView, content: {
         LoginView()
-      }).onReceive(self.object.$requiresAuthentication) { requiresAuthentication in
+      })
+      .onReceive(self.object.$requiresAuthentication) { requiresAuthentication in
         DispatchQueue.main.async {
           self.shouldDisplayLoginView = requiresAuthentication
         }
@@ -55,12 +56,13 @@
             GroupActivitySharingView<FloxBxActivity>(
               activity: activity.getGroupActivity()
             )
-          }.onReceive(self.object.shareplayObject.$activity, perform: { activity in
+          }
+          .onReceive(self.object.shareplayObject.$activity, perform: { activity in
             self.activity = activity
           })
-            .onAppear(perform: {
-              self.object.begin()
-            })
+          .onAppear(perform: {
+            self.object.begin()
+          })
 
         #else
           mainView.onAppear(perform: {

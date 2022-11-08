@@ -44,11 +44,14 @@ import Foundation
         }
         if let index = index {
           DispatchQueue.main.async {
-            self.updateItem(at: index, with: self.items[index].updatingTitle(content.title))
+            self.updateItem(
+              at: index,
+              with: self.items[index].updatingTitle(content.title)
+            )
           }
         } else {
           DispatchQueue.main.async {
-            self.addItem(.init(serverID: id, title: content.title))
+            self.addItem(.init(title: content.title, serverID: id))
           }
         }
 

@@ -169,8 +169,7 @@ import FloxBxNetworking
       for (index, id) in deletedIds.enumerated() {
         group.enter()
         let request = DeleteTodoItemRequest(
-          groupActivityID: shareplayObject.groupActivityID,
-          itemID: id
+          itemID: id, groupActivityID: shareplayObject.groupActivityID
         )
         service.beginRequest(request) { error in
           errors[index] = error
@@ -248,7 +247,8 @@ import FloxBxNetworking
 
     private func signWithCredentials(_ credentials: Credentials) {
       service.beginRequest(
-        SignInCreateRequest(body:
+        SignInCreateRequest(
+          body:
           .init(
             emailAddress: credentials.username,
             password: credentials.password
@@ -268,11 +268,25 @@ import FloxBxNetworking
       }
     }
 
+    private func receivedNewCredentials(_ newCreds: Credentials, isCreated: Bool) {
+      switch (newCreds.token, isCreated) {
+      case (.none, false):
+        beginSignIn(withCredentials: newCreds)
+
+      case (.some, _):
+        saveCredentials(newCreds)
+
+      case (.none, true):
+        break
+      }
+    }
+
     private func beginRefreshToken(_ credentials: Credentials, _ createToken: Bool) {
       service.beginRequest(SignInRefreshRequest()) { [self] result in
         let newCredentialsResult: Result<Credentials, Error> = result.map { response in
           credentials.withToken(response.token)
-        }.flatMapError { error in
+        }
+        .flatMapError { error in
           guard !createToken else {
             return .failure(error)
           }
@@ -290,16 +304,7 @@ import FloxBxNetworking
           newCreds = credentials
         }
 
-        switch (newCreds.token, createToken) {
-        case (.none, false):
-          self.beginSignIn(withCredentials: newCreds)
-
-        case (.some, _):
-          self.saveCredentials(newCreds)
-
-        case (.none, true):
-          break
-        }
+        receivedNewCredentials(newCreds, isCreated: createToken)
       }
     }
 

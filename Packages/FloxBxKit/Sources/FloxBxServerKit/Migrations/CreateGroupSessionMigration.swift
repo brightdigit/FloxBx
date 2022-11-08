@@ -1,7 +1,7 @@
 import Fluent
 
-struct CreateGroupSessionMigration: Migration {
-  func prepare(on database: Database) -> EventLoopFuture<Void> {
+internal struct CreateGroupSessionMigration: Migration {
+  internal func prepare(on database: Database) -> EventLoopFuture<Void> {
     database.schema(GroupSession.schema)
       .id()
       .field(GroupSession.FieldKeys.userID, .uuid, .required)
@@ -14,7 +14,7 @@ struct CreateGroupSessionMigration: Migration {
       .create()
   }
 
-  func revert(on database: Database) -> EventLoopFuture<Void> {
+  internal func revert(on database: Database) -> EventLoopFuture<Void> {
     database.schema(GroupSession.schema).delete()
   }
 }

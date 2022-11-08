@@ -9,8 +9,8 @@ public struct DeleteTodoItemRequest: ClientVoidRequest {
     true
   }
 
-  let groupActivityID: UUID?
-  let itemID: UUID
+  private let groupActivityID: UUID?
+  private let itemID: UUID
 
   public var path: String {
     var path = "api/v1/"
@@ -34,7 +34,7 @@ public struct DeleteTodoItemRequest: ClientVoidRequest {
     [:]
   }
 
-  public init(groupActivityID: UUID? = nil, itemID: UUID) {
+  public init(itemID: UUID, groupActivityID: UUID? = nil) {
     self.groupActivityID = groupActivityID
     self.itemID = itemID
   }

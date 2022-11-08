@@ -2,27 +2,26 @@
   import SwiftUI
 
   #if os(watchOS)
-    typealias FBTextFieldStyle = DefaultTextFieldStyle
+    private typealias FBTextFieldStyle = DefaultTextFieldStyle
   #else
-    typealias FBTextFieldStyle = RoundedBorderTextFieldStyle
+    private typealias FBTextFieldStyle = RoundedBorderTextFieldStyle
   #endif
 
   #if os(watchOS)
-    typealias FBButtonStyle = DefaultButtonStyle
+    private typealias FBButtonStyle = DefaultButtonStyle
   #else
-    typealias FBButtonStyle = BorderlessButtonStyle
+    private typealias FBButtonStyle = BorderlessButtonStyle
   #endif
 
   #if os(macOS)
     extension NSTextContentType {
-      static var emailAddress: NSTextContentType = .username
+      internal static let emailAddress: NSTextContentType = .username
     }
   #endif
 
   extension View {
     @available(iOS 15.0, watchOS 8.0, *)
-    fileprivate func forEmailAddress2021() -> some View {
-      // var view : some View
+    private func forEmailAddress2021() -> some View {
       #if os(macOS)
         self
       #else
@@ -31,9 +30,7 @@
       #endif
     }
 
-    fileprivate func forEmailAddress2020() -> some View {
-      // var view : some View
-
+    private func forEmailAddress2020() -> some View {
       textContentType(.emailAddress)
       #if os(iOS)
         .keyboardType(.emailAddress)
@@ -54,15 +51,15 @@
     }
   }
 
-  struct LoginView: View {
-    @EnvironmentObject var object: ApplicationObject
-    @State var emailAddress: String = ""
-    @State var password: String = ""
+  internal struct LoginView: View {
+    @EnvironmentObject private var object: ApplicationObject
+    @State private var emailAddress: String = ""
+    @State private var password: String = ""
     #if os(watchOS)
-      @State var presentLoginOrSignup = false
+      @State private var presentLoginOrSignup = false
     #endif
 
-    var content: some View {
+    private var content: some View {
       VStack {
         #if !os(watchOS)
           Spacer()
@@ -95,7 +92,8 @@
                 withCredentials: .init(
                   username: self.emailAddress,
                   password: self.password
-                ))
+                )
+              )
             }, label: {
               Text("Sign In").fontWeight(.light)
             }).buttonStyle(FBButtonStyle())
@@ -118,7 +116,7 @@
       }.padding().frame(maxWidth: 300, maxHeight: 500)
     }
 
-    var body: some View {
+    internal var body: some View {
       #if os(watchOS)
         self.content.sheet(isPresented: self.$presentLoginOrSignup, content: {
           VStack {
@@ -144,11 +142,11 @@
       #endif
     }
 
-    init() {}
+    internal init() {}
   }
 
-  struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
+  private struct LoginView_Previews: PreviewProvider {
+    fileprivate static var previews: some View {
       ForEach(ColorScheme.allCases, id: \.self) {
         LoginView().preferredColorScheme($0)
       }

@@ -9,7 +9,7 @@ public struct GetTodoListRequest: ClientSuccessRequest {
     true
   }
 
-  let groupActivityID: UUID?
+  private let groupActivityID: UUID?
 
   public var path: String {
     var path = "api/v1/"

@@ -1,4 +1,5 @@
 // swift-tools-version:5.6
+// swiftlint:disable explicit_top_level_acl explicit_acl
 
 import PackageDescription
 
@@ -28,8 +29,10 @@ let package = Package(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
     ),
-    .target(name: "FloxBxModels",
-            dependencies: ["FloxBxNetworking"]),
+    .target(
+      name: "FloxBxModels",
+      dependencies: ["FloxBxNetworking"]
+    ),
     .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
     .target(name: "FloxBxUI", dependencies: [
       "Canary",

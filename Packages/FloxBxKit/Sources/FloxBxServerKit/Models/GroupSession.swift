@@ -1,29 +1,29 @@
 import Fluent
 import Vapor
 
-final class GroupSession: Model, Content {
-  enum FieldKeys {
-    static let userID: FieldKey = "userID"
+internal final class GroupSession: Model, Content {
+  internal enum FieldKeys {
+    internal static let userID: FieldKey = "userID"
   }
 
-  static let schema = "GroupSessions"
+  internal static let schema = "GroupSessions"
 
   @ID(key: .id)
-  var id: UUID?
+  internal var id: UUID?
 
   @Parent(key: FieldKeys.userID)
-  var user: User
+  internal var user: User
 
-  init() {}
+  internal init() {}
 
-  init(id: UUID? = nil, userID: UUID) {
+  internal init(userID: UUID, id: UUID? = nil) {
     self.id = id
     $user.id = userID
   }
 }
 
 extension GroupSession {
-  static func user(
+  internal static func user(
     forGroupSessionWithID groupSessionID: UUID?,
     otherwise user: User,
     on db: Database,
@@ -41,7 +41,7 @@ extension GroupSession {
     return userF
   }
 
-  static func user(
+  internal static func user(
     fromRequest request: Request,
     otherwise user: User
   ) -> EventLoopFuture<User> {

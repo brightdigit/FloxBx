@@ -25,7 +25,7 @@
     private var tasks = Set<Task<Void, Never>>()
     private var subscriptions = Set<AnyCancellable>()
 
-    var isEligible: Bool {
+    public var isEligible: Bool {
       #if canImport(GroupActivities)
         return groupState.isEligible
       #else
@@ -34,23 +34,19 @@
     }
 
     #if canImport(GroupActivities)
-      @Published var session: GroupSessionContainer<ActivityIDType>?
-      @Published var groupState = GroupStateContainer()
+      @Published private var session: GroupSessionContainer<ActivityIDType>?
+      @Published private var groupState = GroupStateContainer()
 
-      private(set) lazy var messenger: Any? = nil
+      private lazy var messenger: Any? = nil
 
       @available(macOS 12, iOS 15, *)
-      var groupSessionMessenger: GroupSessionMessenger? {
+      private var groupSessionMessenger: GroupSessionMessenger? {
         messenger as? GroupSessionMessenger
       }
     #endif
 
     public var messagePublisher: AnyPublisher<[DeltaType], Never> {
       messageSubject.eraseToAnyPublisher()
-    }
-
-    var startSharingPublisher: AnyPublisher<Void, Never> {
-      startSharingSubject.eraseToAnyPublisher()
     }
 
     #if canImport(GroupActivities)
@@ -62,7 +58,8 @@
 
         sharingRequestSubject.map {
           ActivityType(configuration: $0)
-        }.map { activity in
+        }
+        .map { activity in
           Future { () -> Result<ActivityType, Error> in
             do {
               _ = try await activity.activate()
@@ -71,13 +68,14 @@
             }
             return .success(activity)
           }
-        }.switchToLatest()
-          .compactMap {
-            self.isEligible ? nil : try? $0.get()
-          }
-          .map(ActivityIdentifiableContainer.init(activity:))
-          .receive(on: DispatchQueue.main)
-          .assign(to: &$activity)
+        }
+        .switchToLatest()
+        .compactMap {
+          self.isEligible ? nil : try? $0.get()
+        }
+        .map(ActivityIdentifiableContainer.init(activity:))
+        .receive(on: DispatchQueue.main)
+        .assign(to: &$activity)
       }
     #endif
 
@@ -91,7 +89,6 @@
         listDeltas = []
 
         session = .init(groupSession: groupSession)
-        // self.groupSession = groupSession
 
         let messenger = GroupSessionMessenger(session: groupSession)
         self.messenger = messenger
@@ -102,7 +99,8 @@
               self.session = nil
               self.reset(ActivityType.self)
             }
-          }).store(in: &subscriptions)
+          })
+          .store(in: &subscriptions)
 
         groupSession.$activeParticipants
           .sink(receiveValue: { activeParticipants in
@@ -115,7 +113,8 @@
                 try await messenger.send(self.listDeltas, to: .only(newParticipants))
               } catch {}
             }
-          }).store(in: &subscriptions)
+          })
+          .store(in: &subscriptions)
         let task = Task {
           for await(message, _) in messenger.messages(of: [DeltaType].self) {
             messageSubject.send(message)
@@ -133,7 +132,7 @@
       }
 
       @available(macOS 12, iOS 15, *)
-      func getGroupSession<
+      private func getGroupSession<
         ActivityType: SharePlayActivity
       >(
         _: ActivityType.Type
@@ -143,7 +142,7 @@
       }
 
       @available(macOS 12, iOS 15, *)
-      func getActivity<ActivityType: SharePlayActivity>() -> ActivityType? {
+      private func getActivity<ActivityType: SharePlayActivity>() -> ActivityType? {
         activity?.getGroupActivity()
       }
 
@@ -170,7 +169,7 @@
 
     #if canImport(GroupActivities)
       @available(iOS 15, macOS 12, *)
-      func reset<
+      private func reset<
         ActivityType: SharePlayActivity
       >(
         _ activityType: ActivityType.Type
