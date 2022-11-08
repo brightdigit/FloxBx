@@ -24,8 +24,8 @@ public struct TodoContentItem: Identifiable, Codable {
   }
 }
 
-public extension TodoContentItem {
-  func updatingTitle(_ title: String) -> TodoContentItem {
+extension TodoContentItem {
+  public func updatingTitle(_ title: String) -> TodoContentItem {
     TodoContentItem(clientID: clientID, serverID: serverID, title: title)
   }
 }

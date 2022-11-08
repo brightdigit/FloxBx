@@ -229,8 +229,8 @@ public class ServiceImpl<
 }
 
 #if canImport(Security)
-  public extension ServiceImpl {
-    convenience init(
+  extension ServiceImpl {
+    public convenience init(
       host: String,
       accessGroup: String,
       serviceName: String,

@@ -49,8 +49,8 @@ extension CheckedContinuation where T == Void {
   }
 }
 
-public extension Service {
-  func request<RequestType: ClientRequest>(
+extension Service {
+  public func request<RequestType: ClientRequest>(
     _ request: RequestType
   ) async throws -> RequestType.SuccessType
     where RequestType.SuccessType: Decodable, RequestType.BodyType: Encodable {
@@ -61,7 +61,7 @@ public extension Service {
     }
   }
 
-  func request<RequestType: ClientRequest>(
+  public func request<RequestType: ClientRequest>(
     _ request: RequestType
   ) async throws -> RequestType.SuccessType
     where RequestType.SuccessType: Decodable, RequestType.BodyType == Void {
@@ -72,7 +72,7 @@ public extension Service {
     }
   }
 
-  func request<RequestType: ClientRequest>(
+  public func request<RequestType: ClientRequest>(
     _ request: RequestType
   ) async throws
     where RequestType.SuccessType == Void, RequestType.BodyType: Encodable {
@@ -83,7 +83,7 @@ public extension Service {
     }
   }
 
-  func request<RequestType: ClientRequest>(
+  public func request<RequestType: ClientRequest>(
     _ request: RequestType
   ) async throws
     where RequestType.SuccessType == Void, RequestType.BodyType == Void {

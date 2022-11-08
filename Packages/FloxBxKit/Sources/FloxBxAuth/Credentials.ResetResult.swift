@@ -1,7 +1,7 @@
 import Foundation
 
-public extension Credentials {
-  struct ResetResult: OptionSet {
+extension Credentials {
+  public struct ResetResult: OptionSet {
     public init(rawValue: Int) {
       self.rawValue = rawValue
     }
@@ -16,8 +16,8 @@ public extension Credentials {
   }
 }
 
-public extension Credentials.ResetResult {
-  init(didDeletePassword: Bool, didDeleteToken: Bool) {
+extension Credentials.ResetResult {
+  public init(didDeletePassword: Bool, didDeleteToken: Bool) {
     let didDeleteToken: Self? = didDeleteToken ? .token : nil
     let didDeletePassword: Self? = didDeletePassword ? .password : nil
     self = .init([didDeleteToken, didDeletePassword].compactMap { $0 })

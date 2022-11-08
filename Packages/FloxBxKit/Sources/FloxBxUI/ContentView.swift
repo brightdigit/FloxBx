@@ -2,16 +2,16 @@
   import FloxBxGroupActivities
   import SwiftUI
 
-  struct ContentView: View {
-    init() {}
+  internal struct ContentView: View {
+    @EnvironmentObject private var object: ApplicationObject
 
-    @EnvironmentObject var object: ApplicationObject
     #if canImport(GroupActivities)
-      @State var activity: ActivityIdentifiableContainer<UUID>?
+      @State private var activity: ActivityIdentifiableContainer<UUID>?
     #endif
-    @State var shouldDisplayLoginView: Bool = false
 
-    var innerView: some View {
+    @State private var shouldDisplayLoginView: Bool = false
+
+    private var innerView: some View {
       let view = TodoListView()
       #if os(macOS)
         return view.frame(width: 500, height: 500)
@@ -20,7 +20,7 @@
       #endif
     }
 
-    var mainView: some View {
+    private var mainView: some View {
       TabView {
         NavigationView {
           if #available(iOS 15.0, watchOS 8.0, macOS 12, *) {
@@ -46,7 +46,7 @@
       }
     }
 
-    var body: some View {
+    internal var body: some View {
       if #available(iOS 15.4, *) {
         #if canImport(GroupActivities) && os(iOS)
           mainView.sheet(
@@ -73,9 +73,11 @@
         })
       }
     }
+
+    internal init() {}
   }
 
-  struct ContentView_Previews: PreviewProvider {
+  private struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
       ContentView()
     }

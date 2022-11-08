@@ -2,10 +2,11 @@ import Fluent
 import Vapor
 
 final class GroupSession: Model, Content {
-  static let schema = "GroupSessions"
   enum FieldKeys {
     static let userID: FieldKey = "userID"
   }
+
+  static let schema = "GroupSessions"
 
   @ID(key: .id)
   var id: UUID?

@@ -7,13 +7,13 @@
   #endif
 
   public struct KeychainContainer: CredentialsContainer {
+    let accessGroup: String
+    let serviceName: String
+
     public init(accessGroup: String, serviceName: String) {
       self.accessGroup = accessGroup
       self.serviceName = serviceName
     }
-
-    let accessGroup: String
-    let serviceName: String
 
     func upsertAccount(
       _ account: String,

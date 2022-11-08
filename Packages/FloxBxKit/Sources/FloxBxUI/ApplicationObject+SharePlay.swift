@@ -7,7 +7,7 @@ import Foundation
 
   extension ApplicationObject {
     @available(iOS 15, macOS 12, *)
-    func requestSharing() {
+    internal func requestSharing() {
       Task {
         do {
           guard let username = username else {
@@ -29,7 +29,7 @@ import Foundation
       }
     }
 
-    func handle(_ deltas: [TodoListDelta]) {
+    internal func handle(_ deltas: [TodoListDelta]) {
       for delta in deltas {
         handle(delta)
       }

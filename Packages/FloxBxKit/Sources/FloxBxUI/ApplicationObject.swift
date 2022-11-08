@@ -202,7 +202,8 @@ import FloxBxNetworking
       ) { result in
         let newCredentialsResult = result.map { content in
           credentials.withToken(content.token)
-        }.tryMap { creds -> Credentials in
+        }
+        .tryMap { creds -> Credentials in
           try self.service.save(credentials: creds)
           return creds
         }
@@ -247,10 +248,11 @@ import FloxBxNetworking
 
     private func signWithCredentials(_ credentials: Credentials) {
       service.beginRequest(
-        SignInCreateRequest(body: .init(
-          emailAddress: credentials.username,
-          password: credentials.password
-        )
+        SignInCreateRequest(body:
+          .init(
+            emailAddress: credentials.username,
+            password: credentials.password
+          )
         )
       ) { result in
         switch result {

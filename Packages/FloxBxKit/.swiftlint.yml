@@ -98,9 +98,12 @@ opt_in_rules:
 cyclomatic_complexity:
   - 6
   - 9
+type_body_length:
+  - 250
+  - 500
 file_length:
-  - 200
   - 400
+  - 800
 function_body_length:
   - 25
   - 40
