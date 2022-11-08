@@ -6,6 +6,7 @@ import Foundation
 #endif
 
 public struct URLRequestBuilder: RequestBuilder {
+  public typealias SessionRequestType = URLRequest
   public init() {}
   public func build<BodyRequestType, CoderType>(
     request: BodyRequestType,
@@ -67,6 +68,4 @@ public struct URLRequestBuilder: RequestBuilder {
     }
     return ["Authorization": "Bearer \(token)"]
   }
-
-  public typealias SessionRequestType = URLRequest
 }

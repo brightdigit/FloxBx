@@ -16,6 +16,7 @@
     @Published public private(set) var activity: ActivityIdentifiableContainer<
       ActivityIDType
     >?
+
     private let sharingRequestSubject =
       PassthroughSubject<ActivityConfigurationType, Never>()
     private let startSharingSubject = PassthroughSubject<Void, Never>()
@@ -23,6 +24,34 @@
       PassthroughSubject<[DeltaType], Never>()
     private var tasks = Set<Task<Void, Never>>()
     private var subscriptions = Set<AnyCancellable>()
+
+    var isEligible: Bool {
+      #if canImport(GroupActivities)
+        return groupState.isEligible
+      #else
+        return false
+      #endif
+    }
+
+    #if canImport(GroupActivities)
+      @Published var session: GroupSessionContainer<ActivityIDType>?
+      @Published var groupState = GroupStateContainer()
+
+      private(set) lazy var messenger: Any? = nil
+
+      @available(macOS 12, iOS 15, *)
+      var groupSessionMessenger: GroupSessionMessenger? {
+        messenger as? GroupSessionMessenger
+      }
+    #endif
+
+    public var messagePublisher: AnyPublisher<[DeltaType], Never> {
+      messageSubject.eraseToAnyPublisher()
+    }
+
+    var startSharingPublisher: AnyPublisher<Void, Never> {
+      startSharingSubject.eraseToAnyPublisher()
+    }
 
     #if canImport(GroupActivities)
       @available(iOS 15, macOS 12, *)
@@ -54,20 +83,7 @@
 
     public init() {}
 
-    var isEligible: Bool {
-      #if canImport(GroupActivities)
-        return groupState.isEligible
-      #else
-        return false
-      #endif
-    }
-
     #if canImport(GroupActivities)
-      @Published var session: GroupSessionContainer<ActivityIDType>?
-      @Published var groupState = GroupStateContainer()
-
-      private(set) lazy var messenger: Any? = nil
-
       @available(iOS 15, macOS 12, *)
       public func configureGroupSession<ActivityType: SharePlayActivity>(
         _ groupSession: GroupSession<ActivityType>
@@ -108,11 +124,6 @@
         tasks.insert(task)
 
         groupSession.join()
-      }
-
-      @available(macOS 12, iOS 15, *)
-      var groupSessionMessenger: GroupSessionMessenger? {
-        messenger as? GroupSessionMessenger
       }
 
       public func beginRequest(
@@ -176,14 +187,6 @@
         }
       }
     #endif
-
-    public var messagePublisher: AnyPublisher<[DeltaType], Never> {
-      messageSubject.eraseToAnyPublisher()
-    }
-
-    var startSharingPublisher: AnyPublisher<Void, Never> {
-      startSharingSubject.eraseToAnyPublisher()
-    }
 
     public func send(_ deltas: [DeltaType]) {
       #if canImport(GroupActivities)

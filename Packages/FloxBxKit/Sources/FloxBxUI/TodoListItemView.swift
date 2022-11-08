@@ -6,6 +6,25 @@
     @State var title: String
     let item: TodoContentItem
 
+    var body: some View {
+      Group {
+        if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
+          TextField("", text: self.$title)
+            .onSubmit(self.beginSave)
+            .foregroundColor(self.item.isSaved ? .primary : .secondary)
+        } else {
+          TextField(
+            "",
+            text: self.$title,
+            onEditingChanged: self.beginSave(hasFinished:),
+            onCommit: self.beginSave
+          )
+        }
+      }.onChange(of: item.title) { newValue in
+        self.title = newValue
+      }
+    }
+
     init(item: TodoContentItem) {
       self.item = item
       _title = .init(initialValue: self.item.title)
@@ -24,25 +43,6 @@
         return
       }
       beginSave()
-    }
-
-    var body: some View {
-      Group {
-        if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
-          TextField("", text: self.$title)
-            .onSubmit(self.beginSave)
-            .foregroundColor(self.item.isSaved ? .primary : .secondary)
-        } else {
-          TextField(
-            "",
-            text: self.$title,
-            onEditingChanged: self.beginSave(hasFinished:),
-            onCommit: self.beginSave
-          )
-        }
-      }.onChange(of: item.title) { newValue in
-        self.title = newValue
-      }
     }
   }
 

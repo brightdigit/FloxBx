@@ -5,6 +5,9 @@ import Foundation
 #endif
 
 extension URLSession: Session {
+  public typealias SessionRequestType = URLRequest
+
+  public typealias SessionResponseType = URLSessionResponse
   public func request(
     _ request: URLRequest,
     _ completed: @escaping (Result<URLSessionResponse, Error>) -> Void
@@ -25,8 +28,4 @@ extension URLSession: Session {
     task.resume()
     return task
   }
-
-  public typealias SessionRequestType = URLRequest
-
-  public typealias SessionResponseType = URLSessionResponse
 }

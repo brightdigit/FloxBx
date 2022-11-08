@@ -2,11 +2,12 @@ import Fluent
 import Vapor
 
 final class User: Model {
-  static let schema = "Users"
   enum FieldKeys {
     static var email: FieldKey { "email" }
     static var password: FieldKey { "passwordHash" }
   }
+
+  static let schema = "Users"
 
   @ID() var id: UUID?
   @Field(key: FieldKeys.email) var email: String

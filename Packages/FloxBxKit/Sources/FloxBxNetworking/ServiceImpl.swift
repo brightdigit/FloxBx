@@ -12,6 +12,30 @@ public class ServiceImpl<
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
   SessionType.SessionResponseType.DataType == CoderType.DataType {
+  var baseURLComponents: URLComponents
+  let credentialsContainer: CredentialsContainer
+  let coder: CoderType
+  let session: SessionType
+  let builder: RequestBuilderType
+
+  let headers: [String: String]
+
+  internal init(
+    baseURLComponents: URLComponents,
+    coder: CoderType,
+    session: SessionType,
+    builder: RequestBuilderType,
+    credentialsContainer: CredentialsContainer,
+    headers: [String: String]
+  ) {
+    self.baseURLComponents = baseURLComponents
+    self.coder = coder
+    self.session = session
+    self.builder = builder
+    self.credentialsContainer = credentialsContainer
+    self.headers = headers
+  }
+
   // swiftlint:disable:next function_body_length
   public func beginRequest<RequestType>(
     _ request: RequestType,
@@ -189,30 +213,6 @@ public class ServiceImpl<
     session.request(sessionRequest) { result in
       completed(result.asVoid().asError())
     }
-  }
-
-  var baseURLComponents: URLComponents
-  let credentialsContainer: CredentialsContainer
-  let coder: CoderType
-  let session: SessionType
-  let builder: RequestBuilderType
-
-  let headers: [String: String]
-
-  internal init(
-    baseURLComponents: URLComponents,
-    coder: CoderType,
-    session: SessionType,
-    builder: RequestBuilderType,
-    credentialsContainer: CredentialsContainer,
-    headers: [String: String]
-  ) {
-    self.baseURLComponents = baseURLComponents
-    self.coder = coder
-    self.session = session
-    self.builder = builder
-    self.credentialsContainer = credentialsContainer
-    self.headers = headers
   }
 
   public func save(credentials: Credentials) throws {

@@ -22,24 +22,6 @@
        kSecAttrAccessGroup as String: accessGroup] as CFDictionary
     }
 
-    func queryForAdding(account: String, token: String) -> CFDictionary {
-      let tokenData = token.data(using: String.Encoding.utf8)!
-
-      return [kSecClass as String: kSecClassGenericPassword,
-              kSecAttrAccount as String: account,
-              kSecValueData as String: tokenData,
-              kSecAttrService as String: serviceName,
-              kSecAttrAccessGroup as String: accessGroup] as CFDictionary
-    }
-
-    func attributesForUpdating(account: String, token: String) -> CFDictionary {
-      let tokenData = token.data(using: String.Encoding.utf8)!
-      return [
-        kSecAttrAccount as String: account,
-        kSecValueData as String: tokenData
-      ] as CFDictionary
-    }
-
     var passwordAccountQuery: CFDictionary {
       [
         kSecClass as String: kSecClassInternetPassword,
@@ -53,6 +35,21 @@
     }
 
     var passwordUpdateQuery: CFDictionary {
+      [
+        kSecClass as String: kSecClassInternetPassword,
+        kSecAttrServer as String: serviceName,
+        kSecAttrAccessGroup as String: accessGroup,
+        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
+      ] as CFDictionary
+    }
+
+    var deleteTokenQuery: CFDictionary {
+      [kSecClass as String: kSecClassGenericPassword,
+       kSecAttrService as String: serviceName,
+       kSecAttrAccessGroup as String: accessGroup] as CFDictionary
+    }
+
+    var deletePasswordQuery: CFDictionary {
       [
         kSecClass as String: kSecClassInternetPassword,
         kSecAttrServer as String: serviceName,
@@ -81,18 +78,21 @@
       ] as CFDictionary
     }
 
-    var deleteTokenQuery: CFDictionary {
-      [kSecClass as String: kSecClassGenericPassword,
-       kSecAttrService as String: serviceName,
-       kSecAttrAccessGroup as String: accessGroup] as CFDictionary
+    func queryForAdding(account: String, token: String) -> CFDictionary {
+      let tokenData = token.data(using: String.Encoding.utf8)!
+
+      return [kSecClass as String: kSecClassGenericPassword,
+              kSecAttrAccount as String: account,
+              kSecValueData as String: tokenData,
+              kSecAttrService as String: serviceName,
+              kSecAttrAccessGroup as String: accessGroup] as CFDictionary
     }
 
-    var deletePasswordQuery: CFDictionary {
-      [
-        kSecClass as String: kSecClassInternetPassword,
-        kSecAttrServer as String: serviceName,
-        kSecAttrAccessGroup as String: accessGroup,
-        kSecAttrSynchronizable as String: kSecAttrSynchronizableAny
+    func attributesForUpdating(account: String, token: String) -> CFDictionary {
+      let tokenData = token.data(using: String.Encoding.utf8)!
+      return [
+        kSecAttrAccount as String: account,
+        kSecValueData as String: tokenData
       ] as CFDictionary
     }
   }

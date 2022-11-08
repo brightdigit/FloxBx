@@ -2,11 +2,12 @@ import Fluent
 import Vapor
 
 final class Todo: Model, Content {
-  static let schema = "Todos"
   enum FieldKeys {
     static let title: FieldKey = "title"
     static let userID: FieldKey = "userID"
   }
+
+  static let schema = "Todos"
 
   @ID(key: .id)
   var id: UUID?

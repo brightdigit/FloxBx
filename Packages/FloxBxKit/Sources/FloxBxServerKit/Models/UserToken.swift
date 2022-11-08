@@ -2,13 +2,13 @@ import Fluent
 import Vapor
 
 final class UserToken: Model, Content {
-  static let schema = "UserTokens"
-
   enum FieldKeys {
     static let userID: FieldKey = "userID"
     static let value: FieldKey = "value"
     static let expiresAt: FieldKey = "expiresAt"
   }
+
+  static let schema = "UserTokens"
 
   @ID(key: .id)
   var id: UUID?

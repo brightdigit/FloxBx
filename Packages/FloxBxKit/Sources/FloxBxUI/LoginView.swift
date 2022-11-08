@@ -62,8 +62,6 @@
       @State var presentLoginOrSignup = false
     #endif
 
-    init() {}
-
     var content: some View {
       VStack {
         #if !os(watchOS)
@@ -145,6 +143,8 @@
         self.content
       #endif
     }
+
+    init() {}
   }
 
   struct LoginView_Previews: PreviewProvider {
