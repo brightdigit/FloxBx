@@ -2,8 +2,6 @@ import FloxBxModels
 import Fluent
 import Vapor
 
-extension CreateGroupSessionResponseContent: Content {}
-
 internal struct GroupSessionController: RouteCollection {
   internal func boot(routes: RoutesBuilder) throws {
     let group = routes.grouped("group-sessions")

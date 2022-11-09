@@ -2,17 +2,8 @@ import FloxBxModels
 import Fluent
 import Vapor
 
-extension CreateTodoRequestContent: Content {}
-extension CreateTodoResponseContent: Content {}
-
-extension CreateTodoResponseContent {
-  init(todoItem: Todo) throws {
-    try self.init(id: todoItem.requireID(), title: todoItem.title)
-  }
-}
-
-struct TodoController: RouteCollection {
-  func boot(routes: RoutesBuilder) throws {
+internal struct TodoController: RouteCollection {
+  internal func boot(routes: RoutesBuilder) throws {
     let todos = routes.grouped("todos")
 
     todos.get(use: index)
@@ -31,7 +22,7 @@ struct TodoController: RouteCollection {
     }
   }
 
-  func index(
+  internal func index(
     from request: Request
   ) throws -> EventLoopFuture<[CreateTodoResponseContent]> {
     let user = try request.auth.require(User.self)
@@ -39,10 +30,11 @@ struct TodoController: RouteCollection {
     let userF = GroupSession.user(fromRequest: request, otherwise: user)
     return userF.flatMap { user in
       user.$items.get(on: request.db)
-    }.flatMapEachThrowing(CreateTodoResponseContent.init(todoItem:))
+    }
+    .flatMapEachThrowing(CreateTodoResponseContent.init(todoItem:))
   }
 
-  func create(
+  internal func create(
     from request: Request
   ) throws -> EventLoopFuture<CreateTodoResponseContent> {
     let user = try request.auth.require(User.self)
@@ -58,7 +50,7 @@ struct TodoController: RouteCollection {
     }
   }
 
-  func update(
+  internal func update(
     from request: Request
   ) throws -> EventLoopFuture<CreateTodoResponseContent> {
     let user = try request.auth.require(User.self)
@@ -69,20 +61,24 @@ struct TodoController: RouteCollection {
     return userF.flatMap { user in
       user.$items.query(on: request.db)
         .filter(\.$id == todoID)
-        .first().unwrap(orError: Abort(.notFound))
+        .first()
+        .unwrap(orError: Abort(.notFound))
         .flatMap { todo -> EventLoopFuture<Void> in
           todo.title = content.title
           return todo.update(on: request.db)
-        }.transform(to: CreateTodoResponseContent(id: todoID, title: content.title))
+        }
+        .transform(to: CreateTodoResponseContent(id: todoID, title: content.title))
     }
   }
 
-  func delete(from request: Request) throws -> EventLoopFuture<HTTPStatus> {
+  internal func delete(from request: Request) throws -> EventLoopFuture<HTTPStatus> {
     let user = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
     let userF = GroupSession.user(fromRequest: request, otherwise: user)
     return userF.flatMap { user in
-      user.$items.query(on: request.db).filter(\.$id == todoID).all()
+      user.$items.query(on: request.db)
+        .filter(\.$id == todoID)
+        .all()
         .flatMap { $0.delete(on: request.db) }
         .transform(to: .noContent)
     }

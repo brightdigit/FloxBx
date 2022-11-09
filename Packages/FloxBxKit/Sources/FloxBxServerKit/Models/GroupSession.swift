@@ -26,14 +26,17 @@ extension GroupSession {
   internal static func user(
     forGroupSessionWithID groupSessionID: UUID?,
     otherwise user: User,
-    on db: Database,
+    on database: Database,
     eventLoop: EventLoop
   ) -> EventLoopFuture<User> {
     let userF: EventLoopFuture<User>
     if let sessionID: UUID = groupSessionID {
-      let session = GroupSession.find(sessionID, on: db).unwrap(orError: Abort(.notFound))
+      let session = GroupSession.find(
+        sessionID, on: database
+      )
+      .unwrap(orError: Abort(.notFound))
       userF = session.flatMap {
-        $0.$user.get(on: db)
+        $0.$user.get(on: database)
       }
     } else {
       userF = eventLoop.makeSucceededFuture(user)

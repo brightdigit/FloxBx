@@ -1,25 +1,28 @@
 import Fluent
 import Vapor
 
-final class User: Model {
-  enum FieldKeys {
-    static var email: FieldKey { "email" }
-    static var password: FieldKey { "passwordHash" }
+internal final class User: Model {
+  internal enum FieldKeys {
+    internal static var email: FieldKey { "email" }
+    internal static var password: FieldKey { "passwordHash" }
   }
 
-  static let schema = "Users"
+  internal static let schema = "Users"
 
-  @ID() var id: UUID?
-  @Field(key: FieldKeys.email) var email: String
-  @Field(key: FieldKeys.password) var passwordHash: String
-  @Children(for: \Todo.$user) var items: [Todo]
-  @Children(for: \GroupSession.$user) var groupSessions: [GroupSession]
+  @ID() internal var id: UUID?
+  @Field(key: FieldKeys.email) internal var email: String
+  @Field(key: FieldKeys.password) internal var passwordHash: String
+  @Children(for: \Todo.$user) internal var items: [Todo]
+  @Children(for: \GroupSession.$user) internal var groupSessions: [GroupSession]
 
-  init() {}
+  internal init() {}
 
-  init(id: User.IDValue? = nil,
-       email: String,
-       passwordHash: String) {
+  internal init(
+    email: String,
+    passwordHash: String,
+
+    id: User.IDValue? = nil
+  ) {
     self.id = id
     self.email = email
     self.passwordHash = passwordHash
@@ -27,17 +30,17 @@ final class User: Model {
 }
 
 extension User: ModelAuthenticatable {
-  static var usernameKey: KeyPath<User, Field<String>> = \.$email
+  internal static var usernameKey: KeyPath<User, Field<String>> = \.$email
 
-  static let passwordHashKey: KeyPath<User, Field<String>> = \.$passwordHash
+  internal static let passwordHashKey: KeyPath<User, Field<String>> = \.$passwordHash
 
-  func verify(password: String) throws -> Bool {
+  internal func verify(password: String) throws -> Bool {
     try Bcrypt.verify(password, created: passwordHash)
   }
 }
 
 extension User {
-  func generateToken() throws -> UserToken {
+  internal func generateToken() throws -> UserToken {
     try .init(
       value: [UInt8].random(count: 16).base64,
       userID: requireID()

@@ -8,6 +8,7 @@
 
   public class SharePlayObject<
     DeltaType: Codable,
+    // swiftlint:disable:next generic_type_name
     ActivityConfigurationType,
     ActivityIDType: Hashable
   >: ObservableObject {

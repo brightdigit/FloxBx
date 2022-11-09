@@ -1,56 +1,6 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  #if os(watchOS)
-    private typealias FBTextFieldStyle = DefaultTextFieldStyle
-  #else
-    private typealias FBTextFieldStyle = RoundedBorderTextFieldStyle
-  #endif
-
-  #if os(watchOS)
-    private typealias FBButtonStyle = DefaultButtonStyle
-  #else
-    private typealias FBButtonStyle = BorderlessButtonStyle
-  #endif
-
-  #if os(macOS)
-    extension NSTextContentType {
-      internal static let emailAddress: NSTextContentType = .username
-    }
-  #endif
-
-  extension View {
-    @available(iOS 15.0, watchOS 8.0, *)
-    private func forEmailAddress2021() -> some View {
-      #if os(macOS)
-        self
-      #else
-        textInputAutocapitalization(.never)
-          .disableAutocorrection(true)
-      #endif
-    }
-
-    private func forEmailAddress2020() -> some View {
-      textContentType(.emailAddress)
-      #if os(iOS)
-        .keyboardType(.emailAddress)
-        .autocapitalization(.none)
-      #elseif os(macOS)
-          .textCase(.none)
-      #endif
-    }
-
-    public func forEmailAddress() -> some View {
-      let view = forEmailAddress2020()
-
-      if #available(iOS 15.0, watchOS 8.0, *) {
-        return AnyView(view.forEmailAddress2021())
-      } else {
-        return AnyView(view)
-      }
-    }
-  }
-
   internal struct LoginView: View {
     @EnvironmentObject private var object: ApplicationObject
     @State private var emailAddress: String = ""
@@ -60,6 +10,7 @@
     #endif
 
     private var content: some View {
+      // swiftlint:disable:next closure_body_length
       VStack {
         #if !os(watchOS)
           Spacer()
@@ -123,9 +74,13 @@
             Text("Sign up new account or sign in existing?")
             Spacer()
             Button("Sign Up") {
-              self.object.beginSignup(withCredentials:
-                .init(username: self.emailAddress, password: self.password)
-              )
+              self.object
+                .beginSignup(
+                  withCredentials: .init(
+                    username: self.emailAddress,
+                    password: self.password
+                  )
+                )
             }
             Button("Sign In") {
               self.object.beginSignIn(
@@ -146,6 +101,7 @@
   }
 
   private struct LoginView_Previews: PreviewProvider {
+    // swiftlint:disable:next strict_fileprivate
     fileprivate static var previews: some View {
       ForEach(ColorScheme.allCases, id: \.self) {
         LoginView().preferredColorScheme($0)

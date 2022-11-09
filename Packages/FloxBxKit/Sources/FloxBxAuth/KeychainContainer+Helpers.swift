@@ -65,6 +65,7 @@
     }
 
     internal func queryForAdding(account: String, password: String) -> CFDictionary {
+      // swiftlint:disable:next force_unwrapping
       let passwordData = password.data(using: String.Encoding.utf8)!
 
       return [
@@ -73,6 +74,7 @@
         kSecAttrServer as String: serviceName,
         kSecValueData as String: passwordData,
         kSecAttrAccessGroup as String: accessGroup,
+        // swiftlint:disable:next force_unwrapping
         kSecAttrSynchronizable as String: kCFBooleanTrue!
       ] as CFDictionary
     }
@@ -81,15 +83,18 @@
       account: String,
       password: String
     ) -> CFDictionary {
+      // swiftlint:disable:next force_unwrapping
       let passwordData = password.data(using: String.Encoding.utf8)!
       return [
         kSecAttrAccount as String: account,
         kSecValueData as String: passwordData,
+        // swiftlint:disable:next force_unwrapping
         kSecAttrSynchronizable as String: kCFBooleanTrue!
       ] as CFDictionary
     }
 
     internal func queryForAdding(account: String, token: String) -> CFDictionary {
+      // swiftlint:disable:next force_unwrapping
       let tokenData = token.data(using: String.Encoding.utf8)!
 
       return [
@@ -102,6 +107,7 @@
     }
 
     internal func attributesForUpdating(account: String, token: String) -> CFDictionary {
+      // swiftlint:disable:next force_unwrapping
       let tokenData = token.data(using: String.Encoding.utf8)!
       return [
         kSecAttrAccount as String: account,

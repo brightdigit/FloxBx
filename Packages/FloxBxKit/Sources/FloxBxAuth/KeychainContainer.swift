@@ -81,20 +81,24 @@
       guard status == errSecSuccess else {
         throw KeychainError.unhandledError(status: status)
       }
+      // swiftlint:disable indentation_width
       guard let existingItem = item as? [String: Any],
             let passwordData = existingItem[kSecValueData as String] as? Data,
             let password = String(data: passwordData, encoding: String.Encoding.utf8),
             let account = existingItem[kSecAttrAccount as String] as? String
+      // swiftlint:enable indentation_width
       else {
         throw KeychainError.unexpectedPasswordData
       }
       var tokenItem: CFTypeRef?
       let tokenStatus = SecItemCopyMatching(tokenAccountQuery, &tokenItem)
 
+      // swiftlint:disable indentation_width
       if let existingItem = tokenItem as? [String: Any],
          let passwordData = existingItem[kSecValueData as String] as? Data,
          let token = String(data: passwordData, encoding: String.Encoding.utf8),
          tokenStatus == errSecSuccess {
+        // swiftlint:enable indentation_width
         return Credentials(username: account, password: password, token: token)
       } else {
         return Credentials(username: account, password: password)

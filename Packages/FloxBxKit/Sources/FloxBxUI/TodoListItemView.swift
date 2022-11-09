@@ -1,12 +1,12 @@
 #if canImport(SwiftUI)
   import FloxBxModels
   import SwiftUI
-  struct TodoListItemView: View {
-    @EnvironmentObject var object: ApplicationObject
-    @State var title: String
-    let item: TodoContentItem
+  internal struct TodoListItemView: View {
+    @EnvironmentObject private var object: ApplicationObject
+    @State private var title: String
+    private let item: TodoContentItem
 
-    var body: some View {
+    internal var body: some View {
       Group {
         if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
           TextField("", text: self.$title)
@@ -25,20 +25,20 @@
       }
     }
 
-    init(item: TodoContentItem) {
+    internal init(item: TodoContentItem) {
       self.item = item
       _title = .init(initialValue: self.item.title)
     }
 
-    func updatedItem() -> TodoContentItem {
+    private func updatedItem() -> TodoContentItem {
       item.updatingTitle(title)
     }
 
-    func beginSave() {
+    private func beginSave() {
       object.saveItem(updatedItem())
     }
 
-    func beginSave(hasFinished: Bool) {
+    private func beginSave(hasFinished: Bool) {
       guard hasFinished else {
         return
       }
@@ -46,8 +46,9 @@
     }
   }
 
-  struct SwiftUIView_Previews: PreviewProvider {
-    static var previews: some View {
+  private struct TodoListItemView_Previews: PreviewProvider {
+    // swiftlint:disable:next strict_fileprivate
+    fileprivate static var previews: some View {
       TodoListItemView(item: .init(title: "Hello"))
     }
   }

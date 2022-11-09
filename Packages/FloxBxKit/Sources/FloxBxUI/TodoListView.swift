@@ -1,10 +1,10 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  struct TodoListView: View {
-    @EnvironmentObject var object: ApplicationObject
+  internal struct TodoListView: View {
+    @EnvironmentObject private var object: ApplicationObject
 
-    var body: some View {
+    internal var body: some View {
       List {
         ForEach(self.object.items) { item in
           TodoListItemView(item: item).onAppear {
@@ -12,6 +12,7 @@
           }
         }.onDelete(perform: object.deleteItems(atIndexSet:))
       }
+      // swiftlint:disable:next closure_body_length
       .toolbar(content: {
         ToolbarItemGroup {
           HStack {
@@ -51,8 +52,9 @@
     }
   }
 
-  struct TodoList_Previews: PreviewProvider {
-    static var previews: some View {
+  private struct TodoList_Previews: PreviewProvider {
+    // swiftlint:disable:next strict_fileprivate
+    fileprivate static var previews: some View {
       TodoListView().environmentObject(ApplicationObject([
         .init(title: "Do Stuff")
       ]))
