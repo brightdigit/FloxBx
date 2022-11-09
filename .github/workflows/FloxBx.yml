@@ -83,7 +83,7 @@ jobs:
       - name: Dump PIF
         run: |
           swift package dump-pif > /dev/null
-          xcodebuild clean -scheme FloxBxKit -destination 'generic/platform=iOS' > /dev/null
+          xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' > /dev/null
         if: matrix.xcode == '/Applications/Xcode_14.1.app'
       - name: Run iOS target tests
         run:  xcodebuild build -scheme FloxBxUI -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}'
