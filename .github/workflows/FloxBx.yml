@@ -15,16 +15,6 @@ jobs:
       matrix:
         include:
           - runs-on: macos-12
-            xcode: "/Applications/Xcode_13.3.app"
-            iOSVersion: 15.4
-            watchOSVersion: 8.5
-            watchName: "Apple Watch Series 7 - 41mm"
-          - runs-on: macos-12
-            xcode: "/Applications/Xcode_13.4.1.app"
-            iOSVersion: 15.5
-            watchOSVersion: 8.5  
-            watchName: "Apple Watch Series 7 - 41mm"
-          - runs-on: macos-12
             xcode: "/Applications/Xcode_14.0.1.app"
             iOSVersion: "16.0"
             watchOSVersion: "9.0"
@@ -50,8 +40,13 @@ jobs:
         run: ./scripts/lint.sh 
       - name: Dump PIF
         run: |
-          swift package dump-pif
-          xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS'
+          swift package dump-pif > /dev/null
+          MAX_ATTEMPT=3
+          ATTEMPT=0
+          while [ -z $SUCCESS ] && [ "$ATTEMPT" -le "$MAX_ATTEMP" ]; do
+            xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' | grep -q "CLEAN SUCCEEDED" && SUCCESS=true
+            ATTEMPT=$(($ATTEMPT+1))
+          done
       - name: Run iOS target tests
         run:  xcodebuild build -scheme FloxBxUI -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}'
       # - uses: sersoft-gmbh/swift-coverage-action@v2
