@@ -50,8 +50,8 @@ jobs:
         run: ./scripts/lint.sh 
       - name: Dump PIF
         run: |
-          swift package dump-pif > /dev/null
-          xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' > /dev/null
+          swift package dump-pif
+          xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS'
       - name: Run iOS target tests
         run:  xcodebuild build -scheme FloxBxUI -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}'
       # - uses: sersoft-gmbh/swift-coverage-action@v2
