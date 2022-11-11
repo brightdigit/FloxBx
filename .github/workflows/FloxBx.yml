@@ -43,7 +43,7 @@ jobs:
           swift package dump-pif > /dev/null
           MAX_ATTEMPT=3
           ATTEMPT=0
-          while [ -z $SUCCESS ] && [ "$ATTEMPT" -le "$MAX_ATTEMP" ]; do
+          while [ -z $SUCCESS ] && [ "$ATTEMPT" -le "$MAX_ATTEMPT" ]; do
             xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' | grep -q "CLEAN SUCCEEDED" && SUCCESS=true
             ATTEMPT=$(($ATTEMPT+1))
           done
