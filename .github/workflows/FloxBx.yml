@@ -47,6 +47,7 @@ jobs:
             xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' | grep -q "CLEAN SUCCEEDED" && SUCCESS=true
             ATTEMPT=$(($ATTEMPT+1))
           done
+        if: startsWith(matrix.xcode, '/Applications/Xcode_14')
       - name: Run iOS target tests
         run:  xcodebuild build -scheme FloxBxUI -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}'
       # - uses: sersoft-gmbh/swift-coverage-action@v2
