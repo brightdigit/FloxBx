@@ -46,7 +46,7 @@ jobs:
         env:
           cache-name: cache-swift
         with:
-          path: swift-${{ env.SWIFT_VER }}-RELEASE-ubuntu${{ env.RELEASE_DOT }}
+          path: Packages/FloxBxKit/swift-${{ env.SWIFT_VER }}-RELEASE-ubuntu${{ env.RELEASE_DOT }}
           key: ${{ runner.os }}-${{ env.RELEASE_DOT }}-${{ env.cache-name }}-${{ env.SWIFT_VER }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
