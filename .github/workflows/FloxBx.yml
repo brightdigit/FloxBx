@@ -22,6 +22,19 @@ jobs:
             swift-version: 5.7.1
     steps:
       - uses: actions/checkout@v3
+      - name: Cache swift package modules
+        id: cache-spm-linux
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-spm
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: .build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Set Ubuntu Release DOT
         run: echo "RELEASE_DOT=$(lsb_release -sr)" >> $GITHUB_ENV
       - name: Set Ubuntu Release NUM
@@ -68,6 +81,32 @@ jobs:
             watchName: "Apple Watch Ultra (49mm)"
     steps:
       - uses: actions/checkout@v3
+      - name: Cache swift package modules
+        id: cache-spm-macos
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-spm
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: .build
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Cache mint
+        id: cache-mint
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-mint
+        with:
+          # npm cache files are stored in `~/.npm` on Linux/macOS
+          path: .mint
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Set Xcode Name
         run: echo "XCODE_NAME=$(basename -- ${{ matrix.xcode }} | sed 's/\.[^.]*$//' | cut -d'_' -f2)" >> $GITHUB_ENV
       - name: Setup Xcode
