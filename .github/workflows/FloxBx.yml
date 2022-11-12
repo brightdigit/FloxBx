@@ -29,7 +29,7 @@ jobs:
           cache-name: cache-spm
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: .build
+          path: ~/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -88,7 +88,7 @@ jobs:
           cache-name: cache-spm
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: .build
+          path: ~/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
@@ -101,7 +101,7 @@ jobs:
           cache-name: cache-mint
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: .mint
+          path: ~/.mint
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
