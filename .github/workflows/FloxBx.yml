@@ -53,10 +53,10 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
       - name: Download Swift
-        if: steps.cache-swift.outputs.cache-hit != 'true'
+        if: steps.cache-swift-linux.outputs.cache-hit != 'true'
         run: curl -O https://download.swift.org/swift-${SWIFT_VER}-release/ubuntu${RELEASE_NUM}/swift-${SWIFT_VER}-RELEASE/swift-${SWIFT_VER}-RELEASE-ubuntu${RELEASE_DOT}.tar.gz
       - name: Extract Swift
-        if: steps.cache-swift.outputs.cache-hit != 'true'
+        if: steps.cache-swift-linux.outputs.cache-hit != 'true'
         run: tar xzf swift-${SWIFT_VER}-RELEASE-ubuntu${RELEASE_DOT}.tar.gz
       - name: Add Path
         run: echo "$GITHUB_WORKSPACE/swift-${SWIFT_VER}-RELEASE-ubuntu${RELEASE_DOT}/usr/bin" >> $GITHUB_PATH
