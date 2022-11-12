@@ -118,6 +118,7 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
+        if: startsWith(matrix.xcode,'/Applications/Xcode_14')
       - name: Set Xcode Name
         run: echo "XCODE_NAME=$(basename -- ${{ matrix.xcode }} | sed 's/\.[^.]*$//' | cut -d'_' -f2)" >> $GITHUB_ENV
       - name: Setup Xcode
@@ -126,10 +127,12 @@ jobs:
         run: |
           brew update
           brew install mint
+        if: startsWith(matrix.xcode,'/Applications/Xcode_14')
       - name: Build
         run: swift build
       - name: Lint
         run: ./scripts/lint.sh 
+        if: startsWith(matrix.xcode,'/Applications/Xcode_14')
       - name: Dump PIF
         run: |
           swift package dump-pif > /dev/null
