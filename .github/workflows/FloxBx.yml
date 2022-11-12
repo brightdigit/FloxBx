@@ -28,22 +28,8 @@ jobs:
         env:
           cache-name: cache-spm
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
           path: Packages/FloxBxKit/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Packages/FloxBxKit/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Cache swift package modules
-        id: cache-swift-linux
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-swift
-        with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: Packages/FloxBxKit/.build
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ env.swift-version }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
@@ -54,6 +40,18 @@ jobs:
         run: echo "RELEASE_NUM=${RELEASE_DOT//[-._]/}"  >> $GITHUB_ENV
       - name: Set Ubuntu Codename
         run: echo "RELEASE_NAME=$(lsb_release -sc)"  >> $GITHUB_ENV
+      - name: Cache swift
+        id: cache-swift-linux
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-swift
+        with:
+          path: swift-${{ runner.swift-version }}-RELEASE-ubuntu${{ env.RELEASE_DOT }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ runner.swift-version }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
       - name: Download Swift
         if: steps.cache-swift.outputs.cache-hit != 'true'
         run: curl -O https://download.swift.org/swift-${SWIFT_VER}-release/ubuntu${RELEASE_NUM}/swift-${SWIFT_VER}-RELEASE/swift-${SWIFT_VER}-RELEASE-ubuntu${RELEASE_DOT}.tar.gz
@@ -102,7 +100,6 @@ jobs:
         env:
           cache-name: cache-spm
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
           path: Packages/FloxBxKit/.build
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Packages/FloxBxKit/Package.resolved') }}
           restore-keys: |
@@ -115,7 +112,6 @@ jobs:
         env:
           cache-name: cache-mint
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
           path: Packages/FloxBxKit/.mint
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('Packages/FloxBxKit/Mintfile') }}
           restore-keys: |
