@@ -21,7 +21,7 @@ jobs:
           - runs-on: ubuntu-22.04
             swift-version: 5.7.1
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set Ubuntu Release DOT
         run: echo "RELEASE_DOT=$(lsb_release -sr)" >> $GITHUB_ENV
       - name: Set Ubuntu Release NUM
@@ -67,7 +67,7 @@ jobs:
             watchOSVersion: "9.1"
             watchName: "Apple Watch Ultra (49mm)"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set Xcode Name
         run: echo "XCODE_NAME=$(basename -- ${{ matrix.xcode }} | sed 's/\.[^.]*$//' | cut -d'_' -f2)" >> $GITHUB_ENV
       - name: Setup Xcode
@@ -89,7 +89,7 @@ jobs:
             xcodebuild clean -scheme FloxBxUI -destination 'generic/platform=iOS' | grep -q "CLEAN SUCCEEDED" && SUCCESS=true
             ATTEMPT=$(($ATTEMPT+1))
           done
-        if: matrix.xcode == '/Applications/Xcode_14.1.app'
+        if: startsWith(matrix.xcode,'/Applications/Xcode_14')
       - name: Run iOS target tests
         run:  xcodebuild build -scheme FloxBxUI -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 13,OS=${{ matrix.iOSVersion }}'
       # - uses: sersoft-gmbh/swift-coverage-action@v2
