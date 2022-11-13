@@ -22,7 +22,6 @@ import FloxBxNetworking
     @Published internal private(set) var items = [TodoContentItem]()
 
     private let service: Service = ServiceImpl(
-      // swiftlint:disable:next force_unwrapping
       host: ProcessInfo.processInfo.environment["HOST_NAME"]!,
       accessGroup: Configuration.accessGroup,
       serviceName: Configuration.serviceName,
@@ -31,7 +30,6 @@ import FloxBxNetworking
 
     private let sentry = CanaryClient()
 
-    // swiftlint:disable:next function_body_length
     internal init(_ items: [TodoContentItem] = []) {
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
@@ -78,8 +76,12 @@ import FloxBxNetworking
       }
 
       self.items = items
-      // swiftlint:disable:next force_try
-      try! sentry.start(withOptions: .init(dsn: Configuration.dsn))
+
+      do {
+        try sentry.start(withOptions: .init(dsn: Configuration.dsn))
+      } catch {
+        preconditionFailure("Unable to start sentry: \(error.localizedDescription)")
+      }
     }
 
     internal func addDelta(_ delta: TodoListDelta) {

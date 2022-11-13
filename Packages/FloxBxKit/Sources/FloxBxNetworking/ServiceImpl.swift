@@ -35,7 +35,6 @@ public class ServiceImpl<
     self.headers = headers
   }
 
-  // swiftlint:disable:next function_body_length
   public func beginRequest<RequestType>(
     _ request: RequestType,
     _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void
@@ -124,7 +123,6 @@ public class ServiceImpl<
     }
   }
 
-  // swiftlint:disable:next function_body_length
   public func beginRequest<RequestType>(
     _ request: RequestType,
     _ completed: @escaping (Result<RequestType.SuccessType, Error>) -> Void

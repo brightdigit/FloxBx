@@ -142,10 +142,10 @@
         session?.getGroupSession()
       }
 
-      @available(macOS 12, iOS 15, *)
-      private func getActivity<ActivityType: SharePlayActivity>() -> ActivityType? {
-        activity?.getGroupActivity()
-      }
+//      @available(macOS 12, iOS 15, *)
+//      private func getActivity<ActivityType: SharePlayActivity>() -> ActivityType? {
+//        activity?.getGroupActivity()
+//      }
 
       @available(macOS 12, iOS 15, *)
       public func getSessions<
