@@ -2,6 +2,7 @@ import Canary
 import enum FloxBxModels.Configuration
 import FluentPostgresDriver
 import Vapor
+import SublimationVapor
 
 public struct Server {
   private let env: Environment
@@ -22,6 +23,18 @@ public struct Server {
   public static func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    
+    #if DEBUG
+    if !app.environment.isRelease {
+      app.lifecycle.use(
+        SublimationLifecycleHandler(
+          ngrokPath: "/opt/homebrew/bin/ngrok",
+          bucketName: Configuration.Sublimation.bucketName,
+          key: Configuration.Sublimation.key
+        )
+      )
+    }
+    #endif
 
     app.databases.use(.postgres(
       hostname: Environment.get("DATABASE_HOST") ?? "localhost",
@@ -54,7 +67,6 @@ public struct Server {
     defer { app.shutdown() }
     try Server.configure(app)
     try app.run()
-    // try routes(app)
     return app
   }
 }

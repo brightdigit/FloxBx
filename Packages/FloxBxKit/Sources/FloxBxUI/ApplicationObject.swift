@@ -3,7 +3,13 @@ import FloxBxAuth
 import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
+import Sublimation
 
+
+enum DeveloperServerError : Error {
+  case noServer
+  case sublimationError(Error)
+}
 #if canImport(Combine) && canImport(SwiftUI)
   import Combine
   import SwiftUI
@@ -21,12 +27,16 @@ import FloxBxNetworking
     @Published internal private(set) var username: String?
     @Published internal private(set) var items = [TodoContentItem]()
 
+    
+    #if DEBUG
+    private var service: Service!
+    #else
     private let service: Service = ServiceImpl(
-      host: ProcessInfo.processInfo.environment["HOST_NAME"]!,
+      baseURL: Configuration.productionBaseURL,
       accessGroup: Configuration.accessGroup,
-      serviceName: Configuration.serviceName,
-      headers: ["Content-Type": "application/json; charset=utf-8"]
+      serviceName: Configuration.serviceName
     )
+    #endif
 
     private let sentry = CanaryClient()
 
@@ -88,10 +98,9 @@ import FloxBxNetworking
       shareplayObject.send([delta])
     }
 
-    internal func begin() {
+    fileprivate func setupCredentials() {
       let credentials: Credentials?
       let error: Error?
-
       do {
         credentials = try service.fetchCredentials()
         error = nil
@@ -99,9 +108,12 @@ import FloxBxNetworking
         error = caughtError
         credentials = nil
       }
-
-      latestError = latestError ?? error
-
+      
+      DispatchQueue.main.async {
+        self.latestError = self.latestError ?? error
+      }
+      
+      
       if let credentials = credentials {
         beginSignIn(withCredentials: credentials)
       } else {
@@ -109,6 +121,52 @@ import FloxBxNetworking
           self.requiresAuthentication = true
         }
       }
+    }
+    
+    #if DEBUG
+    fileprivate func fetchBaseURL() async throws -> URL {
+      do {
+        guard let url = try await KVdb.url(withKey: Configuration.Sublimation.key, atBucket: Configuration.Sublimation.bucketName) else {
+          throw DeveloperServerError.noServer
+        }
+        return url
+      } catch let error {
+        throw DeveloperServerError.sublimationError(error)
+      }
+    }
+    
+    fileprivate func developerService() async -> Service {
+      let baseURL : URL
+      do {
+        baseURL = try await fetchBaseURL()
+        debugPrint("Found BaseURL: \(baseURL)")
+      } catch {
+        await MainActor.run {
+          self.latestError = error
+        }
+        baseURL = URL(staticString: "https://apple.com")
+      }
+      return ServiceImpl(
+        baseURL: baseURL,
+        accessGroup: Configuration.accessGroup,
+        serviceName: Configuration.serviceName
+      )
+    }
+#endif
+    
+    internal func begin() {
+      
+        #if DEBUG
+      Task {
+        self.service = await developerService()
+        
+        setupCredentials()
+      }
+      #else
+      
+      setupCredentials()
+#endif
+
     }
 
     internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
