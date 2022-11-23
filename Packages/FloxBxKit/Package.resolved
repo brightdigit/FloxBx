@@ -109,6 +109,24 @@
       }
     },
     {
+      "identity" : "prchnio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/PrchNIO.git",
+      "state" : {
+        "revision" : "337d0b2f77b0c4ad5b5b3bad6768a9ecd70b003c",
+        "version" : "0.2.0-beta.1"
+      }
+    },
+    {
+      "identity" : "prchvapor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/PrchVapor.git",
+      "state" : {
+        "revision" : "8c19c645f9c2763014885e42a42096ae61da636b",
+        "version" : "0.2.0-beta.2"
+      }
+    },
+    {
       "identity" : "routing-kit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/routing-kit.git",
@@ -133,6 +151,15 @@
       "state" : {
         "revision" : "b7901df0611d3d7e869fa345020b3d0ae817c32d",
         "version" : "3.19.1"
+      }
+    },
+    {
+      "identity" : "sublimation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/Sublimation.git",
+      "state" : {
+        "revision" : "9ad6f9fdc841936ec81b3d14af09ceee10393601",
+        "version" : "0.1.1"
       }
     },
     {
@@ -248,8 +275,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/vapor.git",
       "state" : {
-        "revision" : "b5181996f104d09a0bb52a6ddf5f21d79b9ceb4d",
-        "version" : "4.64.0"
+        "revision" : "9a837b8814509f418efca818bf54f2d44ddef0e6",
+        "version" : "4.66.0"
       }
     },
     {

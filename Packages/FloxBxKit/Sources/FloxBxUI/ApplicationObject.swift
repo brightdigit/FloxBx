@@ -5,11 +5,11 @@ import FloxBxModels
 import FloxBxNetworking
 import Sublimation
 
-
-enum DeveloperServerError : Error {
+enum DeveloperServerError: Error {
   case noServer
   case sublimationError(Error)
 }
+
 #if canImport(Combine) && canImport(SwiftUI)
   import Combine
   import SwiftUI
@@ -27,15 +27,14 @@ enum DeveloperServerError : Error {
     @Published internal private(set) var username: String?
     @Published internal private(set) var items = [TodoContentItem]()
 
-    
     #if DEBUG
-    private var service: Service!
+      private var service: Service!
     #else
-    private let service: Service = ServiceImpl(
-      baseURL: Configuration.productionBaseURL,
-      accessGroup: Configuration.accessGroup,
-      serviceName: Configuration.serviceName
-    )
+      private let service: Service = ServiceImpl(
+        baseURL: Configuration.productionBaseURL,
+        accessGroup: Configuration.accessGroup,
+        serviceName: Configuration.serviceName
+      )
     #endif
 
     private let sentry = CanaryClient()
@@ -108,12 +107,11 @@ enum DeveloperServerError : Error {
         error = caughtError
         credentials = nil
       }
-      
+
       DispatchQueue.main.async {
         self.latestError = self.latestError ?? error
       }
-      
-      
+
       if let credentials = credentials {
         beginSignIn(withCredentials: credentials)
       } else {
@@ -122,51 +120,52 @@ enum DeveloperServerError : Error {
         }
       }
     }
-    
-    #if DEBUG
-    fileprivate func fetchBaseURL() async throws -> URL {
-      do {
-        guard let url = try await KVdb.url(withKey: Configuration.Sublimation.key, atBucket: Configuration.Sublimation.bucketName) else {
-          throw DeveloperServerError.noServer
-        }
-        return url
-      } catch let error {
-        throw DeveloperServerError.sublimationError(error)
-      }
-    }
-    
-    fileprivate func developerService() async -> Service {
-      let baseURL : URL
-      do {
-        baseURL = try await fetchBaseURL()
-        debugPrint("Found BaseURL: \(baseURL)")
-      } catch {
-        await MainActor.run {
-          self.latestError = error
-        }
-        baseURL = URL(staticString: "https://apple.com")
-      }
-      return ServiceImpl(
-        baseURL: baseURL,
-        accessGroup: Configuration.accessGroup,
-        serviceName: Configuration.serviceName
-      )
-    }
-#endif
-    
-    internal func begin() {
-      
-        #if DEBUG
-      Task {
-        self.service = await developerService()
-        
-        setupCredentials()
-      }
-      #else
-      
-      setupCredentials()
-#endif
 
+    #if DEBUG
+      fileprivate func fetchBaseURL() async throws -> URL {
+        do {
+          guard let url = try await KVdb.url(
+            withKey: Configuration.Sublimation.key,
+            atBucket: Configuration.Sublimation.bucketName
+          ) else {
+            throw DeveloperServerError.noServer
+          }
+          return url
+        } catch {
+          throw DeveloperServerError.sublimationError(error)
+        }
+      }
+
+      fileprivate func developerService() async -> Service {
+        let baseURL: URL
+        do {
+          baseURL = try await fetchBaseURL()
+          debugPrint("Found BaseURL: \(baseURL)")
+        } catch {
+          await MainActor.run {
+            self.latestError = error
+          }
+          baseURL = URL(staticString: "https://apple.com")
+        }
+        return ServiceImpl(
+          baseURL: baseURL,
+          accessGroup: Configuration.accessGroup,
+          serviceName: Configuration.serviceName
+        )
+      }
+    #endif
+
+    internal func begin() {
+      #if DEBUG
+        Task {
+          self.service = await developerService()
+
+          setupCredentials()
+        }
+      #else
+
+        setupCredentials()
+      #endif
     }
 
     internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {

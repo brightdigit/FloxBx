@@ -11,7 +11,7 @@ public enum Configuration {
     urlComponents.host = Self.serviceName
     return urlComponents.url!
   }()
-  
+
   public enum Sublimation {
     public static let bucketName = "4WwQUN9AZrppSyLkbzidgo"
     public static let key = "floxbx"
