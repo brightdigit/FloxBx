@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "FloxBx",
-  platforms: [.macOS(.v12), .iOS(.v14), .watchOS(.v7)],
+  platforms: [.macOS(.v11), .iOS(.v14), .watchOS(.v7)],
   products: [
     .library(
       name: "FloxBxUI",
@@ -22,7 +22,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
     .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
-    .package(url: "https://github.com/brightdigit/Sublimation.git", from: "0.1.2")
+    .package(url: "https://github.com/brightdigit/Sublimation.git", branch: "0.1.3")
   ],
   targets: [
     .executableTarget(
