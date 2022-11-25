@@ -1,4 +1,3 @@
-import Canary
 import enum FloxBxModels.Configuration
 import FluentPostgresDriver
 import SublimationVapor
@@ -6,11 +5,9 @@ import Vapor
 
 public struct Server {
   private let env: Environment
-  private let sentry: CanaryClient
 
-  public init(env: Environment, sentry: CanaryClient = .init()) {
+  public init(env: Environment) {
     self.env = env
-    self.sentry = sentry
   }
 
   public init() throws {
@@ -62,7 +59,6 @@ public struct Server {
 
   @discardableResult
   public func start() throws -> Application {
-    try sentry.start(withOptions: .init(dsn: Configuration.dsn))
     let app = Application(env)
     defer { app.shutdown() }
     try Server.configure(app)

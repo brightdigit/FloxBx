@@ -1,4 +1,3 @@
-import Canary
 import FloxBxAuth
 import FloxBxGroupActivities
 import FloxBxModels
@@ -36,8 +35,6 @@ enum DeveloperServerError: Error {
         serviceName: Configuration.serviceName
       )
     #endif
-
-    private let sentry = CanaryClient()
 
     internal init(_ items: [TodoContentItem] = []) {
       if #available(iOS 15, macOS 12, *) {
@@ -85,12 +82,6 @@ enum DeveloperServerError: Error {
       }
 
       self.items = items
-
-      do {
-        try sentry.start(withOptions: .init(dsn: Configuration.dsn))
-      } catch {
-        preconditionFailure("Unable to start sentry: \(error.localizedDescription)")
-      }
     }
 
     internal func addDelta(_ delta: TodoListDelta) {
@@ -145,7 +136,7 @@ enum DeveloperServerError: Error {
           await MainActor.run {
             self.latestError = error
           }
-          baseURL = URL(staticString: "https://apple.com")
+          baseURL = URL(string: "https://apple.com")!
         }
         return ServiceImpl(
           baseURL: baseURL,
