@@ -1,8 +1,13 @@
-import Canary
 import FloxBxAuth
 import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
+import Sublimation
+
+enum DeveloperServerError: Error {
+  case noServer
+  case sublimationError(Error)
+}
 
 #if canImport(Combine) && canImport(SwiftUI)
   import Combine
@@ -21,14 +26,15 @@ import FloxBxNetworking
     @Published internal private(set) var username: String?
     @Published internal private(set) var items = [TodoContentItem]()
 
-    private let service: Service = ServiceImpl(
-      host: ProcessInfo.processInfo.environment["HOST_NAME"]!,
-      accessGroup: Configuration.accessGroup,
-      serviceName: Configuration.serviceName,
-      headers: ["Content-Type": "application/json; charset=utf-8"]
-    )
-
-    private let sentry = CanaryClient()
+    #if DEBUG
+      private var service: Service!
+    #else
+      private let service: Service = ServiceImpl(
+        baseURL: Configuration.productionBaseURL,
+        accessGroup: Configuration.accessGroup,
+        serviceName: Configuration.serviceName
+      )
+    #endif
 
     internal init(_ items: [TodoContentItem] = []) {
       if #available(iOS 15, macOS 12, *) {
@@ -76,22 +82,15 @@ import FloxBxNetworking
       }
 
       self.items = items
-
-      do {
-        try sentry.start(withOptions: .init(dsn: Configuration.dsn))
-      } catch {
-        preconditionFailure("Unable to start sentry: \(error.localizedDescription)")
-      }
     }
 
     internal func addDelta(_ delta: TodoListDelta) {
       shareplayObject.send([delta])
     }
 
-    internal func begin() {
+    fileprivate func setupCredentials() {
       let credentials: Credentials?
       let error: Error?
-
       do {
         credentials = try service.fetchCredentials()
         error = nil
@@ -100,7 +99,9 @@ import FloxBxNetworking
         credentials = nil
       }
 
-      latestError = latestError ?? error
+      DispatchQueue.main.async {
+        self.latestError = self.latestError ?? error
+      }
 
       if let credentials = credentials {
         beginSignIn(withCredentials: credentials)
@@ -109,6 +110,53 @@ import FloxBxNetworking
           self.requiresAuthentication = true
         }
       }
+    }
+
+    #if DEBUG
+      fileprivate func fetchBaseURL() async throws -> URL {
+        do {
+          guard let url = try await KVdb.url(
+            withKey: Configuration.Sublimation.key,
+            atBucket: Configuration.Sublimation.bucketName
+          ) else {
+            throw DeveloperServerError.noServer
+          }
+          return url
+        } catch {
+          throw DeveloperServerError.sublimationError(error)
+        }
+      }
+
+      fileprivate func developerService() async -> Service {
+        let baseURL: URL
+        do {
+          baseURL = try await fetchBaseURL()
+          debugPrint("Found BaseURL: \(baseURL)")
+        } catch {
+          await MainActor.run {
+            self.latestError = error
+          }
+          baseURL = URL(string: "https://apple.com")!
+        }
+        return ServiceImpl(
+          baseURL: baseURL,
+          accessGroup: Configuration.accessGroup,
+          serviceName: Configuration.serviceName
+        )
+      }
+    #endif
+
+    internal func begin() {
+      #if DEBUG
+        Task {
+          self.service = await developerService()
+
+          setupCredentials()
+        }
+      #else
+
+        setupCredentials()
+      #endif
     }
 
     internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
