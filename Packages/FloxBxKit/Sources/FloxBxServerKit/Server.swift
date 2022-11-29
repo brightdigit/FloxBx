@@ -2,7 +2,12 @@ import enum FloxBxModels.Configuration
 import FluentPostgresDriver
 import SublimationVapor
 import Vapor
+import APNS
 
+public struct MissingConfigurationError : Error {
+  let key : String
+  
+}
 public struct Server {
   private let env: Environment
 
@@ -37,6 +42,28 @@ public struct Server {
       hostname: Environment.get("DATABASE_HOST") ?? "localhost",
       username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
     ), as: .psql)
+    
+    
+    guard let appleECP8PrivateKey = Environment.get("APNS_PRIVATE_KEY") else {
+      throw MissingConfigurationError(key: "APNS_PRIVATE_KEY")
+    }
+    
+    try app.apns.containers.use(
+      .init(
+          authenticationMethod: .jwt(
+              // 3
+            privateKey: .init(pemRepresentation: appleECP8PrivateKey),
+              keyIdentifier: "MZDGM87R59",
+              teamIdentifier: "VS77J6GKJ8"
+          ),
+          // 5
+          environment: .sandbox
+      ),
+      eventLoopGroupProvider: .createNew,
+      responseDecoder: .init(),
+      requestEncoder: .init(),
+      backgroundActivityLogger: app.logger, as: .default
+    )
 
     app.migrations.add(CreateUserMigration())
     app.migrations.add(CreateTodoMigration())
