@@ -7,12 +7,11 @@ import struct FloxBxModels.TagPayload
 import FluentPostgresDriver
 import SublimationVapor
 import Vapor
-import APNS
 
-public struct MissingConfigurationError : Error {
-  let key : String
-  
+public struct MissingConfigurationError: Error {
+  let key: String
 }
+
 public struct Server {
   private let env: Environment
 
