@@ -2,6 +2,10 @@ import Fluent
 import Foundation
 
 public final class Tag: Model {
+  public init(_ id: String? = nil) {
+    self.id = id
+  }
+  
   internal enum FieldKeys {
     internal static let name: FieldKey = "name"
   }

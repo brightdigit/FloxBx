@@ -48,7 +48,4 @@ internal struct UserController: RouteGroupCollection {
     }
   }
 
-//  internal func boot(routes: RoutesBuilder) throws {
-//    routes.post("users", use: create(from:))
-//  }
 }
