@@ -1,18 +1,20 @@
 import Fluent
-import Vapor
 
-internal final class Tag: Model, Content {
+public final class Tag: Model {
   internal enum FieldKeys {
     internal static let name: FieldKey = "name"
   }
 
-  internal static let schema = "Tags"
+  public static let schema = "Tags"
 
   @ID(custom: FieldKeys.name, generatedBy: .user)
-  internal var id: String?
-  
+  public var id: String?
+
   @Siblings(through: TodoTag.self, from: \.$tag, to: \.$todo)
-  internal var tags: [Todo]
+  public var tags: [Todo]
+
+  @Siblings(through: UserSubscription.self, from: \.$tag, to: \.$user)
+  public var subscribers: [User]
 //  @ID(key: .id)
 //  internal var id: UUID?
 //
@@ -22,7 +24,7 @@ internal final class Tag: Model, Content {
 //  @Parent(key: FieldKeys.userID)
 //  internal var user: User
 
-  internal init() {}
+  public init() {}
 
 //  internal init(title: String, userID: UUID? = nil, id: UUID? = nil) {
 //    self.id = id

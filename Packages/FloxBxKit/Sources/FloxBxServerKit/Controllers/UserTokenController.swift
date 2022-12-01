@@ -1,3 +1,4 @@
+import FloxBxDatabase
 import FloxBxModels
 import Fluent
 import Vapor

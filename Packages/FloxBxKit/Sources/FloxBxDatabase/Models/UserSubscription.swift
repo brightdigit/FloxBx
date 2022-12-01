@@ -1,7 +1,6 @@
 import Fluent
-import Vapor
 
-internal final class UserSubscription: Model, Content {
+internal final class UserSubscription: Model {
   internal enum FieldKeys {
     internal static let userID: FieldKey = "userID"
     internal static let tag: FieldKey = "tag"
@@ -13,12 +12,12 @@ internal final class UserSubscription: Model, Content {
 //  internal var id: String?
   @ID(key: .id)
   internal var id: UUID?
-  
+
   @Parent(key: FieldKeys.userID)
   var user: User
 
   @Parent(key: FieldKeys.tag)
-   var tag: Tag
+  var tag: Tag
 //
 //  @Field(key: "title")
 //  internal var title: String

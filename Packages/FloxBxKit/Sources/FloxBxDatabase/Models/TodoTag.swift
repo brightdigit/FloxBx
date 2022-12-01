@@ -1,7 +1,6 @@
 import Fluent
-import Vapor
 
-internal final class TodoTag: Model, Content {
+internal final class TodoTag: Model {
   internal enum FieldKeys {
     internal static let todoID: FieldKey = "todoID"
     internal static let tag: FieldKey = "tag"
@@ -13,12 +12,12 @@ internal final class TodoTag: Model, Content {
 //  internal var id: String?
   @ID(key: .id)
   internal var id: UUID?
-  
+
   @Parent(key: FieldKeys.todoID)
   var todo: Todo
 
   @Parent(key: FieldKeys.tag)
-   var tag: Tag
+  var tag: Tag
 //
 //  @Field(key: "title")
 //  internal var title: String

@@ -26,6 +26,7 @@ let package = Package(
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2")
   ],
   targets: [
+    .target(name: "RouteGroups", dependencies: [.product(name: "Vapor", package: "vapor")]),
     .executableTarget(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
@@ -33,6 +34,10 @@ let package = Package(
     .target(
       name: "FloxBxModels",
       dependencies: ["FloxBxNetworking"]
+    ),
+    .target(
+      name: "FloxBxDatabase",
+      dependencies: [.product(name: "Fluent", package: "fluent")]
     ),
     .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
     .target(name: "FloxBxUI", dependencies: [
@@ -46,12 +51,11 @@ let package = Package(
     .target(
       name: "FloxBxServerKit",
       dependencies: [
-        .product(name: "Fluent", package: "fluent"),
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
         .product(name: "Vapor", package: "vapor"),
         .product(name: "SublimationVapor", package: "Sublimation"),
         .product(name: "APNS", package: "apns"),
-        "FloxBxModels"
+        "FloxBxModels", "FloxBxDatabase", "RouteGroups"
       ],
       swiftSettings: [
         .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))

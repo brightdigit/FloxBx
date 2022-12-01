@@ -1,4 +1,5 @@
 import APNS
+import FloxBxDatabase
 import enum FloxBxModels.Configuration
 import FluentPostgresDriver
 import SublimationVapor
@@ -22,7 +23,7 @@ public struct Server {
   }
 
   // configures your application
-  fileprivate static func routes(_ app: Application) throws {
+  fileprivate static func deprecated_routes(_ app: Application) throws {
     let userController = UserController()
     let tokenController = UserTokenController()
     let api = app.routes.grouped("api", "v1")
@@ -36,12 +37,15 @@ public struct Server {
     try GroupSessionController().boot(routes: bearer)
   }
 
-  fileprivate static func migrations(_ app: Application) {
-    app.migrations.add(CreateUserMigration())
-    app.migrations.add(CreateTodoMigration())
-    app.migrations.add(CreateUserTokenMigration())
-    app.migrations.add(CreateGroupSessionMigration())
-  }
+//  fileprivate static func migrations(_ app: Application) {
+//    app.migrations.add(CreateUserMigration())
+//    app.migrations.add(CreateTodoMigration())
+//    app.migrations.add(CreateUserTokenMigration())
+//    app.migrations.add(CreateGroupSessionMigration())
+//    app.migrations.add(CreateTagMigration())
+//    app.migrations.add(CreateTodoTagsMigration())
+//    app.migrations.add(CreateUserSubscriptionMigration())
+//  }
 
   static func apns(_ app: Application) throws {
     guard let appleECP8PrivateKey = Environment.get("APNS_PRIVATE_KEY") else {
@@ -96,9 +100,11 @@ public struct Server {
 
     sublimation(app)
     try apns(app)
+
     databases(app)
-    migrations(app)
-    try routes(app)
+    app.migrations.configure()
+    // migrations(app)
+    try deprecated_routes(app)
     try app.autoMigrate().wait()
   }
 
