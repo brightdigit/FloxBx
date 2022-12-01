@@ -17,6 +17,9 @@ internal final class Todo: Model, Content {
 
   @Parent(key: FieldKeys.userID)
   internal var user: User
+  
+  @Siblings(through: TodoTag.self, from: \.$todo, to: \.$tag)
+  internal var tags: [Tag]
 
   internal init() {}
 
