@@ -39,4 +39,12 @@ extension GroupSession {
       eventLoop: eventLoop
     )
   }
+  
+  
+  static func user(
+    fromRequest request: Request,
+    otherwise user: User
+  ) async throws -> User {
+    try await self.user(fromRequest: request, otherwise: user).get()
+  }
 }

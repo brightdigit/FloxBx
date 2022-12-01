@@ -13,6 +13,8 @@ public final class User: Model {
   @Field(key: FieldKeys.password) public var passwordHash: String
   @Children(for: \Todo.$user) public var items: [Todo]
   @Children(for: \GroupSession.$user) public var groupSessions: [GroupSession]
+  @Siblings(through: UserSubscription.self, from: \.$user, to: \.$tag)
+  public var tags: [Tag]
 
   public init() {}
 

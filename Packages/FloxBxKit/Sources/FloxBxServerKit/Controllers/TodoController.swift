@@ -53,26 +53,40 @@ internal struct TodoController: RouteGroupCollection {
     let user = try request.auth.require(User.self)
 
     let userF = GroupSession.user(fromRequest: request, otherwise: user)
+    
     return userF.flatMap { user in
-      user.$items.get(on: request.db)
+      return user.$items.query(on: request.db).with(\.$tags).all()
     }
     .flatMapEachThrowing(CreateTodoResponseContent.init(todoItem:))
   }
 
   internal func create(
     from request: Request
-  ) throws -> EventLoopFuture<CreateTodoResponseContent> {
-    let user = try request.auth.require(User.self)
+  ) async throws -> CreateTodoResponseContent {
+    let authUser = try request.auth.require(User.self)
     let content = try request.content.decode(CreateTodoRequestContent.self)
     let todo = Todo(title: content.title)
 
-    let userF = GroupSession.user(fromRequest: request, otherwise: user)
-
-    return userF.flatMap { user in
-      user.$items.create(todo, on: request.db).flatMapThrowing {
-        try CreateTodoResponseContent(id: todo.requireID(), title: todo.title)
+    async let user = try await GroupSession.user(fromRequest: request, otherwise: authUser)
+    async let tags = try await withTaskGroup(of: Tag.self, body: { taskGroup in
+      content.tags.map { value in
+        taskGroup.addTask {          
+          if let tag = try await Tag.find(value, on: request.db) {
+            return tag
+          } else {
+            let newTag = Tag(value)
+            try await newTag.create(on: request.db)
+            return newTag
+          }
+          
+        }
       }
-    }
+    })
+    
+    try await user.$items.create(todo, on: request.db)
+    try await todo.$tags.attach(tags, on: request.db)
+
+    return try CreateTodoResponseContent(todoItem: todo)
   }
 
   internal func update(
