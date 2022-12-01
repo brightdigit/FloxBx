@@ -1,34 +1,33 @@
 import FloxBxDatabase
 import FloxBxModels
-import RouteGroups
 import Fluent
+import RouteGroups
 import Vapor
 
 internal struct TodoController: RouteGroupCollection {
-  
-  var routeGroups: [RouteGroupKey : RouteCollectionBuilder] {
+  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
     [
-      .bearer : { bearer in
-            let todos = bearer.grouped("todos")
-        
-            todos.get(use: index)
-            todos.post(use: create)
-            todos.group(":todoID") { todo in
-              todo.delete(use: delete)
-              todo.put(use: update)
-            }
-        
-            let sharedTodos = bearer.grouped("group-sessions", ":sessionID", "todos")
-            sharedTodos.get(use: index)
-            sharedTodos.post(use: create)
-            sharedTodos.group(":todoID") { todo in
-              todo.delete(use: delete)
-              todo.put(use: update)
-            }
-        
+      .bearer: { bearer in
+        let todos = bearer.grouped("todos")
+
+        todos.get(use: index)
+        todos.post(use: create)
+        todos.group(":todoID") { todo in
+          todo.delete(use: delete)
+          todo.put(use: update)
+        }
+
+        let sharedTodos = bearer.grouped("group-sessions", ":sessionID", "todos")
+        sharedTodos.get(use: index)
+        sharedTodos.post(use: create)
+        sharedTodos.group(":todoID") { todo in
+          todo.delete(use: delete)
+          todo.put(use: update)
+        }
       }
     ]
   }
+
 //  internal func boot(routes: RoutesBuilder) throws {
 //    let todos = routes.grouped("todos")
 //

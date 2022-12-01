@@ -23,7 +23,7 @@ public struct Server {
   }
 
   // configures your application
-  fileprivate static func deprecated_routes(_ app: Application) throws {
+  fileprivate static func deprecated_routes(_: Application) throws {
 //    let userController = UserController()
 //    let tokenController = UserTokenController()
 //    let api = app.routes.grouped("api", "v1")

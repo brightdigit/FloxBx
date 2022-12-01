@@ -1,7 +1,7 @@
 import FloxBxDatabase
 import FloxBxModels
-import RouteGroups
 import Fluent
+import RouteGroups
 import Vapor
 
 internal struct UserController: RouteGroupCollection {
@@ -33,13 +33,11 @@ internal struct UserController: RouteGroupCollection {
     let id = try user.requireID()
     return GetUserResponseContent(id: id, username: username)
   }
-  
-  var routeGroups: [RouteGroupKey : RouteCollectionBuilder] {
+
+  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
     [
-      .publicAPI : { routes in
-        
-            routes.post("users", use: create(from:))
-        
+      .publicAPI: { routes in
+        routes.post("users", use: create(from:))
       }
     ]
   }
