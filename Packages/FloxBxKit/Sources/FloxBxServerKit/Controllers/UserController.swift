@@ -1,5 +1,6 @@
 import FloxBxDatabase
 import FloxBxModels
+import RouteGroups
 import Fluent
 import RouteGroups
 import Vapor
@@ -47,4 +48,8 @@ internal struct UserController: RouteGroupCollection {
       GetUserResponseContent(id: id, username: username, tags: tags.compactMap { $0.id })
     }
   }
+
+//  internal func boot(routes: RoutesBuilder) throws {
+//    routes.post("users", use: create(from:))
+//  }
 }

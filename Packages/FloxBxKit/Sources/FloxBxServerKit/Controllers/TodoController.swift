@@ -1,5 +1,6 @@
 import FloxBxDatabase
 import FloxBxModels
+import RouteGroups
 import Fluent
 import RouteGroups
 import Vapor
@@ -27,6 +28,24 @@ internal struct TodoController: RouteGroupCollection {
       }
     ]
   }
+//  internal func boot(routes: RoutesBuilder) throws {
+//    let todos = routes.grouped("todos")
+//
+//    todos.get(use: index)
+//    todos.post(use: create)
+//    todos.group(":todoID") { todo in
+//      todo.delete(use: delete)
+//      todo.put(use: update)
+//    }
+//
+//    let sharedTodos = routes.grouped("group-sessions", ":sessionID", "todos")
+//    sharedTodos.get(use: index)
+//    sharedTodos.post(use: create)
+//    sharedTodos.group(":todoID") { todo in
+//      todo.delete(use: delete)
+//      todo.put(use: update)
+//    }
+//  }
 
   private func index(
     from request: Request

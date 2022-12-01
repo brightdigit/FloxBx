@@ -3,6 +3,7 @@ import FloxBxModels
 import Fluent
 import RouteGroups
 import Vapor
+import RouteGroups
 
 internal struct UserTokenController: RouteGroupCollection {
   internal typealias RouteGroupKeyType = RouteGroupKey
