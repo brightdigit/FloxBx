@@ -9,7 +9,9 @@ public struct GroupBuilder<RouteGroupKeyType: Hashable> {
 
   public func register<RouteGroupCollectionType: RouteGroupCollection>(collection: RouteGroupCollectionType) throws where RouteGroupCollectionType.RouteGroupKeyType == RouteGroupKeyType {
     for (type, group) in collection.routeGroups {
-      try groups[type]?.register(collection: group)
+      if let builder = self.groups[type] {
+        try group(builder)
+      }
     }
   }
 }
