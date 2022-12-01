@@ -4,6 +4,7 @@ import Fluent
 import RouteGroups
 import Vapor
 import RouteGroups
+import Vapor
 
 internal struct GroupSessionController: RouteGroupCollection {
   internal typealias RouteGroupKeyType = RouteGroupKey
@@ -25,10 +26,10 @@ internal struct GroupSessionController: RouteGroupCollection {
       try CreateGroupSessionResponseContent(id: groupSession.requireID())
     }
   }
-  
-  var routeGroups: [RouteGroupKey : RouteCollectionBuilder] {
+
+  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
     [
-      .bearer : { (bearer : RoutesBuilder) in
+      .bearer: { (bearer: RoutesBuilder) in
         bearer.post("group-sessions", use: create(from:))
       }
     ]

@@ -1,6 +1,5 @@
 import FloxBxDatabase
 import FloxBxModels
-import RouteGroups
 import Fluent
 import RouteGroups
 import Vapor
@@ -28,6 +27,7 @@ internal struct TodoController: RouteGroupCollection {
       }
     ]
   }
+
 //  internal func boot(routes: RoutesBuilder) throws {
 //    let todos = routes.grouped("todos")
 //

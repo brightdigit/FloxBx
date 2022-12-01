@@ -1,6 +1,5 @@
 import FloxBxDatabase
 import FloxBxModels
-import RouteGroups
 import Fluent
 import RouteGroups
 import Vapor
