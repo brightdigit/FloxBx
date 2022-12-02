@@ -1,37 +1,60 @@
+public extension StringProtocol {
+    
+    func slugified(
+        separator: String = "-",
+        allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
+    ) -> String {
+        self.lowercased()
+            .components(separatedBy: allowedCharacters.inverted)
+            .filter { $0 != "" }
+            .joined(separator: separator)
+    }
+}
+
+extension TodoContentItem {
+  public var text : String {
+    .init(([title] + tags).joined(separator: " #"))
+  }
+}
 #if canImport(SwiftUI)
   import FloxBxModels
   import SwiftUI
   internal struct TodoListItemView: View {
     @EnvironmentObject private var object: ApplicationObject
-    @State private var title: String
+    @State private var text: String
     private let item: TodoContentItem
 
     internal var body: some View {
       Group {
         if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {
-          TextField("", text: self.$title)
+          TextField("", text: self.$text)
             .onSubmit(self.beginSave)
             .foregroundColor(self.item.isSaved ? .primary : .secondary)
         } else {
           TextField(
             "",
-            text: self.$title,
+            text: self.$text,
             onEditingChanged: self.beginSave(hasFinished:),
             onCommit: self.beginSave
           )
         }
-      }.onChange(of: item.title) { newValue in
-        self.title = newValue
       }
     }
 
     internal init(item: TodoContentItem) {
       self.item = item
-      _title = .init(initialValue: self.item.title)
+      
+      _text = .init(initialValue: self.item.text)
     }
 
     private func updatedItem() -> TodoContentItem {
-      item.updatingTitle(title)
+      let title : String
+      let tags : [String]
+        let splits = self.text.split(separator: "#", omittingEmptySubsequences: true)
+        title = splits.first.map(String.init) ?? ""
+        tags = splits.dropFirst().map{$0.slugified()}
+     
+      return item.updatingTitle(title, tags: tags)
     }
 
     private func beginSave() {
@@ -49,7 +72,7 @@
   private struct TodoListItemView_Previews: PreviewProvider {
     // swiftlint:disable:next strict_fileprivate
     fileprivate static var previews: some View {
-      TodoListItemView(item: .init(title: "Hello"))
+      TodoListItemView(item: .init(title: "Hello", tags: ["world", "Leo"]))
     }
   }
 #endif

@@ -33,4 +33,19 @@ extension Tag {
       }
     })
   }
+  
+  static func find(tagValues: [String], on database: Database) async throws -> [Tag] {
+    try await withThrowingTaskGroup(of: Tag?.self, body: { taskGroup in
+      tagValues.forEach { value in
+        taskGroup.addTask {
+          return try await Tag.find(value, on: database)
+        }
+      }
+      return try await taskGroup.reduce(into: [Tag]()) { result, tag in
+        if let tag {
+          result.append(tag)
+        }
+      }
+    })
+  }
 }

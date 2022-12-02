@@ -73,16 +73,17 @@ internal struct TodoController: RouteGroupCollection {
     return try CreateTodoResponseContent(todoItem: todo)
   }
 
-  internal func delete(from request: Request) throws -> EventLoopFuture<HTTPStatus> {
-    let user = try request.auth.require(User.self)
+  internal func delete(from request: Request) async throws -> HTTPStatus {
+    let authUser = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
-    let userF = GroupSession.user(fromRequest: request, otherwise: user)
-    return userF.flatMap { user in
-      user.$items.query(on: request.db)
+    let user = try await GroupSession.user(fromRequest: request, otherwise: authUser)
+    
+    let items = try await user.$items.query(on: request.db)
         .filter(\.$id == todoID)
         .all()
-        .flatMap { $0.delete(on: request.db) }
-        .transform(to: .noContent)
-    }
+    
+    try await items.delete(on: request.db)
+    
+    return .noContent
   }
 }

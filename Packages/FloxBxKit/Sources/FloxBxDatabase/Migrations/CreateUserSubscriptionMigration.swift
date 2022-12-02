@@ -1,20 +1,15 @@
 import Fluent
 
-internal struct CreateUserSubscriptionMigration: Migration {
+internal struct CreateMobileDeviceMigration: Migration {
   internal func prepare(on database: Database) -> EventLoopFuture<Void> {
-    database.schema(UserSubscription.schema)
+    database.schema(MobileDevice.schema)
       .id()
-      .field(UserSubscription.FieldKeys.userID, .uuid, .required)
-      .field(UserSubscription.FieldKeys.tag, .string, .required)
+      .field(MobileDevice.FieldKeys.userID, .uuid, .required)
+      .field(MobileDevice.FieldKeys.model, .string, .required)
+      .field(MobileDevice.FieldKeys.operatingSystem, .string, .required)
+      .field(MobileDevice.FieldKeys.deviceToken, .data, .required)
       .foreignKey(
-        UserSubscription.FieldKeys.tag,
-        references: Tag.schema,
-        Tag.FieldKeys.name,
-        onDelete: .cascade,
-        onUpdate: .cascade
-      )
-      .foreignKey(
-        UserSubscription.FieldKeys.userID,
+        MobileDevice.FieldKeys.userID,
         references: User.schema, .id,
         onDelete: .cascade,
         onUpdate: .cascade
