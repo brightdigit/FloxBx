@@ -1,3 +1,21 @@
+public extension StringProtocol {
+    
+    func slugified(
+        separator: String = "-",
+        allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
+    ) -> String {
+        self.lowercased()
+            .components(separatedBy: allowedCharacters.inverted)
+            .filter { $0 != "" }
+            .joined(separator: separator)
+    }
+}
+
+extension TodoContentItem {
+  public var text : String {
+    .init(([title] + tags).joined(separator: " #"))
+  }
+}
 #if canImport(SwiftUI)
   import FloxBxModels
   import SwiftUI
