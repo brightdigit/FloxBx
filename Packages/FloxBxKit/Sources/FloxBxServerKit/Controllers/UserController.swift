@@ -32,7 +32,7 @@ internal struct UserController: RouteGroupCollection {
     let username = user.email
     let id = try user.requireID()
     return user.$tags.get(on: request.db).map { tags in
-      return GetUserResponseContent(id: id, username: username, tags: tags.compactMap{$0.id})
+      GetUserResponseContent(id: id, username: username, tags: tags.compactMap { $0.id })
     }
   }
 
@@ -43,5 +43,4 @@ internal struct UserController: RouteGroupCollection {
       }
     ]
   }
-
 }

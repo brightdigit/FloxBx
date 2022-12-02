@@ -39,8 +39,7 @@ extension GroupSession {
       eventLoop: eventLoop
     )
   }
-  
-  
+
   static func user(
     fromRequest request: Request,
     otherwise user: User
