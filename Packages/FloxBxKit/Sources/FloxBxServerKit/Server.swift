@@ -83,8 +83,6 @@ public struct Server {
 
     sublimation(app)
     try apns(app)
-
-    app.apns
     databases(app)
     app.migrations.configure()
     try app.routes.register(collection: Routes())
