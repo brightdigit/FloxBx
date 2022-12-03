@@ -6,7 +6,7 @@ internal final class UserSubscription: Model {
     internal static let tag: FieldKey = "tag"
   }
 
-  internal static let schema = "TodoTags"
+  internal static let schema = "UserSubscriptions"
 //
 //  @ID(custom: FieldKeys.name, generatedBy: .user)
 //  internal var id: String?

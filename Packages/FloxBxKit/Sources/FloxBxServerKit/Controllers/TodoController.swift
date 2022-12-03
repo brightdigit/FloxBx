@@ -77,13 +77,13 @@ internal struct TodoController: RouteGroupCollection {
     let authUser = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
     let user = try await GroupSession.user(fromRequest: request, otherwise: authUser)
-    
+
     let items = try await user.$items.query(on: request.db)
-        .filter(\.$id == todoID)
-        .all()
-    
+      .filter(\.$id == todoID)
+      .all()
+
     try await items.delete(on: request.db)
-    
+
     return .noContent
   }
 }

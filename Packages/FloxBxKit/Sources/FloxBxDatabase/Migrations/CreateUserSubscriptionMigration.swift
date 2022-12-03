@@ -14,7 +14,6 @@ internal struct CreateMobileDeviceMigration: Migration {
         onDelete: .cascade,
         onUpdate: .cascade
       )
-      .unique(on: UserSubscription.FieldKeys.userID, UserSubscription.FieldKeys.tag)
       .create()
   }
 

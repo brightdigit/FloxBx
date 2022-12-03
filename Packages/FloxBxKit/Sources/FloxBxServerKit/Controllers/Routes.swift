@@ -17,8 +17,11 @@ struct Routes: GroupCollection {
 
   func boot(groups: GroupBuilder<RouteGroupKey>) throws {
     try groups.register(collection: UserTokenController())
-    try groups.register(collection: UserTokenController())
+    try groups.register(collection: UserController())
     try groups.register(collection: TodoController())
     try groups.register(collection: GroupSessionController())
+
+    try groups.register(collection: MobileDeviceController())
+    try groups.register(collection: UserSubscriptionController())
   }
 }

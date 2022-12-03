@@ -71,12 +71,12 @@ public struct Server {
   }
 
   fileprivate static func databases(_ app: Application) {
-    #if DEBUG
-      app.databases.use(.postgres(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
-      ), as: .psql)
-    #endif
+    app.databases.use(.postgres(
+      hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+      username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
+    ), as: .psql)
+
+    app.databases.middleware.configure()
   }
 
   fileprivate static func sublimation(_ app: Application) {
@@ -100,8 +100,6 @@ public struct Server {
 
     sublimation(app)
     try apns(app)
-
-    app.apns
     databases(app)
     app.migrations.configure()
     try app.routes.register(collection: Routes())

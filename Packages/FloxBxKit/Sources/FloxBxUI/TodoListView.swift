@@ -35,7 +35,7 @@
             }
 
             Button {
-              self.object.addItem(.init(title: "New Item"))
+              self.object.addItem(.init(title: "New Item", tags: []))
             } label: {
               Image(systemName: "plus.circle.fill")
             }
@@ -56,7 +56,7 @@
     // swiftlint:disable:next strict_fileprivate
     fileprivate static var previews: some View {
       TodoListView().environmentObject(ApplicationObject([
-        .init(title: "Do Stuff")
+        .init(title: "Do Stuff", tags: ["things", "places"])
       ]))
     }
   }

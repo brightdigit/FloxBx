@@ -1,21 +1,21 @@
-public extension StringProtocol {
-    
-    func slugified(
-        separator: String = "-",
-        allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
-    ) -> String {
-        self.lowercased()
-            .components(separatedBy: allowedCharacters.inverted)
-            .filter { $0 != "" }
-            .joined(separator: separator)
-    }
+extension StringProtocol {
+  public func slugified(
+    separator: String = "-",
+    allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
+  ) -> String {
+    lowercased()
+      .components(separatedBy: allowedCharacters.inverted)
+      .filter { $0 != "" }
+      .joined(separator: separator)
+  }
 }
 
 extension TodoContentItem {
-  public var text : String {
+  public var text: String {
     .init(([title] + tags).joined(separator: " #"))
   }
 }
+
 #if canImport(SwiftUI)
   import FloxBxModels
   import SwiftUI
@@ -43,17 +43,17 @@ extension TodoContentItem {
 
     internal init(item: TodoContentItem) {
       self.item = item
-      
+
       _text = .init(initialValue: self.item.text)
     }
 
     private func updatedItem() -> TodoContentItem {
-      let title : String
-      let tags : [String]
-        let splits = self.text.split(separator: "#", omittingEmptySubsequences: true)
-        title = splits.first.map(String.init) ?? ""
-        tags = splits.dropFirst().map{$0.slugified()}
-     
+      let title: String
+      let tags: [String]
+      let splits = text.split(separator: "#", omittingEmptySubsequences: true)
+      title = splits.first.map(String.init) ?? ""
+      tags = splits.dropFirst().map { $0.slugified() }
+
       return item.updatingTitle(title, tags: tags)
     }
 

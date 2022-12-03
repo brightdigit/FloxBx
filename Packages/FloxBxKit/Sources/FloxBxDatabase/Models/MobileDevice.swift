@@ -1,5 +1,5 @@
-import Foundation
 import Fluent
+import Foundation
 
 public final class MobileDevice: Model {
   internal enum FieldKeys {
@@ -10,7 +10,7 @@ public final class MobileDevice: Model {
   }
 
   public static let schema = "MobileDevices"
-  
+
   @ID(key: .id)
   public var id: UUID?
 
@@ -22,14 +22,12 @@ public final class MobileDevice: Model {
 
   @Field(key: FieldKeys.deviceToken)
   public var deviceToken: Data?
-  
+
   @Parent(key: FieldKeys.userID)
   public var user: User
-  
-  public init() {
-    
-  }
-  
+
+  public init() {}
+
   public init(id: UUID? = nil, model: String, operatingSystem: String, deviceToken: Data? = nil) {
     self.id = id
     self.model = model

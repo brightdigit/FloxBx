@@ -168,7 +168,7 @@ enum DeveloperServerError: Error {
         return
       }
 
-      let content = CreateTodoRequestContent(title: item.title)
+      let content = CreateTodoRequestContent(title: item.title, tags: item.tags)
       let request = UpsertTodoRequest(
         groupActivityID: shareplayObject.groupActivityID,
         itemID: item.serverID,
