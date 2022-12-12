@@ -16,13 +16,13 @@ extension String {
 struct TagMiddleware: AsyncModelMiddleware {
   typealias Model = Tag
 
-  func create(model: Tag, on db: Database, next _: AnyAsyncModelResponder) async throws {
+  func create(model: Tag, on db: Database, next: AnyAsyncModelResponder) async throws {
     model.id = model.id?.slugified()
-    return try await model.create(on: db)
+    try await next.create(model, on: db)
   }
 
-  func update(model: Tag, on db: Database, next _: AnyAsyncModelResponder) async throws {
+  func update(model: Tag, on db: Database, next: AnyAsyncModelResponder) async throws {
     model.id = model.id?.slugified()
-    return try await model.update(on: db)
+    try await next.update(model, on: db)
   }
 }

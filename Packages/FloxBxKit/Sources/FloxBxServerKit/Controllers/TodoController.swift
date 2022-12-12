@@ -38,7 +38,7 @@ internal struct TodoController: RouteGroupCollection {
     return userF.flatMap { user in
       user.$items.query(on: request.db).with(\.$tags).all()
     }
-    .flatMapEachThrowing(CreateTodoResponseContent.init(todoItem:))
+    .flatMapEachThrowing(CreateTodoResponseContent.init(todoItemWithLoadedTags:))
   }
 
   internal func create(
@@ -51,7 +51,7 @@ internal struct TodoController: RouteGroupCollection {
     async let tags = Tag.findOrCreate(tagValues: content.tags, on: request.db)
     try await user.$items.create(todo, on: request.db)
     try await todo.$tags.attach(tags, on: request.db)
-    return try CreateTodoResponseContent(todoItem: todo)
+    return try await CreateTodoResponseContent(todoItem: todo, tags: tags)
   }
 
   internal func update(
@@ -70,7 +70,7 @@ internal struct TodoController: RouteGroupCollection {
     try await todo.update(on: request.db)
     try await todo.$tags.attach(tags, on: request.db)
 
-    return try CreateTodoResponseContent(todoItem: todo)
+    return try await CreateTodoResponseContent(todoItem: todo, tags: tags)
   }
 
   internal func delete(from request: Request) async throws -> HTTPStatus {
