@@ -7,6 +7,7 @@ public final class MobileDevice: Model {
     internal static let operatingSystem: FieldKey = "operatingSystem"
     internal static let deviceToken: FieldKey = "deviceToken"
     internal static let userID: FieldKey = "userID"
+    internal static let topic: FieldKey = "topic"
   }
 
   public static let schema = "MobileDevices"
@@ -20,6 +21,9 @@ public final class MobileDevice: Model {
   @Field(key: FieldKeys.operatingSystem)
   public var operatingSystem: String
 
+  @Field(key: FieldKeys.topic)
+  public var topic: String
+
   @Field(key: FieldKeys.deviceToken)
   public var deviceToken: Data?
 
@@ -28,10 +32,11 @@ public final class MobileDevice: Model {
 
   public init() {}
 
-  public init(id: UUID? = nil, model: String, operatingSystem: String, deviceToken: Data? = nil) {
+  public init(id: UUID? = nil, model: String, operatingSystem: String, topic: String, deviceToken: Data? = nil) {
     self.id = id
     self.model = model
     self.operatingSystem = operatingSystem
+    self.topic = topic
     self.deviceToken = deviceToken
   }
 }

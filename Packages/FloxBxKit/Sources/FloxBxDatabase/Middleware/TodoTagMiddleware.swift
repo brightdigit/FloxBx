@@ -5,6 +5,7 @@ struct TodoTagMiddleware: AsyncModelMiddleware {
 
   func create(model: TodoTag, on db: Database, next: AnyAsyncModelResponder) async throws {
     let subscribers = try await model.$tag.query(on: db).with(\.$subscribers).all().flatMap(\.subscribers)
+
     try await next.create(model, on: db)
   }
 

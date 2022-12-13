@@ -10,7 +10,13 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public struct CreateMobileDeviceRequest: ClientBodyRequest {
+public struct CreateMobileDeviceRequest: ClientBodySuccessRequest {
+  public typealias SuccessType = CreateMobileDeviceResponseContent
+  
+  public init(body: CreateMobileDeviceRequestContent) {
+    self.body = body
+  }
+  
   public let body: CreateMobileDeviceRequestContent
 
   public typealias BodyType = CreateMobileDeviceRequestContent
@@ -19,16 +25,30 @@ public struct CreateMobileDeviceRequest: ClientBodyRequest {
     true
   }
 
-  public var path: String
+  public var path: String {
+    "api/v1/device/mobile"
+  }
 
-  public var parameters: [String: String]
+  public var parameters: [String: String] {
+    return [:]
+  }
 
-  public var method: FloxBxNetworking.RequestMethod
+  public var method: RequestMethod {
+    return .POST
+  }
 
-  public var headers: [String: String]
+  public var headers: [String: String] {
+    [:]
+  }
 }
 
 public struct PatchMobileDeviceRequest: ClientBodyRequest {
+  public init(id: UUID, body: PatchMobileDeviceRequestContent) {
+    self.id = id
+    self.body = body
+  }
+  
+  public let id : UUID
   public let body: PatchMobileDeviceRequestContent
 
   public typealias BodyType = PatchMobileDeviceRequestContent
@@ -37,13 +57,21 @@ public struct PatchMobileDeviceRequest: ClientBodyRequest {
     true
   }
 
-  public var path: String
+  public var path: String {
+    "api/v1/device/mobile/\(id)"
+  }
 
-  public var parameters: [String: String]
+  public var parameters: [String: String] {
+    [:]
+  }
 
-  public var method: FloxBxNetworking.RequestMethod
+  public var method: FloxBxNetworking.RequestMethod {
+    .PATCH
+  }
 
-  public var headers: [String: String]
+  public var headers: [String: String] {
+    [:]
+  }
 }
 
 public struct UserSubscriptionRequest: ClientBodyRequest {

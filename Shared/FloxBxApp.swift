@@ -10,4 +10,9 @@ import FloxBxUI
 
 @main
 struct FloxBxApp: Application {
+#if os(iOS)
+   @UIApplicationDelegateAdaptor var appDelegate: UIAppDelegate
+#elseif canImport(WatchKit)
+  @WKApplicationDelegateAdaptor var appDelegate: WKAppDelegate
+#endif
 }

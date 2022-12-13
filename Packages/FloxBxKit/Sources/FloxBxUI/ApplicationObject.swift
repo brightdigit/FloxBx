@@ -3,6 +3,7 @@ import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
 import Sublimation
+import UserNotifications
 
 enum DeveloperServerError: Error {
   case noServer
@@ -20,6 +21,8 @@ enum DeveloperServerError: Error {
 
     private var cancellables = [AnyCancellable]()
 
+    private let mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent, Never>
+    @AppStorage("MobileDeviceRegistrationID") private var mobileDeviceRegistrationID : String?
     @Published internal private(set) var requiresAuthentication: Bool
     @Published internal private(set) var latestError: Error?
     @Published internal private(set) var token: String?
@@ -36,7 +39,11 @@ enum DeveloperServerError: Error {
       )
     #endif
 
-    internal init(_ items: [TodoContentItem] = []) {
+    internal init(
+      mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent, Never>,
+      _ items: [TodoContentItem] = []
+    ) {
+      self.mobileDevicePublisher = mobileDevicePublisher
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
           self.shareplayObject = .init(FloxBxActivity.self)
@@ -52,6 +59,25 @@ enum DeveloperServerError: Error {
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
+      self.mobileDevicePublisher.flatMap { content in
+        
+        return Future { () -> UUID? in
+          if let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString: )) {
+            try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+            return nil
+          } else {
+            return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
+          }
+        }
+      }
+      .replaceError(with: nil)
+      .compactMap{$0?.uuidString}
+      .receive(on: DispatchQueue.main)
+      .sink { id in
+        self.mobileDeviceRegistrationID = id
+      }
+      
+      
       $token
         .share()
         .compactMap { $0 }
@@ -147,16 +173,24 @@ enum DeveloperServerError: Error {
     #endif
 
     internal func begin() {
-      #if DEBUG
+     
         Task {
+#if DEBUG
           self.service = await developerService()
-
+#endif
+          let isNotificationAuthorizationGranted = try? await UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.sound, .badge, .alert])
+          //UNUserNotificationCenter.current().notificationSettings()
+          #if os(iOS) && canImport(UIKit)
+          if isNotificationAuthorizationGranted == true {
+            await UIApplication.shared.registerForRemoteNotifications()
+          } else if isNotificationAuthorizationGranted == false {
+            await UIApplication.shared.unregisterForRemoteNotifications()
+          }
+          #endif
           setupCredentials()
         }
-      #else
 
-        setupCredentials()
-      #endif
     }
 
     internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {

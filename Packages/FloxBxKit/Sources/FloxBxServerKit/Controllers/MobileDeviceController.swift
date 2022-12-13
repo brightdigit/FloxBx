@@ -9,6 +9,7 @@ extension MobileDevice {
     self.init(
       model: content.model,
       operatingSystem: content.operatingSystem,
+      topic: content.topic,
       deviceToken: content.deviceToken
     )
   }
@@ -17,6 +18,7 @@ extension MobileDevice {
     deviceToken = content.deviceToken ?? deviceToken
     operatingSystem = content.operatingSystem ?? operatingSystem
     model = content.model ?? model
+    topic = content.topic ?? topic
   }
 }
 
@@ -33,12 +35,12 @@ struct MobileDeviceController: RouteGroupCollection {
 
   typealias RouteGroupKeyType = RouteGroupKey
 
-  func create(from request: Request) async throws -> HTTPStatus {
+  func create(from request: Request) async throws -> CreateMobileDeviceResponseContent {
     let user = try request.auth.require(User.self)
     let content = try request.content.decode(CreateMobileDeviceRequestContent.self)
     let device = MobileDevice(content: content)
     try await user.$mobileDevices.create(device, on: request.db)
-    return .created
+    return try .init(id: device.requireID())
   }
 
   func patch(from request: Request) async throws -> HTTPStatus {

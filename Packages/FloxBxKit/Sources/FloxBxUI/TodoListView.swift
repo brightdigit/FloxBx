@@ -1,5 +1,6 @@
 #if canImport(SwiftUI)
   import SwiftUI
+import Combine
 
   internal struct TodoListView: View {
     @EnvironmentObject private var object: ApplicationObject
@@ -55,7 +56,7 @@
   private struct TodoList_Previews: PreviewProvider {
     // swiftlint:disable:next strict_fileprivate
     fileprivate static var previews: some View {
-      TodoListView().environmentObject(ApplicationObject([
+      TodoListView().environmentObject(ApplicationObject(mobileDevicePublisher: .init(Just(.init(model: "", operatingSystem: "", topic: ""))), [
         .init(title: "Do Stuff", tags: ["things", "places"])
       ]))
     }

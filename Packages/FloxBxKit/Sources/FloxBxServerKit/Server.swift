@@ -22,31 +22,6 @@ public struct Server {
     self.init(env: env)
   }
 
-  // configures your application
-  fileprivate static func deprecated_routes(_: Application) throws {
-//    let userController = UserController()
-//    let tokenController = UserTokenController()
-//    let api = app.routes.grouped("api", "v1")
-//    api.post("users", use: userController.create(from:))
-//    api.post("tokens", use: tokenController.create(from:))
-//    let bearer = api.grouped(UserToken.authenticator())
-//    bearer.delete("tokens", use: tokenController.delete(from:))
-//    bearer.get("tokens", use: tokenController.get(from:))
-//    bearer.get("users", use: userController.get(from:))
-//    try TodoController().boot(routes: bearer)
-//    try GroupSessionController().boot(routes: bearer)
-  }
-
-//  fileprivate static func migrations(_ app: Application) {
-//    app.migrations.add(CreateUserMigration())
-//    app.migrations.add(CreateTodoMigration())
-//    app.migrations.add(CreateUserTokenMigration())
-//    app.migrations.add(CreateGroupSessionMigration())
-//    app.migrations.add(CreateTagMigration())
-//    app.migrations.add(CreateTodoTagsMigration())
-//    app.migrations.add(CreateUserSubscriptionMigration())
-//  }
-
   static func apns(_ app: Application) throws {
     guard let appleECP8PrivateKey = Environment.get("APNS_PRIVATE_KEY") else {
       throw MissingConfigurationError(key: "APNS_PRIVATE_KEY")
@@ -103,8 +78,6 @@ public struct Server {
     databases(app)
     app.migrations.configure()
     try app.routes.register(collection: Routes())
-    // migrations(app)
-    try deprecated_routes(app)
     try app.autoMigrate().wait()
   }
 
