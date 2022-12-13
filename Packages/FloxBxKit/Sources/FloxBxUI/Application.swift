@@ -16,4 +16,76 @@
       }
     }
   }
+
+  
+    import UIKit
+import Combine
+
+#if os(iOS)
+extension UIDevice {
+  var deviceName : String {
+     get {
+       var systemInfo = utsname()
+       uname(&systemInfo)
+       let str = withUnsafePointer(to: &systemInfo.machine.0) { ptr in
+         return String(cString: ptr)
+       }
+       return str
+     }
+   }
+}
+#elseif canImport(WatchKit)
+extension WKInterfaceDevice {
+  var deviceName : String {
+     get {
+       var systemInfo = utsname()
+       uname(&systemInfo)
+       let str = withUnsafePointer(to: &systemInfo.machine.0) { ptr in
+         return String(cString: ptr)
+       }
+       return str
+     }
+   }
+}
+#endif
+
+#if os(iOS)
+    public class UIAppDelegate: NSObject, UIApplicationDelegate {
+      @State var mobileDevice: CreateMobileDeviceRequestContent?
+      
+      var mobileDevicePublisher : AnyPublisher<CreateMobileDeviceRequestContent, Never> {
+        self.mobileDevice.publisher.eraseToAnyPublisher()
+      }
+      public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        self.mobileDevice = CreateMobileDeviceRequestContent(
+          model: UIDevice.current.deviceName,
+          operatingSystem: UIDevice.current.systemVersion,
+          topic: Bundle.main.bundleIdentifier!,
+          deviceToken: deviceToken
+        )
+      }
+    }
+
+#elseif canImport(WatchKit)
+    import WatchKit
+
+import Combine
+    public class WKAppDelegate: NSObject, WKApplicationDelegate {
+      @State var mobileDevice: CreateMobileDeviceRequestContent?
+      
+      var mobileDevicePublisher : AnyPublisher<CreateMobileDeviceRequestContent, Never> {
+        self.mobileDevice.publisher.eraseToAnyPublisher()
+      }
+      
+      public func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+        self.mobileDevice = CreateMobileDeviceRequestContent(
+          model: WKInterfaceDevice.current().deviceName,
+          operatingSystem: WKInterfaceDevice.current().systemVersion,
+          topic: Bundle.main.bundleIdentifier!,
+          deviceToken: deviceToken
+        )
+      }
+      
+    }
+#endif
 #endif

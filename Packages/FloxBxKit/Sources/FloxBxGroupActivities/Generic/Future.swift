@@ -2,6 +2,7 @@
 
   import Combine
   import Foundation
+  import FloxBxNetworking
 
   extension Future where Failure == Never {
     public convenience init(_ asyncFunc: @escaping () async -> Output) {

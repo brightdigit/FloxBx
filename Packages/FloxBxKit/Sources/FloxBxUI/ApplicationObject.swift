@@ -3,6 +3,7 @@ import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
 import Sublimation
+import UserNotifications
 
 #if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
   import Combine
@@ -52,6 +53,25 @@ import Sublimation
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
+      self.mobileDevicePublisher.flatMap { content in
+        
+        return Future { () -> UUID? in
+          if let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString: )) {
+            try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+            return nil
+          } else {
+            return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
+          }
+        }
+      }
+      .replaceError(with: nil)
+      .compactMap{$0?.uuidString}
+      .receive(on: DispatchQueue.main)
+      .sink { id in
+        self.mobileDeviceRegistrationID = id
+      }
+      
+      
       $token
         .share()
         .compactMap { $0 }

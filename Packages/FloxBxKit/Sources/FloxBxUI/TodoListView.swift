@@ -1,6 +1,7 @@
 #if canImport(SwiftUI)
   import Combine
   import SwiftUI
+import Combine
 
   internal struct TodoListView: View {
     @EnvironmentObject private var object: ApplicationObject
