@@ -1,6 +1,8 @@
 #if canImport(SwiftUI)
   import FloxBxModels
   import SwiftUI
+  import os
+
   public protocol Application: App {
     #if os(iOS)
       var appDelegate: UIAppDelegate { get }
@@ -12,7 +14,9 @@
   extension Application {
     public var body: some Scene {
       WindowGroup {
-        ContentView().environmentObject(ApplicationObject(mobileDevicePublisher: self.appDelegate.mobileDevicePublisher))
+        ContentView().environmentObject(ApplicationObject(
+          mobileDevicePublisher: self.appDelegate.$mobileDevice.eraseToAnyPublisher()
+        ))
       }
     }
   }
@@ -50,12 +54,9 @@ extension WKInterfaceDevice {
 #endif
 
 #if os(iOS)
-    public class UIAppDelegate: NSObject, UIApplicationDelegate {
-      @State var mobileDevice: CreateMobileDeviceRequestContent?
+    public class UIAppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
+      @Published var mobileDevice: CreateMobileDeviceRequestContent?
       
-      var mobileDevicePublisher : AnyPublisher<CreateMobileDeviceRequestContent, Never> {
-        self.mobileDevice.publisher.eraseToAnyPublisher()
-      }
       public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         self.mobileDevice = CreateMobileDeviceRequestContent(
           model: UIDevice.current.deviceName,
@@ -64,14 +65,18 @@ extension WKInterfaceDevice {
           deviceToken: deviceToken
         )
       }
+      public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        debugPrint("Unable to register logging: \(error.localizedDescription)")
+      }
     }
 
 #elseif canImport(WatchKit)
     import WatchKit
 
 import Combine
-    public class WKAppDelegate: NSObject, WKApplicationDelegate {
-      @State var mobileDevice: CreateMobileDeviceRequestContent?
+    public class WKAppDelegate: NSObject, WKApplicationDelegate, ObservableObject {
+      @Published var mobileDevice: CreateMobileDeviceRequestContent?
+      
       
       var mobileDevicePublisher : AnyPublisher<CreateMobileDeviceRequestContent, Never> {
         self.mobileDevice.publisher.eraseToAnyPublisher()

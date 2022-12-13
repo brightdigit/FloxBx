@@ -10,6 +10,35 @@ import Foundation
   import FoundationNetworking
 #endif
 
+public struct DeleteMobileDeviceRequest: ClientVoidRequest {
+  public init(id: UUID) {
+    self.id = id
+  }
+  
+  public static var requiresCredentials: Bool {
+    return true
+  }
+  
+  
+  public var path: String {
+    "api/v1/device/mobile/\(id)"
+  }
+  
+  public var parameters: [String : String] {
+    [:]
+  }
+  
+  public var method: FloxBxNetworking.RequestMethod {
+    return .DELETE
+  }
+  
+  public var headers: [String : String] {
+    [:]
+  }
+  
+  public let id : UUID
+}
+
 public struct CreateMobileDeviceRequest: ClientBodySuccessRequest {
   public typealias SuccessType = CreateMobileDeviceResponseContent
   

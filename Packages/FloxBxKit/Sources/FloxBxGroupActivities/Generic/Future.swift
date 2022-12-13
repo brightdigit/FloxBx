@@ -2,7 +2,6 @@
 
   import Combine
   import Foundation
-  import FloxBxNetworking
 
   extension Future where Failure == Never {
     public convenience init(_ asyncFunc: @escaping () async -> Output) {
@@ -18,7 +17,14 @@
     public convenience init(_ asyncFunc: @escaping () async throws -> Output) {
       self.init { promise in
         Task {
-          await promise(Result(asyncFunc))
+          let success : Output
+          do {
+            success = try await asyncFunc()
+          } catch {
+            promise(.failure(error))
+            return
+          }
+          promise(.success(success))
         }
       }
     }
