@@ -191,13 +191,15 @@ enum DeveloperServerError: Error {
             .requestAuthorization(options: [.sound, .badge, .alert])
         }
         // UNUserNotificationCenter.current().notificationSettings()
-        switch isNotificationAuthorizationGrantedResult {
-        case .success(true):
-          await AppInterfaceObject.sharedInterface.registerForRemoteNotifications()
-        case .success(false):
-          await AppInterfaceObject.sharedInterface.unregisterForRemoteNotifications()
-        case .failure(let error):
-          debugPrint(error)
+        Task{ @MainActor in
+          switch isNotificationAuthorizationGrantedResult {
+          case .success(true):
+            await AppInterfaceObject.sharedInterface.registerForRemoteNotifications()
+          case .success(false):
+            await AppInterfaceObject.sharedInterface.unregisterForRemoteNotifications()
+          case .failure(let error):
+            debugPrint(error)
+          }
         }
         
         setupCredentials()

@@ -1,14 +1,78 @@
 import APNS
 import FloxBxDatabase
 import enum FloxBxModels.Configuration
+import struct FloxBxModels.TagPayload
+import struct FloxBxModels.PayloadNotification
+import protocol FloxBxModels.Notifiable
 import FluentPostgresDriver
 import SublimationVapor
 import Vapor
+
 
 public struct MissingConfigurationError: Error {
   let key: String
 }
 
+extension Notifiable {
+  var alertNotification : APNSAlertNotification<PayloadType> {
+    .init(
+      alert: .init(title: .raw(self.title)),
+      expiration: .immediately,
+      priority: .immediately,
+      topic: self.topic,
+      payload: self.payload
+    )
+  }
+}
+//
+//extension APNSGenericClient {
+//  public func sendAlertNotification(
+//    _ notification: any Notifiable,
+//      logger: Logger = _noOpLogger
+//  ) async throws -> APNSResponse {
+////    return try await self.send(
+////        payload: notification,
+////        deviceToken: notification.deviceToken.map { data in String(format: "%02.2hhx", data) }.joined(),
+////        pushType: .alert,
+////        apnsID: nil,
+////        expiration: .immediately,
+////        priority: .immediately,
+////        topic: notification.topic,
+////        deadline: .distantFuture,
+////        logger: logger
+////    )
+////    try await self.sendAlertNotification(
+////      notification.alertNotification,
+////      deviceToken: notification.deviceToken.map { data in String(format: "%02.2hhx", data) }.joined(),
+////      deadline: .distantFuture
+////    )
+//  }
+//}
+
+
+extension Application {
+  public func sendNotification(_ notification: PayloadNotification<TagPayload>) async throws {
+
+    //let notification : PayloadNotification<TagPayload>! = nil
+//    Task {
+   
+    
+    //try await apns.client.sendAlertNotification(notification)
+      //)
+      try await self.apns.client.sendAlertNotification(
+        .init(
+          alert: .init(title: .raw(notification.title)),
+          expiration: .immediately,
+          priority: .immediately,
+          topic: notification.topic,
+          payload: notification.payload
+        ),
+        deviceToken: notification.deviceToken.map { data in String(format: "%02.2hhx", data) }.joined(),
+        deadline: .distantFuture
+      )
+    //}
+  }
+}
 public struct Server {
   private let env: Environment
 
@@ -51,7 +115,8 @@ public struct Server {
       username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
     ), as: .psql)
 
-    app.databases.middleware.configure()
+    app.databases.middleware.configure(notify: app.sendNotification(_:))
+    //app.databases.middleware.configure(notify: app.sendNotification)
   }
 
   fileprivate static func sublimation(_ app: Application) {
@@ -68,6 +133,8 @@ public struct Server {
       )
     }
   }
+  
+
 
   public static func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
@@ -80,10 +147,8 @@ public struct Server {
     try app.routes.register(collection: Routes())
     try app.autoMigrate().wait()
 
-//    Task {
-//      app.apns.client.sendAlertNotification(<#T##notification: APNSAlertNotification<Encodable>##APNSAlertNotification<Encodable>#>, deviceToken: <#T##String#>, deadline: <#T##NIODeadline#>)
-//    }
   }
+  
 
   @discardableResult
   public func start() throws -> Application {
