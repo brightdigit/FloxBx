@@ -53,34 +53,6 @@ import UserNotifications
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
-      self.mobileDevicePublisher.flatMap { content in
-        
-        return Future { () -> UUID? in
-          let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString: ))
-          switch (content, id) {
-          case (.some(let content), .some(let id)):
-            try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
-            return id
-          case (.some(let content), .none):
-            return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
-          case (nil, .some(let id)):
-            try await self.service.request(DeleteMobileDeviceRequest(id: id))
-            return nil
-          case (nil, nil):
-            debugPrint("ERROR: invalid state")
-            return nil
-          }
-
-        }
-      }
-      .replaceError(with: nil)
-      .compactMap{$0?.uuidString}
-      .receive(on: DispatchQueue.main)
-      .sink { id in
-        self.mobileDeviceRegistrationID = id
-      }.store(in: &self.cancellables)
-      
-      
       $token
         .share()
         .compactMap { $0 }
