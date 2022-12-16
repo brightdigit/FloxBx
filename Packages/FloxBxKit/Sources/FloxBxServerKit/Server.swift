@@ -76,6 +76,8 @@ public struct Server {
       )
     }
   }
+  
+
 
   public static func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
@@ -88,10 +90,8 @@ public struct Server {
     try app.routes.register(collection: Routes())
     try app.autoMigrate().wait()
 
-//    Task {
-//      app.apns.client.sendAlertNotification(<#T##notification: APNSAlertNotification<Encodable>##APNSAlertNotification<Encodable>#>, deviceToken: <#T##String#>, deadline: <#T##NIODeadline#>)
-//    }
   }
+  
 
   @discardableResult
   public func start() throws -> Application {

@@ -1,10 +1,11 @@
 import FluentKit
 import Foundation
+import FloxBxModels
 
 extension Databases.Middleware {
-  public func configure() {
+  public func configure(notify: @escaping (PayloadNotification<TagPayload>) async throws ->  Void){
     use(TagMiddleware())
     use(TodoMiddleware())
-    use(TodoTagMiddleware())
+    use(TodoTagMiddleware(sendNotification: notify))
   }
 }
