@@ -79,6 +79,10 @@ public struct Server {
     app.migrations.configure()
     try app.routes.register(collection: Routes())
     try app.autoMigrate().wait()
+
+//    Task {
+//      app.apns.client.sendAlertNotification(<#T##notification: APNSAlertNotification<Encodable>##APNSAlertNotification<Encodable>#>, deviceToken: <#T##String#>, deadline: <#T##NIODeadline#>)
+//    }
   }
 
   @discardableResult

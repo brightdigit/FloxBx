@@ -55,7 +55,7 @@ enum DeveloperServerError: Error {
       }
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
-      authenticated.receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
+      authenticated.print().receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
@@ -186,16 +186,20 @@ enum DeveloperServerError: Error {
         .sink { id in
           self.mobileDeviceRegistrationID = id
         }.store(in: &self.cancellables)
-        let isNotificationAuthorizationGranted = try? await UNUserNotificationCenter.current()
-          .requestAuthorization(options: [.sound, .badge, .alert])
+        let isNotificationAuthorizationGrantedResult = await Result{
+          try await UNUserNotificationCenter.current()
+            .requestAuthorization(options: [.sound, .badge, .alert])
+        }
         // UNUserNotificationCenter.current().notificationSettings()
-        #if os(iOS) && canImport(UIKit)
-          if isNotificationAuthorizationGranted == true {
-            await UIApplication.shared.registerForRemoteNotifications()
-          } else if isNotificationAuthorizationGranted == false {
-            await UIApplication.shared.unregisterForRemoteNotifications()
-          }
-        #endif
+        switch isNotificationAuthorizationGrantedResult {
+        case .success(true):
+          await AppInterfaceObject.sharedInterface.registerForRemoteNotifications()
+        case .success(false):
+          await AppInterfaceObject.sharedInterface.unregisterForRemoteNotifications()
+        case .failure(let error):
+          debugPrint(error)
+        }
+        
         setupCredentials()
       }
     }
