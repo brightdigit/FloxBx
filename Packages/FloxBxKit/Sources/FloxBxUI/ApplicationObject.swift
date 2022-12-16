@@ -22,7 +22,7 @@ enum DeveloperServerError: Error {
     private var cancellables = [AnyCancellable]()
 
     private let mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent?, Never>
-    @AppStorage("MobileDeviceRegistrationID") private var mobileDeviceRegistrationID : String?
+    @AppStorage("MobileDeviceRegistrationID") private var mobileDeviceRegistrationID: String?
     @Published internal private(set) var requiresAuthentication: Bool
     @Published internal private(set) var latestError: Error?
     @Published internal private(set) var token: String?
@@ -59,34 +59,6 @@ enum DeveloperServerError: Error {
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
-      self.mobileDevicePublisher.flatMap { content in
-        
-        return Future { () -> UUID? in
-          let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString: ))
-          switch (content, id) {
-          case (.some(let content), .some(let id)):
-            try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
-            return id
-          case (.some(let content), .none):
-            return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
-          case (nil, .some(let id)):
-            try await self.service.request(DeleteMobileDeviceRequest(id: id))
-            return nil
-          case (nil, nil):
-            debugPrint("ERROR: invalid state")
-            return nil
-          }
-
-        }
-      }
-      .replaceError(with: nil)
-      .compactMap{$0?.uuidString}
-      .receive(on: DispatchQueue.main)
-      .sink { id in
-        self.mobileDeviceRegistrationID = id
-      }.store(in: &self.cancellables)
-      
-      
       $token
         .share()
         .compactMap { $0 }
@@ -182,24 +154,50 @@ enum DeveloperServerError: Error {
     #endif
 
     internal func begin() {
-     
-        Task {
-#if DEBUG
+      Task {
+        #if DEBUG
           self.service = await developerService()
-#endif
-          let isNotificationAuthorizationGranted = try? await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.sound, .badge, .alert])
-          //UNUserNotificationCenter.current().notificationSettings()
-          #if os(iOS) && canImport(UIKit)
+        #endif
+
+        self.mobileDevicePublisher.flatMap { content in
+          Future { () -> UUID? in
+            let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString:))
+            switch (content, id) {
+            case let (.some(content), .some(id)):
+              try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+              return id
+
+            case let (.some(content), .none):
+              return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
+
+            case (nil, let .some(id)):
+              try await self.service.request(DeleteMobileDeviceRequest(id: id))
+              return nil
+
+            case (nil, nil):
+              debugPrint("ERROR: invalid state")
+              return nil
+            }
+          }
+        }
+        .replaceError(with: nil)
+        .compactMap { $0?.uuidString }
+        .receive(on: DispatchQueue.main)
+        .sink { id in
+          self.mobileDeviceRegistrationID = id
+        }.store(in: &self.cancellables)
+        let isNotificationAuthorizationGranted = try? await UNUserNotificationCenter.current()
+          .requestAuthorization(options: [.sound, .badge, .alert])
+        // UNUserNotificationCenter.current().notificationSettings()
+        #if os(iOS) && canImport(UIKit)
           if isNotificationAuthorizationGranted == true {
             await UIApplication.shared.registerForRemoteNotifications()
           } else if isNotificationAuthorizationGranted == false {
             await UIApplication.shared.unregisterForRemoteNotifications()
           }
-          #endif
-          setupCredentials()
-        }
-
+        #endif
+        setupCredentials()
+      }
     }
 
     internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {

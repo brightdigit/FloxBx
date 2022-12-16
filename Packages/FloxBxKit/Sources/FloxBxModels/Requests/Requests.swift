@@ -14,38 +14,37 @@ public struct DeleteMobileDeviceRequest: ClientVoidRequest {
   public init(id: UUID) {
     self.id = id
   }
-  
+
   public static var requiresCredentials: Bool {
-    return true
+    true
   }
-  
-  
+
   public var path: String {
     "api/v1/device/mobile/\(id)"
   }
-  
-  public var parameters: [String : String] {
+
+  public var parameters: [String: String] {
     [:]
   }
-  
+
   public var method: FloxBxNetworking.RequestMethod {
-    return .DELETE
+    .DELETE
   }
-  
-  public var headers: [String : String] {
+
+  public var headers: [String: String] {
     [:]
   }
-  
-  public let id : UUID
+
+  public let id: UUID
 }
 
 public struct CreateMobileDeviceRequest: ClientBodySuccessRequest {
   public typealias SuccessType = CreateMobileDeviceResponseContent
-  
+
   public init(body: CreateMobileDeviceRequestContent) {
     self.body = body
   }
-  
+
   public let body: CreateMobileDeviceRequestContent
 
   public typealias BodyType = CreateMobileDeviceRequestContent
@@ -59,11 +58,11 @@ public struct CreateMobileDeviceRequest: ClientBodySuccessRequest {
   }
 
   public var parameters: [String: String] {
-    return [:]
+    [:]
   }
 
   public var method: RequestMethod {
-    return .POST
+    .POST
   }
 
   public var headers: [String: String] {
@@ -76,8 +75,8 @@ public struct PatchMobileDeviceRequest: ClientBodyRequest {
     self.id = id
     self.body = body
   }
-  
-  public let id : UUID
+
+  public let id: UUID
   public let body: PatchMobileDeviceRequestContent
 
   public typealias BodyType = PatchMobileDeviceRequestContent

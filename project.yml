@@ -120,6 +120,7 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: FloxBx
+        UILaunchStoryboardName: Launch Screen.storyboard
     entitlements:
       path: Support/iOS/iOS.entitlements
       properties:
