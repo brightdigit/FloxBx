@@ -1,24 +1,24 @@
-import FluentKit
 import FloxBxModels
+import FluentKit
 
 struct TodoTagMiddleware: AsyncModelMiddleware {
   typealias Model = TodoTag
-  
-  let sendNotification : (PayloadNotification<TagPayload>) async throws ->  Void
+
+  // swiftformat:disable:next all
+  let sendNotification: (PayloadNotification<TagPayload>) async throws -> Void
 
   func create(model: TodoTag, on db: Database, next: AnyAsyncModelResponder) async throws {
-    let devices = try await model.$tag.query(on: db).with(\.$subscribers).with(\.$subscribers, { subscriber in
+    let devices = try await model.$tag.query(on: db).with(\.$subscribers).with(\.$subscribers) { subscriber in
       subscriber.with(\.$mobileDevices)
-    }).all().flatMap(\.subscribers).flatMap(\.mobileDevices)
+    }.all().flatMap(\.subscribers).flatMap(\.mobileDevices)
     let notifications = devices.compactMap { device in
-      device.deviceToken.map{ deviceToken in
+      device.deviceToken.map { deviceToken in
         PayloadNotification(topic: device.topic, deviceToken: deviceToken, payload: TagPayload(action: .added, name: model.$tag.id))
       }
     }
-    
-    
+
     for notification in notifications {
-      try await self.sendNotification(notification)
+      try await sendNotification(notification)
     }
     try await next.create(model, on: db)
   }

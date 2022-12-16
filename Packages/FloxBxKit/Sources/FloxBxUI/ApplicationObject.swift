@@ -164,7 +164,13 @@ enum DeveloperServerError: Error {
             let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString:))
             switch (content, id) {
             case let (.some(content), .some(id)):
-              try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+              do {
+                try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+              } catch let RequestError.invalidStatusCode(statusCode) where statusCode == 404 {
+                return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
+              } catch {
+                throw error
+              }
               return id
 
             case let (.some(content), .none):
@@ -186,22 +192,24 @@ enum DeveloperServerError: Error {
         .sink { id in
           self.mobileDeviceRegistrationID = id
         }.store(in: &self.cancellables)
-        let isNotificationAuthorizationGrantedResult = await Result{
+        let isNotificationAuthorizationGrantedResult = await Result {
           try await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.sound, .badge, .alert])
         }
         // UNUserNotificationCenter.current().notificationSettings()
-        Task{ @MainActor in
+        Task { @MainActor in
           switch isNotificationAuthorizationGrantedResult {
           case .success(true):
             await AppInterfaceObject.sharedInterface.registerForRemoteNotifications()
+
           case .success(false):
             await AppInterfaceObject.sharedInterface.unregisterForRemoteNotifications()
-          case .failure(let error):
+
+          case let .failure(error):
             debugPrint(error)
           }
         }
-        
+
         setupCredentials()
       }
     }

@@ -18,56 +18,58 @@ public enum Configuration {
     public static let key = "floxbx"
   }
 }
-public protocol Notifiable : Codable {
-  associatedtype PayloadType : Codable
-  var title : String {get}
-  var deviceToken : Data {get}
-  var topic : String {get}
-  var payload : PayloadType { get }
+
+public protocol Notifiable: Codable {
+  associatedtype PayloadType: Codable
+  var title: String { get }
+  var deviceToken: Data { get }
+  var topic: String { get }
+  var payload: PayloadType { get }
 }
-public struct PayloadNotification<Payload : Codable> : Codable  {
+
+public struct PayloadNotification<Payload: Codable>: Codable {
   public init(topic: String, deviceToken: Data, payload: Payload) {
     self.topic = topic
     self.deviceToken = deviceToken
     self.payload = payload
   }
-  
-  
-  public let topic : String
-  public let deviceToken : Data
-  public let payload : Payload
+
+  public let topic: String
+  public let deviceToken: Data
+  public let payload: Payload
 }
+
 public protocol NotificationContent {
-  var title : String { get }
+  var title: String { get }
 }
 
-
-extension PayloadNotification : Notifiable where Payload : NotificationContent {
+extension PayloadNotification: Notifiable where Payload: NotificationContent {
   public var title: String {
-    return payload.title
+    payload.title
   }
 }
-public struct TagPayload : Codable, NotificationContent {
-  public init(action: TagPayload.Action,name: String) {
+
+public struct TagPayload: Codable, NotificationContent {
+  public init(action: TagPayload.Action, name: String) {
     self.name = name
     self.action = action
   }
-  
-  public let name : String
-  public let action : Action
-  
-  public enum Action : String, Codable {
+
+  public let name: String
+  public let action: Action
+
+  public enum Action: String, Codable {
     case added
     case removed
   }
-  
+
   public var title: String {
     switch action {
     case .added:
-      return "New Todo Item tagged #\(self.name)"
+      return "New Todo Item tagged #\(name)"
     case .removed:
-      
-        return "Todo Item tagged #\(self.name) Removed"
+
+      return "Todo Item tagged #\(name) Removed"
     }
   }
 }

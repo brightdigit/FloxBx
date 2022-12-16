@@ -7,7 +7,7 @@
     var appDelegate: AppDelegate { get }
   }
 
-  public extension Application {
+  extension Application {
     public var body: some Scene {
       WindowGroup {
         ContentView().environmentObject(ApplicationObject(
@@ -15,7 +15,7 @@
         ))
       }
     }
-    
+
 //    public static var appInterface : AppInterface {
 //      return AppInterfaceObject.sharedInterface
 //    }
@@ -26,37 +26,34 @@
 
   #if os(iOS)
     extension UIDevice: Device {}
-extension UIApplication: AppInterface {
-  public static var sharedInterface: AppInterface {
-    UIApplication.shared
-  }
-  
+    extension UIApplication: AppInterface {
+      public static var sharedInterface: AppInterface {
+        UIApplication.shared
+      }
+
       public static var currentDevice: Device {
         UIDevice.current
       }
-      
-      
     }
 
     public typealias ApplicationDelegateAdaptor = UIApplicationDelegateAdaptor
-public typealias AppInterfaceObject = UIApplication
+    public typealias AppInterfaceObject = UIApplication
 
   #elseif os(watchOS)
-import WatchKit
+    import WatchKit
     extension WKInterfaceDevice: Device {}
     extension WKApplication: AppInterface {
       public static var currentDevice: Device {
         WKInterfaceDevice.current()
       }
-      
-      
+
       public static var sharedInterface: AppInterface {
         WKApplication.shared()
       }
     }
 
     public typealias ApplicationDelegateAdaptor = WKApplicationDelegateAdaptor
-public typealias AppInterfaceObject = WKApplication
+    public typealias AppInterfaceObject = WKApplication
   #endif
 
   public protocol Device {
@@ -75,10 +72,10 @@ public typealias AppInterfaceObject = WKApplication
   }
 
   public protocol AppInterface {
-    static var sharedInterface : AppInterface { get }
+    static var sharedInterface: AppInterface { get }
     static var currentDevice: Device { get }
-    func registerForRemoteNotifications () async
-    func unregisterForRemoteNotifications () async
+    func registerForRemoteNotifications() async
+    func unregisterForRemoteNotifications() async
   }
 
   public class AppDelegate: NSObject, ObservableObject {
