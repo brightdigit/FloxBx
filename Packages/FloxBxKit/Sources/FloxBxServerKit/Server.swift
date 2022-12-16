@@ -76,8 +76,6 @@ public struct Server {
       )
     }
   }
-  
-
 
   public static func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
@@ -89,9 +87,7 @@ public struct Server {
     app.migrations.configure()
     try app.routes.register(collection: Routes())
     try app.autoMigrate().wait()
-
   }
-  
 
   @discardableResult
   public func start() throws -> Application {
