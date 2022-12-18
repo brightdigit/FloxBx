@@ -57,7 +57,6 @@ public struct Server {
       hostname: Environment.get("DATABASE_HOST") ?? "localhost",
       username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
     ), as: .psql)
-    
 
     app.databases.middleware.configure(notify: app.sendNotification(_:))
   }

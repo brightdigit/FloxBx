@@ -3,8 +3,6 @@ import FloxBxModels
 import Fluent
 import RouteGroups
 import Vapor
-import RouteGroups
-import Vapor
 
 internal struct GroupSessionController: RouteGroupCollection {
   internal typealias RouteGroupKeyType = RouteGroupKey
@@ -25,13 +23,5 @@ internal struct GroupSessionController: RouteGroupCollection {
     return user.$groupSessions.create(groupSession, on: request.db).flatMapThrowing {
       try CreateGroupSessionResponseContent(id: groupSession.requireID())
     }
-  }
-
-  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
-    [
-      .bearer: { (bearer: RoutesBuilder) in
-        bearer.post("group-sessions", use: create(from:))
-      }
-    ]
   }
 }

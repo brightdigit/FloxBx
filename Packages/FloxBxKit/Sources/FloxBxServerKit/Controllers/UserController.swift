@@ -47,5 +47,4 @@ internal struct UserController: RouteGroupCollection {
       GetUserResponseContent(id: id, username: username, tags: tags.compactMap { $0.id })
     }
   }
-
 }
