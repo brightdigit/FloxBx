@@ -7,9 +7,7 @@ internal final class UserSubscription: Model {
   }
 
   internal static let schema = "UserSubscriptions"
-//
-//  @ID(custom: FieldKeys.name, generatedBy: .user)
-//  internal var id: String?
+
   @ID(key: .id)
   internal var id: UUID?
 
@@ -18,20 +16,6 @@ internal final class UserSubscription: Model {
 
   @Parent(key: FieldKeys.tag)
   var tag: Tag
-//
-//  @Field(key: "title")
-//  internal var title: String
-//
-//  @Parent(key: FieldKeys.userID)
-//  internal var user: User
 
   internal init() {}
-
-//  internal init(title: String, userID: UUID? = nil, id: UUID? = nil) {
-//    self.id = id
-//    self.title = title
-//    if let userID = userID {
-//      $user.id = userID
-//    }
-//  }
 }

@@ -19,22 +19,6 @@ public final class Tag: Model {
 
   @Siblings(through: UserSubscription.self, from: \.$tag, to: \.$user)
   public var subscribers: [User]
-//  @ID(key: .id)
-//  internal var id: UUID?
-//
-//  @Field(key: "title")
-//  internal var title: String
-//
-//  @Parent(key: FieldKeys.userID)
-//  internal var user: User
 
   public init() {}
-
-//  internal init(title: String, userID: UUID? = nil, id: UUID? = nil) {
-//    self.id = id
-//    self.title = title
-//    if let userID = userID {
-//      $user.id = userID
-//    }
-//  }
 }

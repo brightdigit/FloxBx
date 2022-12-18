@@ -8,38 +8,6 @@ import FluentPostgresDriver
 import SublimationVapor
 import Vapor
 
-public struct MissingConfigurationError: Error {
-  let key: String
-}
-
-extension Notifiable {
-  var alertNotification: APNSAlertNotification<PayloadType> {
-    .init(
-      alert: .init(title: .raw(self.title)),
-      expiration: .immediately,
-      priority: .immediately,
-      topic: self.topic,
-      payload: self.payload
-    )
-  }
-}
-
-extension Application {
-  public func sendNotification(_ notification: PayloadNotification<TagPayload>) async throws {
-    try await self.apns.client.sendAlertNotification(
-      .init(
-        alert: .init(title: .raw(notification.title)),
-        expiration: .immediately,
-        priority: .immediately,
-        topic: notification.topic,
-        payload: notification.payload
-      ),
-      deviceToken: notification.deviceToken.map { data in String(format: "%02.2hhx", data) }.joined(),
-      deadline: .distantFuture
-    )
-  }
-}
-
 public struct Server {
   private let env: Environment
 
@@ -91,7 +59,6 @@ public struct Server {
     ), as: .psql)
 
     app.databases.middleware.configure(notify: app.sendNotification(_:))
-    // app.databases.middleware.configure(notify: app.sendNotification)
   }
 
   fileprivate static func sublimation(_ app: Application) {

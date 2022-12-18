@@ -3,16 +3,11 @@ import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
 import Sublimation
-import UserNotifications
 
-enum DeveloperServerError: Error {
-  case noServer
-  case sublimationError(Error)
-}
-
-#if canImport(Combine) && canImport(SwiftUI)
+#if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
   import Combine
   import SwiftUI
+  import UserNotifications
 
   internal class ApplicationObject: ObservableObject {
     @Published internal private(set) var shareplayObject: SharePlayObject<
