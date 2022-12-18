@@ -1,16 +1,26 @@
+import FloxBxModels
 import FluentKit
 
-struct TodoMiddleware: AsyncModelMiddleware {
-  // let apns : Application.APNS
+struct TodoMiddleware: AsyncModelMiddleware, SendsNotifications {
   typealias Model = Todo
-
-  func update(model: Todo, on db: Database, next: AnyAsyncModelResponder) async throws {
-    let subscribers = try await model.$tags.query(on: db).with(\.$subscribers).all().flatMap { $0.subscribers }.uniqued(on: { $0.id })
-    try await next.update(model, on: db)
-  }
+  
+  // swiftformat:disable:next all
+  let sendNotification: (PayloadNotification<TagPayload>) async throws -> UUID?
 
   func delete(model: Todo, force: Bool, on db: Database, next: AnyAsyncModelResponder) async throws {
-    let subscribers = try await model.$tags.query(on: db).with(\.$subscribers).all().flatMap { $0.subscribers }.uniqued(on: { $0.id })
+    let query = model.$tags.query(on: db)
+    let tags = try await query.all().compactMap(\.id)
+    let devices = try await query.with(\.$subscribers) { subscriber in
+      subscriber.with(\.$mobileDevices)
+    }.all().flatMap(\.subscribers).flatMap(\.mobileDevices)
+
+    try await withThrowingTaskGroup(of: Void.self) { _ in
+      for tagID in tags {
+        let payload = TagPayload(action: .removed, name: tagID)
+        try await self.sendPayload(payload, to: devices, on: db)
+      }
+    }
+
     try await next.delete(model, force: force, on: db)
   }
 }

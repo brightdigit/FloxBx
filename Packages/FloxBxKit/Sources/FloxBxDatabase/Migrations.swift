@@ -11,5 +11,6 @@ extension Migrations {
     add(CreateTodoTagsMigration())
     add(CreateUserSubscriptionMigration())
     add(CreateMobileDeviceMigration())
+    add(CreateNotificationMigration())
   }
 }
