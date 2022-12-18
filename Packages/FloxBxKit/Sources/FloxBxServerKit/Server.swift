@@ -1,12 +1,43 @@
 import APNS
 import FloxBxDatabase
 import enum FloxBxModels.Configuration
+import protocol FloxBxModels.Notifiable
+import struct FloxBxModels.PayloadNotification
+import struct FloxBxModels.TagPayload
 import FluentPostgresDriver
 import SublimationVapor
 import Vapor
 
 public struct MissingConfigurationError: Error {
   let key: String
+}
+
+extension Notifiable {
+  var alertNotification: APNSAlertNotification<PayloadType> {
+    .init(
+      alert: .init(title: .raw(self.title)),
+      expiration: .immediately,
+      priority: .immediately,
+      topic: self.topic,
+      payload: self.payload
+    )
+  }
+}
+
+extension Application {
+  public func sendNotification(_ notification: PayloadNotification<TagPayload>) async throws {
+    try await self.apns.client.sendAlertNotification(
+      .init(
+        alert: .init(title: .raw(notification.title)),
+        expiration: .immediately,
+        priority: .immediately,
+        topic: notification.topic,
+        payload: notification.payload
+      ),
+      deviceToken: notification.deviceToken.map { data in String(format: "%02.2hhx", data) }.joined(),
+      deadline: .distantFuture
+    )
+  }
 }
 
 public struct Server {
@@ -27,13 +58,21 @@ public struct Server {
       throw MissingConfigurationError(key: "APNS_PRIVATE_KEY")
     }
 
+    guard let keyIdentifier = Environment.get("APNS_KEY_IDENTIFIER") else {
+      throw MissingConfigurationError(key: "APNS_KEY_IDENTIFIER")
+    }
+
+    guard let teamIdentifier = Environment.get("APNS_TEAM_IDENTIFIER") else {
+      throw MissingConfigurationError(key: "APNS_TEAM_IDENTIFIER")
+    }
+
     try app.apns.containers.use(
       .init(
         authenticationMethod: .jwt(
           // 3
           privateKey: .init(pemRepresentation: appleECP8PrivateKey),
-          keyIdentifier: "MZDGM87R59",
-          teamIdentifier: "VS77J6GKJ8"
+          keyIdentifier: keyIdentifier,
+          teamIdentifier: teamIdentifier
         ),
         // 5
         environment: .sandbox
@@ -51,7 +90,8 @@ public struct Server {
       username: Environment.get("DATABASE_USERNAME") ?? "floxbx", password: ""
     ), as: .psql)
 
-    app.databases.middleware.configure()
+    app.databases.middleware.configure(notify: app.sendNotification(_:))
+    // app.databases.middleware.configure(notify: app.sendNotification)
   }
 
   fileprivate static func sublimation(_ app: Application) {

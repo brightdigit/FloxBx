@@ -17,7 +17,7 @@
     public convenience init(_ asyncFunc: @escaping () async throws -> Output) {
       self.init { promise in
         Task {
-          let success : Output
+          let success: Output
           do {
             success = try await asyncFunc()
           } catch {

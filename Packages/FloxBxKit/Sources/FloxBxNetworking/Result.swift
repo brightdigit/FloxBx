@@ -37,9 +37,9 @@ extension Result {
   public func asVoid() -> Result<Void, Failure> {
     transform(())
   }
-  
-  public init (_ asyncFunc: @escaping () async throws -> Success) async where Failure == Error {
-    let success : Success
+
+  public init(_ asyncFunc: @escaping () async throws -> Success) async where Failure == Error {
+    let success: Success
     do {
       success = try await asyncFunc()
     } catch {

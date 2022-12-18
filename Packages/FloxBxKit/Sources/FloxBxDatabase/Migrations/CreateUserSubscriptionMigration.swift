@@ -8,6 +8,7 @@ internal struct CreateMobileDeviceMigration: Migration {
       .field(MobileDevice.FieldKeys.model, .string, .required)
       .field(MobileDevice.FieldKeys.operatingSystem, .string, .required)
       .field(MobileDevice.FieldKeys.deviceToken, .data, .required)
+      .field(MobileDevice.FieldKeys.topic, .data, .required)
       .foreignKey(
         MobileDevice.FieldKeys.userID,
         references: User.schema, .id,

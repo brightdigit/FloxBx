@@ -4,7 +4,6 @@ import Foundation
 import RouteGroups
 import Vapor
 
-
 extension MobileDevice {
   convenience init(content: CreateMobileDeviceRequestContent) {
     self.init(
@@ -23,9 +22,7 @@ extension MobileDevice {
   }
 }
 
-extension CreateMobileDeviceResponseContent : Content {
-
-}
+extension CreateMobileDeviceResponseContent: Content {}
 
 struct MobileDeviceController: RouteGroupCollection {
   var routeGroups: [RouteGroupKey: RouteGroups.RouteCollectionBuilder] {
