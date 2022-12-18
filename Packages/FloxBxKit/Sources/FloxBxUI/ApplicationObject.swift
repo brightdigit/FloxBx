@@ -3,7 +3,6 @@ import FloxBxGroupActivities
 import FloxBxModels
 import FloxBxNetworking
 import Sublimation
-import UserNotifications
 
 #if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
   import Combine
