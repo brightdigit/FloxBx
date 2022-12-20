@@ -67,7 +67,7 @@ struct MobileDeviceController: RouteGroupCollection {
     let deviceID: UUID = try request.parameters.require("deviceID")
     let device = try await user.$mobileDevices.query(on: request.db).filter(.id, .equality(inverse: false), deviceID).first()
 
-    guard let device else {
+    guard let device = device else {
       throw Abort(.notFound)
     }
     try await device.delete(on: request.db)
