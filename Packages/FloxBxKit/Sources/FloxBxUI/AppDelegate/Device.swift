@@ -1,9 +1,9 @@
+public protocol Device {
+  var systemVersion: String { get }
+}
+
 #if canImport(Darwin)
   import Darwin
-
-  public protocol Device {
-    var systemVersion: String { get }
-  }
 
   extension Device {
     public var name: String {

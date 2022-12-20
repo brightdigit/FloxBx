@@ -1,5 +1,5 @@
-#if canImport(WatchKit)
-
+#if canImport(WatchKit) && canImport(SwiftUI)
+  import SwiftUI
   import WatchKit
   extension AppDelegate: WKApplicationDelegate {
     public func didRegisterForRemoteNotificaions(withDeviceToken deviceToken: Data) {
