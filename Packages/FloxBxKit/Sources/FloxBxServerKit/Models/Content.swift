@@ -42,7 +42,7 @@ extension Tag {
         }
       }
       return try await taskGroup.reduce(into: [Tag]()) { result, tag in
-        if let tag {
+        if let tag = tag {
           result.append(tag)
         }
       }
