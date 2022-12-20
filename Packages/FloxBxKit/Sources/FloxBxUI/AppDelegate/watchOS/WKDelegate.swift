@@ -1,9 +1,9 @@
 #if canImport(WatchKit) && canImport(SwiftUI)
   import SwiftUI
   import WatchKit
-  extension AppDelegate: WKApplicationDelegate {
-    public func didRegisterForRemoteNotificaions(withDeviceToken deviceToken: Data) {
-      didRegisterForRemoteNotifications(from: WKApplication.shared(), withDeviceToken: deviceToken)
+  extension AppDelegate: WKDelegate {
+    public func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
+      didRegisterForRemoteNotifications(from: WKAppPolyfill.shared(), withDeviceToken: deviceToken)
     }
 
     public func didFailToRegisterForRemoteNotificationsWithError(_ error: Error) {
