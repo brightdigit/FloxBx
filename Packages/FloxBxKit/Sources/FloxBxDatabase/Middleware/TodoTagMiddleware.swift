@@ -1,8 +1,10 @@
 import FloxBxModels
 import FluentKit
+import Foundation
 
 struct TodoTagMiddleware: AsyncModelMiddleware, SendsNotifications {
   typealias Model = TodoTag
+  typealias PayloadModelType = TagPayload
 
   // swiftformat:disable:next all
   let sendNotification: (PayloadNotification<TagPayload>) async throws -> UUID?

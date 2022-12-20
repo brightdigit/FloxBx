@@ -25,7 +25,7 @@ extension SendsNotifications {
         }
       }
       return try await group.reduce(into: [Notification]()) { models, notification in
-        guard let notification else {
+        guard let notification = notification else {
           return
         }
         models.append(notification)
