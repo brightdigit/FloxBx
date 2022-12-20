@@ -3,7 +3,7 @@ import FluentKit
 
 struct TodoMiddleware: AsyncModelMiddleware, SendsNotifications {
   typealias Model = Todo
-  
+
   // swiftformat:disable:next all
   let sendNotification: (PayloadNotification<TagPayload>) async throws -> UUID?
 

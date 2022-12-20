@@ -50,21 +50,20 @@
 
     public typealias ApplicationDelegateAdaptor = WKApplicationDelegateAdaptor
     public typealias AppInterfaceObject = WKApplication
-#elseif os(macOS)
-import AppKit
-extension NSApplication : AppInterface {
-  public static var sharedInterface: AppInterface {
-    return NSApplication.shared
-  }
-  
-  public static var currentDevice: Device {
-    fatalError()
-  }
-}
+  #elseif os(macOS)
+    import AppKit
+    extension NSApplication: AppInterface {
+      public static var sharedInterface: AppInterface {
+        NSApplication.shared
+      }
 
+      public static var currentDevice: Device {
+        fatalError()
+      }
+    }
 
-public typealias ApplicationDelegateAdaptor = NSApplicationDelegateAdaptor
-public typealias AppInterfaceObject = NSApplication
+    public typealias ApplicationDelegateAdaptor = NSApplicationDelegateAdaptor
+    public typealias AppInterfaceObject = NSApplication
   #endif
 
   public protocol Device {

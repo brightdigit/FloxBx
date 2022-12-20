@@ -4,7 +4,7 @@ import Foundation
 
 protocol SendsNotifications {
   associatedtype PayloadModelType: PayloadModel
-  
+
   // swiftformat:disable:next all
   var sendNotification: (PayloadNotification<PayloadModelType>) async throws -> UUID? { get }
 }
@@ -16,9 +16,9 @@ extension SendsNotifications {
     }
     return Notification(id: id, deviceNotification: deviceNotification)
   }
-  
+
   func sendNotifications(_ notifications: [DeviceNotification<PayloadModelType>]) async throws -> [Notification] {
-    return try await withThrowingTaskGroup(of: Notification?.self) { group -> [Notification] in
+    try await withThrowingTaskGroup(of: Notification?.self) { group -> [Notification] in
       for deviceNotification in notifications {
         group.addTask { () -> Notification? in
           try await sentNotification(basedOn: deviceNotification)
@@ -38,7 +38,7 @@ extension SendsNotifications {
       DeviceNotification(device: $0, payload: payload)
     }
 
-    let models = try await self.sendNotifications(notifications)
+    let models = try await sendNotifications(notifications)
 
     try await models.create(on: db)
   }

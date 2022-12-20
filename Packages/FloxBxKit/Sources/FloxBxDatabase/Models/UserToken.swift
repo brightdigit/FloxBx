@@ -1,4 +1,5 @@
 import Fluent
+import Foundation
 
 public final class UserToken: Model {
   internal enum FieldKeys {

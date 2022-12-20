@@ -1,4 +1,5 @@
 import Fluent
+import Foundation
 
 public final class User: Model {
   internal enum FieldKeys {

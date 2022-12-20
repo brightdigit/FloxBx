@@ -1,4 +1,5 @@
 import Fluent
+import Foundation
 
 public final class GroupSession: Model {
   internal enum FieldKeys {

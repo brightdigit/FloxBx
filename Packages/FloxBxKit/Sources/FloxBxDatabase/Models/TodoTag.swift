@@ -1,4 +1,5 @@
 import Fluent
+import Foundation
 
 internal final class TodoTag: Model {
   internal enum FieldKeys {
