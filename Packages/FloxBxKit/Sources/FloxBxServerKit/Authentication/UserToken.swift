@@ -1,5 +1,6 @@
 import FloxBxDatabase
 import Fluent
+import Foundation
 
 extension UserToken: ModelTokenAuthenticatable {
   public static let valueKey: KeyPath<UserToken, Field<String>> = \.$value
