@@ -255,8 +255,11 @@ public class ServiceImpl<
       RequestBuilderType == URLRequestBuilder,
       SessionType == URLSession,
       CoderType == JSONCoder {
+      guard let baseURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+        preconditionFailure("Invalid baseURL: \(baseURL)")
+      }
       self.init(
-        baseURLComponents: URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!,
+        baseURLComponents: baseURLComponents,
         coder: coder,
         session: session,
         builder: .init(),

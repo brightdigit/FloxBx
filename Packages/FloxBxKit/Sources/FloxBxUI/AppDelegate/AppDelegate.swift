@@ -6,10 +6,13 @@
   public class AppDelegate: NSObject, ObservableObject {
     @Published var mobileDevice: CreateMobileDeviceRequestContent?
     public func didRegisterForRemoteNotifications<AppInterfaceType: AppInterface>(from _: AppInterfaceType?, withDeviceToken deviceToken: Data) {
+      guard let topic = Bundle.main.bundleIdentifier else {
+        preconditionFailure("There was no `bundleIdentifier`")
+      }
       mobileDevice = CreateMobileDeviceRequestContent(
         model: AppInterfaceType.currentDevice.name,
         operatingSystem: AppInterfaceType.currentDevice.systemVersion,
-        topic: Bundle.main.bundleIdentifier!,
+        topic: topic,
         deviceToken: deviceToken
       )
     }

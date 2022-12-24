@@ -11,7 +11,7 @@ public enum Configuration {
     var urlComponents = URLComponents()
     urlComponents.scheme = "https"
     urlComponents.host = Self.serviceName
-    return urlComponents.url!
+    return URL(components: urlComponents)
   }()
 
   #if DEBUG

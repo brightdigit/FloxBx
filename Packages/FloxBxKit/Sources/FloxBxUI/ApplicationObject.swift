@@ -25,6 +25,7 @@ import Sublimation
     @Published internal private(set) var items = [TodoContentItem]()
 
     #if DEBUG
+      // swiftlint:disable:next implicitly_unwrapped_optional
       private var service: Service!
     #else
       private let service: Service = ServiceImpl(
@@ -129,7 +130,7 @@ import Sublimation
         }
       }
 
-      fileprivate func developerService() async -> Service {
+      fileprivate func developerService(fallbackURL: URL) async -> Service {
         let baseURL: URL
         do {
           baseURL = try await fetchBaseURL()
@@ -138,7 +139,7 @@ import Sublimation
           await MainActor.run {
             self.latestError = error
           }
-          baseURL = URL(string: "https://apple.com")!
+          baseURL = fallbackURL
         }
         return ServiceImpl(
           baseURL: baseURL,
@@ -151,7 +152,7 @@ import Sublimation
     internal func begin() {
       Task {
         #if DEBUG
-          self.service = await developerService()
+          self.service = await developerService(fallbackURL: Configuration.productionBaseURL)
         #endif
 
         self.mobileDevicePublisher.flatMap { content in
