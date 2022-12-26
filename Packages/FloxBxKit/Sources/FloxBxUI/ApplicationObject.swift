@@ -116,7 +116,7 @@ import Sublimation
     }
 
     #if DEBUG
-      fileprivate func fetchBaseURL() async throws -> URL {
+      fileprivate static func fetchBaseURL() async throws -> URL {
         do {
           guard let url = try await KVdb.url(
             withKey: Configuration.Sublimation.key,
@@ -133,7 +133,7 @@ import Sublimation
       fileprivate func developerService(fallbackURL: URL) async -> Service {
         let baseURL: URL
         do {
-          baseURL = try await fetchBaseURL()
+          baseURL = try await Self.fetchBaseURL()
           debugPrint("Found BaseURL: \(baseURL)")
         } catch {
           await MainActor.run {
@@ -149,6 +149,32 @@ import Sublimation
       }
     #endif
 
+    fileprivate func upsertMobileDevice(basedOn content: CreateMobileDeviceRequestContent?) async throws -> UUID? {
+      let id = mobileDeviceRegistrationID.flatMap(UUID.init(uuidString:))
+      switch (content, id) {
+      case let (.some(content), .some(id)):
+        do {
+          try await service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+        } catch let RequestError.invalidStatusCode(statusCode) where statusCode == 404 {
+          return try await service.request(CreateMobileDeviceRequest(body: content)).id
+        } catch {
+          throw error
+        }
+        return id
+
+      case let (.some(content), .none):
+        return try await service.request(CreateMobileDeviceRequest(body: content)).id
+
+      case (nil, let .some(id)):
+        try await service.request(DeleteMobileDeviceRequest(id: id))
+        return nil
+
+      case (nil, nil):
+        debugPrint("ERROR: invalid state")
+        return nil
+      }
+    }
+
     internal func begin() {
       Task {
         #if DEBUG
@@ -156,30 +182,8 @@ import Sublimation
         #endif
 
         self.mobileDevicePublisher.flatMap { content in
-          Future { () -> UUID? in
-            let id = self.mobileDeviceRegistrationID.flatMap(UUID.init(uuidString:))
-            switch (content, id) {
-            case let (.some(content), .some(id)):
-              do {
-                try await self.service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
-              } catch let RequestError.invalidStatusCode(statusCode) where statusCode == 404 {
-                return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
-              } catch {
-                throw error
-              }
-              return id
-
-            case let (.some(content), .none):
-              return try await self.service.request(CreateMobileDeviceRequest(body: content)).id
-
-            case (nil, let .some(id)):
-              try await self.service.request(DeleteMobileDeviceRequest(id: id))
-              return nil
-
-            case (nil, nil):
-              debugPrint("ERROR: invalid state")
-              return nil
-            }
+          Future { [self] () -> UUID? in
+            try await upsertMobileDevice(basedOn: content)
           }
         }
         .replaceError(with: nil)
@@ -188,11 +192,12 @@ import Sublimation
         .sink { id in
           self.mobileDeviceRegistrationID = id
         }.store(in: &self.cancellables)
+
         let isNotificationAuthorizationGrantedResult = await Result {
           try await UNUserNotificationCenter.current()
             .requestAuthorization(options: [.sound, .badge, .alert])
         }
-        // UNUserNotificationCenter.current().notificationSettings()
+
         Task { @MainActor in
           switch isNotificationAuthorizationGrantedResult {
           case .success(true):

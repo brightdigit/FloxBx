@@ -1,3 +1,4 @@
+// swiftlint:disable:this file_name
 #if os(macOS) && canImport(AppKit)
   import AppKit
   extension AppDelegate: NSApplicationDelegate {

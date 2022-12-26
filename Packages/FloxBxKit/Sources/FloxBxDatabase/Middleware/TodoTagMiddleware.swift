@@ -10,9 +10,13 @@ struct TodoTagMiddleware: AsyncModelMiddleware, SendsNotifications {
   let sendNotification: (PayloadNotification<TagPayload>) async throws -> UUID?
 
   func create(model: TodoTag, on db: Database, next: AnyAsyncModelResponder) async throws {
-    let devices = try await model.$tag.query(on: db).with(\.$subscribers) { subscriber in
-      subscriber.with(\.$mobileDevices)
-    }.all().flatMap(\.subscribers).flatMap(\.mobileDevices)
+    let devices = try await model.$tag.query(on: db)
+      .with(\.$subscribers) { subscriber in
+        subscriber.with(\.$mobileDevices)
+      }
+      .all()
+      .flatMap(\.subscribers)
+      .flatMap(\.mobileDevices)
 
     let payload = TagPayload(action: .added, name: model.$tag.id)
     try await sendPayload(payload, to: devices, on: db)

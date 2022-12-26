@@ -27,8 +27,6 @@
               #if canImport(GroupActivities)
                 if #available(iOS 15, macOS 12, *) {
                   object.requestSharing()
-                } else {
-                  // Fallback on earlier versions
                 }
               #endif
             } label: {
@@ -42,9 +40,7 @@
             }
 
             #if os(iOS)
-
               EditButton()
-
             #endif
           }
         }

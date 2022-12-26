@@ -1,3 +1,4 @@
+// swiftlint:disable:this file_name
 #if os(iOS)
   import Foundation
   import UIKit

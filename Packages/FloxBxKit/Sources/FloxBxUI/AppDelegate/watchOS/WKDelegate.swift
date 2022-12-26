@@ -1,3 +1,4 @@
+// swiftlint:disable:this file_name
 #if canImport(WatchKit) && canImport(SwiftUI)
   import SwiftUI
   import WatchKit

@@ -1,5 +1,4 @@
 import FloxBxDatabase
-// swiftlint:disable:this file_name
 import FloxBxModels
 import FluentKit
 

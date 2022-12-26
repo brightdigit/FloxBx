@@ -19,6 +19,29 @@ public class ServiceImpl<
   private let builder: RequestBuilderType
   private let headers: [String: String]
 
+  func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
+    try Self.headers(
+      withCredentials: requiresCredentials ? credentialsContainer : nil,
+      from: builder,
+      mergedWith: headers
+    )
+  }
+
+  static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
+    let creds = try credentialsContainer?.fetch()
+
+    let authorizationHeaders: [String: String]
+    if let creds = creds {
+      authorizationHeaders = builder.headers(basedOnCredentials: creds)
+    } else {
+      authorizationHeaders = [:]
+    }
+
+    return headers.merging(authorizationHeaders) { _, rhs in
+      rhs
+    }
+  }
+
   internal init(
     baseURLComponents: URLComponents,
     coder: CoderType,
@@ -42,23 +65,15 @@ public class ServiceImpl<
     RequestType.BodyType: Encodable,
     RequestType.SuccessType: Decodable {
     let sessionRequest: SessionType.SessionRequestType
-    let creds: Credentials?
+
+    let headers: [String: String]
     do {
-      creds = try credentialsContainer.fetch()
+      headers = try self.headers(withCredentials: RequestType.requiresCredentials)
     } catch {
       completed(.failure(error))
       return
     }
-    let authorizationHeaders: [String: String]
-    if let creds = creds, RequestType.requiresCredentials {
-      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-    } else {
-      authorizationHeaders = [:]
-    }
 
-    let headers = self.headers.merging(authorizationHeaders) { _, rhs in
-      rhs
-    }
     do {
       sessionRequest = try builder.build(
         request: request,
@@ -69,6 +84,7 @@ public class ServiceImpl<
     } catch {
       return
     }
+
     session.request(sessionRequest) { result in
       let decodedResult: Result<RequestType.SuccessType, Error> = result.flatMap { data in
         guard request.isValidStatusCode(data.statusCode) else {
@@ -93,23 +109,15 @@ public class ServiceImpl<
     RequestType.BodyType: Encodable,
     RequestType.SuccessType == Void {
     let sessionRequest: SessionType.SessionRequestType
-    let creds: Credentials?
+
+    let headers: [String: String]
     do {
-      creds = try credentialsContainer.fetch()
+      headers = try self.headers(withCredentials: RequestType.requiresCredentials)
     } catch {
       completed(error)
       return
     }
-    let authorizationHeaders: [String: String]
-    if let creds = creds, RequestType.requiresCredentials {
-      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-    } else {
-      authorizationHeaders = [:]
-    }
 
-    let headers = self.headers.merging(authorizationHeaders) { _, rhs in
-      rhs
-    }
     do {
       sessionRequest = try builder.build(
         request: request,
@@ -139,22 +147,12 @@ public class ServiceImpl<
     RequestType.BodyType == Void,
     RequestType.SuccessType: Decodable {
     let sessionRequest: SessionType.SessionRequestType
-    let creds: Credentials?
+    let headers: [String: String]
     do {
-      creds = try credentialsContainer.fetch()
+      headers = try self.headers(withCredentials: RequestType.requiresCredentials)
     } catch {
       completed(.failure(error))
       return
-    }
-    let authorizationHeaders: [String: String]
-    if let creds = creds, RequestType.requiresCredentials {
-      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-    } else {
-      authorizationHeaders = [:]
-    }
-
-    let headers = self.headers.merging(authorizationHeaders) { _, rhs in
-      rhs
     }
     do {
       sessionRequest = try builder.build(
@@ -191,22 +189,12 @@ public class ServiceImpl<
     RequestType.BodyType == Void,
     RequestType.SuccessType == Void {
     let sessionRequest: SessionType.SessionRequestType
-    let creds: Credentials?
+    let headers: [String: String]
     do {
-      creds = try credentialsContainer.fetch()
+      headers = try self.headers(withCredentials: RequestType.requiresCredentials)
     } catch {
       completed(error)
       return
-    }
-    let authorizationHeaders: [String: String]
-    if let creds = creds, RequestType.requiresCredentials {
-      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-    } else {
-      authorizationHeaders = [:]
-    }
-
-    let headers = self.headers.merging(authorizationHeaders) { _, rhs in
-      rhs
     }
     do {
       sessionRequest = try builder.build(
