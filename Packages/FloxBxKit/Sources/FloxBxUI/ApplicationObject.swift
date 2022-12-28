@@ -40,15 +40,19 @@ import Sublimation
       _ items: [TodoContentItem] = []
     ) {
       self.mobileDevicePublisher = mobileDevicePublisher
+      let shareplayObject: SharePlayObject<
+        TodoListDelta, GroupActivityConfiguration, UUID
+      >
       if #available(iOS 15, macOS 12, *) {
         #if canImport(GroupActivities)
-          self.shareplayObject = .init(FloxBxActivity.self)
+          shareplayObject = .init(FloxBxActivity.self)
         #else
-          self.shareplayObject = .init()
+          shareplayObject = .init()
         #endif
       } else {
         shareplayObject = .init()
       }
+      self.shareplayObject = shareplayObject
       requiresAuthentication = true
       let authenticated = $token.map { $0 == nil }
       authenticated.print().receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)

@@ -4,22 +4,15 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public class ServiceImpl<
-  CoderType: Coder,
-  SessionType: Session,
-  RequestBuilderType: RequestBuilder
->: Service where
-  SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
-  RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
-  SessionType.SessionResponseType.DataType == CoderType.DataType {
-  private let baseURLComponents: URLComponents
-  private let credentialsContainer: CredentialsContainer
-  private let coder: CoderType
-  private let session: SessionType
-  private let builder: RequestBuilderType
-  private let headers: [String: String]
+public protocol HeaderProvider {
+  associatedtype RequestBuilderType: RequestBuilder
+  var credentialsContainer: CredentialsContainer { get }
+  var builder: RequestBuilderType { get }
+  var headers: [String: String] { get }
+}
 
-  func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
+extension HeaderProvider {
+  public func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
     try Self.headers(
       withCredentials: requiresCredentials ? credentialsContainer : nil,
       from: builder,
@@ -27,7 +20,7 @@ public class ServiceImpl<
     )
   }
 
-  static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
+  public static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
     let creds = try credentialsContainer?.fetch()
 
     let authorizationHeaders: [String: String]
@@ -41,6 +34,45 @@ public class ServiceImpl<
       rhs
     }
   }
+}
+
+public class ServiceImpl<
+  CoderType: Coder,
+  SessionType: Session,
+  RequestBuilderType: RequestBuilder
+>: Service, HeaderProvider where
+  SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
+  RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
+  SessionType.SessionResponseType.DataType == CoderType.DataType {
+  private let baseURLComponents: URLComponents
+  public let credentialsContainer: CredentialsContainer
+  private let coder: CoderType
+  private let session: SessionType
+  public let builder: RequestBuilderType
+  public let headers: [String: String]
+//
+//  func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
+//    try Self.headers(
+//      withCredentials: requiresCredentials ? credentialsContainer : nil,
+//      from: builder,
+//      mergedWith: headers
+//    )
+//  }
+//
+//  static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
+//    let creds = try credentialsContainer?.fetch()
+//
+//    let authorizationHeaders: [String: String]
+//    if let creds = creds {
+//      authorizationHeaders = builder.headers(basedOnCredentials: creds)
+//    } else {
+//      authorizationHeaders = [:]
+//    }
+//
+//    return headers.merging(authorizationHeaders) { _, rhs in
+//      rhs
+//    }
+//  }
 
   internal init(
     baseURLComponents: URLComponents,
