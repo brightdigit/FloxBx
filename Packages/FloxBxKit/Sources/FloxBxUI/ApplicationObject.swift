@@ -9,6 +9,14 @@ import Sublimation
   import SwiftUI
   import UserNotifications
 
+  extension Publisher {
+    func mapEach<T>(_ transform: @escaping (Output.Element) -> T) -> Publishers.Map<Self, [T]> where Output: Sequence {
+      map { sequence in
+        sequence.map(transform)
+      }
+    }
+  }
+
   internal class ApplicationObject: ObservableObject {
     @Published internal private(set) var shareplayObject: SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID
@@ -35,27 +43,28 @@ import Sublimation
       )
     #endif
 
+    fileprivate func getTodoListFrom(_ groupActivityID: UUID?) -> Future<GetTodoListRequest.SuccessType, Error> {
+      Future { closure in
+        self.service.beginRequest(
+          GetTodoListRequest(groupActivityID: groupActivityID)
+        ) { result in
+          closure(result)
+        }
+      }
+    }
+
     internal init(
       mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent?, Never>,
       _ items: [TodoContentItem] = []
     ) {
       self.mobileDevicePublisher = mobileDevicePublisher
-      let shareplayObject: SharePlayObject<
-        TodoListDelta, GroupActivityConfiguration, UUID
-      >
-      if #available(iOS 15, macOS 12, *) {
-        #if canImport(GroupActivities)
-          shareplayObject = .init(FloxBxActivity.self)
-        #else
-          shareplayObject = .init()
-        #endif
-      } else {
-        shareplayObject = .init()
-      }
-      self.shareplayObject = shareplayObject
+      shareplayObject = .createNew()
       requiresAuthentication = true
-      let authenticated = $token.map { $0 == nil }
-      authenticated.print().receive(on: DispatchQueue.main).assign(to: &$requiresAuthentication)
+
+      $token
+        .map { $0 == nil }
+        .receive(on: DispatchQueue.main)
+        .assign(to: &$requiresAuthentication)
 
       let groupSessionIDPub = shareplayObject.$groupActivityID
 
@@ -64,18 +73,8 @@ import Sublimation
         .compactMap { $0 }
         .combineLatest(groupSessionIDPub)
         .map(\.1)
-        .flatMap { groupActivityID in
-          Future { closure in
-            self.service.beginRequest(
-              GetTodoListRequest(groupActivityID: groupActivityID)
-            ) { result in
-              closure(result)
-            }
-          }
-        }
-        .map { content in
-          content.map(TodoContentItem.init)
-        }
+        .flatMap(getTodoListFrom)
+        .mapEach(TodoContentItem.init)
         .replaceError(with: [])
         .receive(on: DispatchQueue.main)
         .assign(to: &$items)
@@ -179,6 +178,29 @@ import Sublimation
       }
     }
 
+    fileprivate func updateRegistrationUpdateWith(
+      _ notificationCenter: UNUserNotificationCenter,
+      using sharedInterace: @escaping @autoclosure () async -> AppInterface
+    ) async {
+      let isNotificationAuthorizationGrantedResult = await Result {
+        try await notificationCenter
+          .requestAuthorization(options: [.sound, .badge, .alert])
+      }
+
+      Task { @MainActor in
+        switch isNotificationAuthorizationGrantedResult {
+        case .success(true):
+          await sharedInterace().registerForRemoteNotifications()
+
+        case .success(false):
+          await sharedInterace().unregisterForRemoteNotifications()
+
+        case let .failure(error):
+          debugPrint(error)
+        }
+      }
+    }
+
     internal func begin() {
       Task {
         #if DEBUG
@@ -195,25 +217,13 @@ import Sublimation
         .receive(on: DispatchQueue.main)
         .sink { id in
           self.mobileDeviceRegistrationID = id
-        }.store(in: &self.cancellables)
-
-        let isNotificationAuthorizationGrantedResult = await Result {
-          try await UNUserNotificationCenter.current()
-            .requestAuthorization(options: [.sound, .badge, .alert])
         }
+        .store(in: &self.cancellables)
 
-        Task { @MainActor in
-          switch isNotificationAuthorizationGrantedResult {
-          case .success(true):
-            await AppInterfaceObject.sharedInterface.registerForRemoteNotifications()
-
-          case .success(false):
-            await AppInterfaceObject.sharedInterface.unregisterForRemoteNotifications()
-
-          case let .failure(error):
-            debugPrint(error)
-          }
-        }
+        await updateRegistrationUpdateWith(
+          UNUserNotificationCenter.current(),
+          using: await AppInterfaceObject.sharedInterface
+        )
 
         setupCredentials()
       }
