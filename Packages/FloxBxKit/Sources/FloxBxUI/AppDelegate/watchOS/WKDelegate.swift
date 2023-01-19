@@ -4,7 +4,10 @@
   import WatchKit
   extension AppDelegate: WKDelegate {
     public func didRegisterForRemoteNotifications(withDeviceToken deviceToken: Data) {
-      didRegisterForRemoteNotifications(from: WKAppPolyfill.shared(), withDeviceToken: deviceToken)
+      didRegisterForRemoteNotifications(
+        from: WKAppPolyfill.shared(),
+        withDeviceToken: deviceToken
+      )
     }
 
     public func didFailToRegisterForRemoteNotificationsWithError(_ error: Error) {

@@ -8,9 +8,11 @@ import Sublimation
   import Combine
   import SwiftUI
   import UserNotifications
-
+  // TODO: put in separate file
   extension Publisher {
-    func mapEach<T>(_ transform: @escaping (Output.Element) -> T) -> Publishers.Map<Self, [T]> where Output: Sequence {
+    public func mapEach<T>(
+      _ transform: @escaping (Output.Element) -> T
+    ) -> Publishers.Map<Self, [T]> where Output: Sequence {
       map { sequence in
         sequence.map(transform)
       }
@@ -25,7 +27,8 @@ import Sublimation
     private var cancellables = [AnyCancellable]()
 
     private let mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent?, Never>
-    @AppStorage("MobileDeviceRegistrationID") private var mobileDeviceRegistrationID: String?
+    @AppStorage("MobileDeviceRegistrationID")
+    private var mobileDeviceRegistrationID: String?
     @Published internal private(set) var requiresAuthentication: Bool
     @Published internal private(set) var latestError: Error?
     @Published internal private(set) var token: String?
@@ -43,7 +46,9 @@ import Sublimation
       )
     #endif
 
-    fileprivate func getTodoListFrom(_ groupActivityID: UUID?) -> Future<GetTodoListRequest.SuccessType, Error> {
+    private func getTodoListFrom(
+      _ groupActivityID: UUID?
+    ) -> Future<GetTodoListRequest.SuccessType, Error> {
       Future { closure in
         self.service.beginRequest(
           GetTodoListRequest(groupActivityID: groupActivityID)
@@ -94,7 +99,7 @@ import Sublimation
       shareplayObject.send([delta])
     }
 
-    fileprivate func setupCredentials() {
+    private func setupCredentials() {
       let credentials: Credentials?
       let error: Error?
       do {
@@ -119,7 +124,7 @@ import Sublimation
     }
 
     #if DEBUG
-      fileprivate static func fetchBaseURL() async throws -> URL {
+      private static func fetchBaseURL() async throws -> URL {
         do {
           guard let url = try await KVdb.url(
             withKey: Configuration.Sublimation.key,
@@ -133,7 +138,7 @@ import Sublimation
         }
       }
 
-      fileprivate func developerService(fallbackURL: URL) async -> Service {
+      private func developerService(fallbackURL: URL) async -> Service {
         let baseURL: URL
         do {
           baseURL = try await Self.fetchBaseURL()
@@ -152,12 +157,16 @@ import Sublimation
       }
     #endif
 
-    fileprivate func upsertMobileDevice(basedOn content: CreateMobileDeviceRequestContent?) async throws -> UUID? {
+    private func upsertMobileDevice(
+      basedOn content: CreateMobileDeviceRequestContent?
+    ) async throws -> UUID? {
       let id = mobileDeviceRegistrationID.flatMap(UUID.init(uuidString:))
       switch (content, id) {
       case let (.some(content), .some(id)):
         do {
-          try await service.request(PatchMobileDeviceRequest(id: id, body: .init(createContent: content)))
+          try await service.request(
+            PatchMobileDeviceRequest(id: id, body: .init(createContent: content))
+          )
         } catch let RequestError.invalidStatusCode(statusCode) where statusCode == 404 {
           return try await service.request(CreateMobileDeviceRequest(body: content)).id
         } catch {
@@ -178,7 +187,7 @@ import Sublimation
       }
     }
 
-    fileprivate func updateRegistrationUpdateWith(
+    private func updateRegistrationUpdateWith(
       _ notificationCenter: UNUserNotificationCenter,
       using sharedInterace: @escaping @autoclosure () async -> AppInterface
     ) async {
@@ -204,7 +213,9 @@ import Sublimation
     internal func begin() {
       Task {
         #if DEBUG
-          self.service = await developerService(fallbackURL: Configuration.productionBaseURL)
+          self.service = await developerService(
+            fallbackURL: Configuration.productionBaseURL
+          )
         #endif
 
         self.mobileDevicePublisher.flatMap { content in

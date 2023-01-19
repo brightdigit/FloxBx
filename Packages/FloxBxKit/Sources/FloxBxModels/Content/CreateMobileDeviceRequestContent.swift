@@ -1,6 +1,11 @@
 import Foundation
 public struct CreateMobileDeviceRequestContent: Codable {
-  public init(model: String, operatingSystem: String, topic: String, deviceToken: Data? = nil) {
+  public init(
+    model: String,
+    operatingSystem: String,
+    topic: String,
+    deviceToken: Data? = nil
+  ) {
     self.model = model
     self.operatingSystem = operatingSystem
     self.topic = topic

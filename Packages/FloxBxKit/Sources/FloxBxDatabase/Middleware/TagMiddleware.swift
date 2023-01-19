@@ -4,6 +4,7 @@ import Foundation
 extension String {
   public func slugified(
     separator: String = "-",
+    // swiftlint:disable:next line_length
     allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
   ) -> String {
     lowercased()

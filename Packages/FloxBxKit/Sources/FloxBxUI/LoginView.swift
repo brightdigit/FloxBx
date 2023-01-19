@@ -106,7 +106,10 @@
 
     internal var body: some View {
       #if os(watchOS)
-        self.content.sheet(isPresented: self.$presentLoginOrSignup, content: self.watchForm)
+        self.content.sheet(
+          isPresented: self.$presentLoginOrSignup,
+          content: self.watchForm
+        )
       #else
         self.content
       #endif

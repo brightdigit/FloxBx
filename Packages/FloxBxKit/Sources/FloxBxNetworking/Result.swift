@@ -38,7 +38,9 @@ extension Result {
     transform(())
   }
 
-  public init(_ asyncFunc: @escaping () async throws -> Success) async where Failure == Error {
+  public init(
+    _ asyncFunc: @escaping () async throws -> Success
+  ) async where Failure == Error {
     let success: Success
     do {
       success = try await asyncFunc()

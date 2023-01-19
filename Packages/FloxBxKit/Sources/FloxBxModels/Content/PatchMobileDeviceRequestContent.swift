@@ -1,6 +1,11 @@
 import Foundation
 public struct PatchMobileDeviceRequestContent: Codable {
-  public init(model: String? = nil, operatingSystem: String? = nil, topic: String? = nil, deviceToken: Data? = nil) {
+  public init(
+    model: String? = nil,
+    operatingSystem: String? = nil,
+    topic: String? = nil,
+    deviceToken: Data? = nil
+  ) {
     self.model = model
     self.operatingSystem = operatingSystem
     self.topic = topic

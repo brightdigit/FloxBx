@@ -64,8 +64,15 @@
       ] as CFDictionary
     }
 
-    static func data(from string: String, using encoding: String.Encoding = .utf8, allowLossyConversion: Bool = false) -> Data {
-      guard let data = string.data(using: encoding, allowLossyConversion: allowLossyConversion) else {
+    static func data(
+      from string: String,
+      using encoding: String.Encoding = .utf8,
+      allowLossyConversion: Bool = false
+    ) -> Data {
+      guard let data = string.data(
+        using: encoding,
+        allowLossyConversion: allowLossyConversion
+      ) else {
         preconditionFailure("Can't extract data from string: \(string)")
       }
 

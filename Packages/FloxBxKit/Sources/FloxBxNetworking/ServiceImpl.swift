@@ -12,7 +12,9 @@ public protocol HeaderProvider {
 }
 
 extension HeaderProvider {
-  public func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
+  public func headers(
+    withCredentials requiresCredentials: Bool
+  ) throws -> [String: String] {
     try Self.headers(
       withCredentials: requiresCredentials ? credentialsContainer : nil,
       from: builder,
@@ -20,7 +22,11 @@ extension HeaderProvider {
     )
   }
 
-  public static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
+  public static func headers(
+    withCredentials credentialsContainer: CredentialsContainer?,
+    from builder: RequestBuilderType,
+    mergedWith headers: [String: String]
+  ) throws -> [String: String] {
     let creds = try credentialsContainer?.fetch()
 
     let authorizationHeaders: [String: String]
@@ -50,29 +56,6 @@ public class ServiceImpl<
   private let session: SessionType
   public let builder: RequestBuilderType
   public let headers: [String: String]
-//
-//  func headers(withCredentials requiresCredentials: Bool) throws -> [String: String] {
-//    try Self.headers(
-//      withCredentials: requiresCredentials ? credentialsContainer : nil,
-//      from: builder,
-//      mergedWith: headers
-//    )
-//  }
-//
-//  static func headers(withCredentials credentialsContainer: CredentialsContainer?, from builder: RequestBuilderType, mergedWith headers: [String: String]) throws -> [String: String] {
-//    let creds = try credentialsContainer?.fetch()
-//
-//    let authorizationHeaders: [String: String]
-//    if let creds = creds {
-//      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-//    } else {
-//      authorizationHeaders = [:]
-//    }
-//
-//    return headers.merging(authorizationHeaders) { _, rhs in
-//      rhs
-//    }
-//  }
 
   internal init(
     baseURLComponents: URLComponents,
@@ -244,7 +227,8 @@ public class ServiceImpl<
           return .failure(RequestError.invalidStatusCode(response.statusCode))
         }
         return .success(())
-      }.asError()
+      }
+      .asError()
       completed(error)
     }
   }
@@ -275,7 +259,10 @@ public class ServiceImpl<
       RequestBuilderType == URLRequestBuilder,
       SessionType == URLSession,
       CoderType == JSONCoder {
-      guard let baseURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+      guard let baseURLComponents = URLComponents(
+        url: baseURL,
+        resolvingAgainstBaseURL: false
+      ) else {
         preconditionFailure("Invalid baseURL: \(baseURL)")
       }
       self.init(
