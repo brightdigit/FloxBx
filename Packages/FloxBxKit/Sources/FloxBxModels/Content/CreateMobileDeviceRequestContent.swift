@@ -12,11 +12,3 @@ public struct CreateMobileDeviceRequestContent: Codable {
   public let topic: String
   public let deviceToken: Data?
 }
-
-public struct CreateMobileDeviceResponseContent: Codable {
-  public init(id: UUID) {
-    self.id = id
-  }
-
-  public let id: UUID
-}
