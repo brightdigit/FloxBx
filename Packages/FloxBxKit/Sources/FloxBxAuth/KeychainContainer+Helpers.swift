@@ -64,7 +64,7 @@
       ] as CFDictionary
     }
 
-    static func data(
+    private static func data(
       from string: String,
       using encoding: String.Encoding = .utf8,
       allowLossyConversion: Bool = false

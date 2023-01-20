@@ -38,7 +38,7 @@ public final class Notification: Model {
 }
 
 extension Notification {
-  convenience init<PayloadType: PayloadModel>(
+  internal convenience init<PayloadType: PayloadModel>(
     id: UUID,
     deviceNotification: DeviceNotification<PayloadType>
   ) {

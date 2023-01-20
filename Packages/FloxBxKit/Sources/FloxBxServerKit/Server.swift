@@ -21,7 +21,7 @@ public struct Server {
     self.init(env: env)
   }
 
-  static func apns(_ app: Application) throws {
+  private static func apns(_ app: Application) throws {
     guard let appleECP8PrivateKey = Environment.get("APNS_PRIVATE_KEY") else {
       throw MissingConfigurationError(key: "APNS_PRIVATE_KEY")
     }

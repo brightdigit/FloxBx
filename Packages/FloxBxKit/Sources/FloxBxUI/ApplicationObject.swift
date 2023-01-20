@@ -8,16 +8,6 @@ import Sublimation
   import Combine
   import SwiftUI
   import UserNotifications
-  // TODO: put in separate file
-  extension Publisher {
-    public func mapEach<T>(
-      _ transform: @escaping (Output.Element) -> T
-    ) -> Publishers.Map<Self, [T]> where Output: Sequence {
-      map { sequence in
-        sequence.map(transform)
-      }
-    }
-  }
 
   internal class ApplicationObject: ObservableObject {
     @Published internal private(set) var shareplayObject: SharePlayObject<
@@ -26,6 +16,7 @@ import Sublimation
 
     private var cancellables = [AnyCancellable]()
 
+    // swiftlint:disable:next line_length
     private let mobileDevicePublisher: AnyPublisher<CreateMobileDeviceRequestContent?, Never>
     @AppStorage("MobileDeviceRegistrationID")
     private var mobileDeviceRegistrationID: String?

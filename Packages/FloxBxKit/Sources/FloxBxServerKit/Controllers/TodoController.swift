@@ -5,7 +5,7 @@ import RouteGroups
 import Vapor
 
 internal struct TodoController: RouteGroupCollection {
-  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
+  internal var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
     [
       .bearer: { bearer in
         let todos = bearer.grouped("todos")
@@ -28,7 +28,7 @@ internal struct TodoController: RouteGroupCollection {
     ]
   }
 
-  internal func index(
+  private func index(
     from request: Request
   ) throws -> EventLoopFuture<[CreateTodoResponseContent]> {
     let user = try request.auth.require(User.self)
@@ -41,7 +41,7 @@ internal struct TodoController: RouteGroupCollection {
     .flatMapEachThrowing(CreateTodoResponseContent.init(todoItemWithLoadedTags:))
   }
 
-  internal func create(
+  private func create(
     from request: Request
   ) async throws -> CreateTodoResponseContent {
     let authUser = try request.auth.require(User.self)
@@ -57,7 +57,7 @@ internal struct TodoController: RouteGroupCollection {
     return try await CreateTodoResponseContent(todoItem: todo, tags: tags)
   }
 
-  internal func update(
+  private func update(
     from request: Request
   ) async throws -> CreateTodoResponseContent {
     let authUser = try request.auth.require(User.self)
@@ -80,7 +80,7 @@ internal struct TodoController: RouteGroupCollection {
     return try await CreateTodoResponseContent(todoItem: todo, tags: tags)
   }
 
-  internal func delete(from request: Request) async throws -> HTTPStatus {
+  private func delete(from request: Request) async throws -> HTTPStatus {
     let authUser = try request.auth.require(User.self)
     let todoID: UUID = try request.parameters.require("todoID", as: UUID.self)
     let user = try await GroupSession.user(fromRequest: request, otherwise: authUser)

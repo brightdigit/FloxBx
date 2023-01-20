@@ -5,9 +5,9 @@ import RouteGroups
 import Vapor
 
 internal struct GroupSessionController: RouteGroupCollection {
-  typealias RouteGroupKeyType = RouteGroupKey
+  internal typealias RouteGroupKeyType = RouteGroupKey
 
-  internal func create(from request: Request) throws
+  private func create(from request: Request) throws
     -> EventLoopFuture<CreateGroupSessionResponseContent> {
     let user = try request.auth.require(User.self)
     let userID = try user.requireID()
@@ -17,7 +17,7 @@ internal struct GroupSessionController: RouteGroupCollection {
     }
   }
 
-  var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
+  internal var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
     [
       .bearer: { (bearer: RoutesBuilder) in
         bearer.post("group-sessions", use: create(from:))

@@ -15,7 +15,8 @@ extension SendsNotifications {
   internal func sentNotification(
     basedOn deviceNotification: DeviceNotification<PayloadModelType>
   ) async throws -> Notification? {
-    guard let sentNotificationID = try await sendNotification(deviceNotification.payloadNotification) else {
+    guard let sentNotificationID =
+      try await sendNotification(deviceNotification.payloadNotification) else {
       return nil
     }
     return Notification(id: sentNotificationID, deviceNotification: deviceNotification)

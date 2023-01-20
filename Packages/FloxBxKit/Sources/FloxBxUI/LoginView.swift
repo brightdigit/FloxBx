@@ -21,7 +21,7 @@
       }
     }
 
-    var loginForm: some View {
+    private var loginForm: some View {
       VStack {
         TextField("Email Address", text: $emailAddress)
           .textFieldStyle(FBTextFieldStyle())
@@ -31,7 +31,7 @@
       }.padding()
     }
 
-    var formButtons: some View {
+    private var formButtons: some View {
       HStack {
         Button(action: {
           self.object.beginSignIn(
@@ -59,7 +59,7 @@
       }.padding()
     }
 
-    var content: some View {
+    private var content: some View {
       VStack {
         #if !os(watchOS)
           logoTitleView
@@ -80,7 +80,7 @@
       }.padding().frame(maxWidth: 300, maxHeight: 500)
     }
 
-    func watchForm() -> some View {
+    private func watchForm() -> some View {
       VStack {
         Text("Sign up new account or sign in existing?")
         Spacer()

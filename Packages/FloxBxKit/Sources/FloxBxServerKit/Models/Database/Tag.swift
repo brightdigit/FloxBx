@@ -3,7 +3,7 @@ import FloxBxModels
 import FluentKit
 
 extension Tag {
-  static func findOrCreate(
+  internal static func findOrCreate(
     tagValues: [String],
     on database: Database
   ) async throws -> [Tag] {
@@ -25,7 +25,10 @@ extension Tag {
     })
   }
 
-  static func find(tagValues: [String], on database: Database) async throws -> [Tag] {
+  internal static func find(
+    tagValues: [String],
+    on database: Database
+  ) async throws -> [Tag] {
     try await withThrowingTaskGroup(of: Tag?.self, body: { taskGroup in
       tagValues.forEach { value in
         taskGroup.addTask {

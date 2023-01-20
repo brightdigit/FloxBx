@@ -4,44 +4,6 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public protocol HeaderProvider {
-  associatedtype RequestBuilderType: RequestBuilder
-  var credentialsContainer: CredentialsContainer { get }
-  var builder: RequestBuilderType { get }
-  var headers: [String: String] { get }
-}
-
-extension HeaderProvider {
-  public func headers(
-    withCredentials requiresCredentials: Bool
-  ) throws -> [String: String] {
-    try Self.headers(
-      withCredentials: requiresCredentials ? credentialsContainer : nil,
-      from: builder,
-      mergedWith: headers
-    )
-  }
-
-  public static func headers(
-    withCredentials credentialsContainer: CredentialsContainer?,
-    from builder: RequestBuilderType,
-    mergedWith headers: [String: String]
-  ) throws -> [String: String] {
-    let creds = try credentialsContainer?.fetch()
-
-    let authorizationHeaders: [String: String]
-    if let creds = creds {
-      authorizationHeaders = builder.headers(basedOnCredentials: creds)
-    } else {
-      authorizationHeaders = [:]
-    }
-
-    return headers.merging(authorizationHeaders) { _, rhs in
-      rhs
-    }
-  }
-}
-
 public class ServiceImpl<
   CoderType: Coder,
   SessionType: Session,
@@ -182,7 +144,8 @@ public class ServiceImpl<
     session.request(sessionRequest) { result in
       let decodedResult: Result<RequestType.SuccessType, Error> = result.flatMap { data in
         guard request.isValidStatusCode(data.statusCode) else {
-          return Result<RequestType.SuccessType, Error>.failure(RequestError.invalidStatusCode(data.statusCode))
+          return Result<RequestType.SuccessType, Error>
+            .failure(RequestError.invalidStatusCode(data.statusCode))
         }
         guard let bodyData = data.data else {
           return Result<RequestType.SuccessType, Error>.failure(RequestError.missingData)

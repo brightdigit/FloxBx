@@ -3,10 +3,8 @@ import Foundation
 import Vapor
 
 extension Data {
-  var deviceTokenString: String {
-    map {
-      data in String(format: "%02.2hhx", data)
-    }.joined()
+  public var deviceTokenString: String {
+    map { String(format: "%02.2hhx", $0) }.joined()
   }
 }
 
