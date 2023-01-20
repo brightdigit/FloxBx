@@ -1,5 +1,10 @@
 import Foundation
 public struct PatchMobileDeviceRequestContent: Codable {
+  public let model: String?
+  public let operatingSystem: String?
+  public let topic: String?
+  public let deviceToken: Data?
+
   public init(
     model: String? = nil,
     operatingSystem: String? = nil,
@@ -20,9 +25,4 @@ public struct PatchMobileDeviceRequestContent: Codable {
       deviceToken: createContent.deviceToken
     )
   }
-
-  public let model: String?
-  public let operatingSystem: String?
-  public let topic: String?
-  public let deviceToken: Data?
 }

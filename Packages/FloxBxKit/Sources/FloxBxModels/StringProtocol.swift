@@ -8,7 +8,7 @@ extension StringProtocol {
   ) -> String {
     lowercased()
       .components(separatedBy: allowedCharacters.inverted)
-      .filter { $0 != "" }
+      .filter { !$0.isEmpty }
       .joined(separator: separator)
   }
 }

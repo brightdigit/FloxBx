@@ -8,16 +8,6 @@ internal protocol HeaderProvider {
 }
 
 extension HeaderProvider {
-  public func headers(
-    withCredentials requiresCredentials: Bool
-  ) throws -> [String: String] {
-    try Self.headers(
-      withCredentials: requiresCredentials ? credentialsContainer : nil,
-      from: builder,
-      mergedWith: headers
-    )
-  }
-
   public static func headers(
     withCredentials credentialsContainer: CredentialsContainer?,
     from builder: RequestBuilderType,
@@ -35,5 +25,15 @@ extension HeaderProvider {
     return headers.merging(authorizationHeaders) { _, rhs in
       rhs
     }
+  }
+
+  public func headers(
+    withCredentials requiresCredentials: Bool
+  ) throws -> [String: String] {
+    try Self.headers(
+      withCredentials: requiresCredentials ? credentialsContainer : nil,
+      from: builder,
+      mergedWith: headers
+    )
   }
 }

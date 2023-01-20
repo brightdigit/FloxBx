@@ -111,7 +111,8 @@ public class ServiceImpl<
           return .failure(RequestError.invalidStatusCode(response.statusCode))
         }
         return .success(())
-      }.asError()
+      }
+        .asError()
       completed(error)
     }
   }

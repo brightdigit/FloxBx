@@ -6,6 +6,8 @@ import Vapor
 
 @available(iOS 15, *)
 internal struct MobileDeviceController: RouteGroupCollection {
+  internal typealias RouteGroupKeyType = RouteGroupKey
+
   internal var routeGroups: [RouteGroupKey: RouteGroups.RouteCollectionBuilder] {
     [
       .bearer: { bearer in
@@ -15,8 +17,6 @@ internal struct MobileDeviceController: RouteGroupCollection {
       }
     ]
   }
-
-  internal typealias RouteGroupKeyType = RouteGroupKey
 
   private func create(
     from request: Request

@@ -1,18 +1,5 @@
 import FluentKit
 import Foundation
-//
-// extension String {
-//  public func slugified(
-//    separator: String = "-",
-//    // swiftlint:disable:next line_length
-//    allowedCharacters: NSCharacterSet = NSCharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
-//  ) -> String {
-//    lowercased()
-//      .components(separatedBy: allowedCharacters.inverted)
-//      .filter { $0 != "" }
-//      .joined(separator: separator)
-//  }
-// }
 
 internal struct TagMiddleware: AsyncModelMiddleware {
   internal typealias Model = Tag

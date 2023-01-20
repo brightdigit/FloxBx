@@ -8,24 +8,9 @@
 
   public class SharePlayObject<
     DeltaType: Codable,
-    // swiftlint:disable:next generic_type_name
     ActivityConfigurationType,
     ActivityIDType: Hashable
   >: ObservableObject {
-    public static func createNew() -> SharePlayObject
-      where ActivityIDType == UUID,
-      ActivityConfigurationType == GroupActivityConfiguration {
-      if #available(iOS 15, macOS 12, *) {
-        #if canImport(GroupActivities)
-          return .init(FloxBxActivity.self)
-        #else
-          return .init()
-        #endif
-      } else {
-        return .init()
-      }
-    }
-
     @Published internal private(set) var listDeltas = [DeltaType]()
     @Published public private(set) var groupActivityID: ActivityIDType?
     @Published public private(set) var activity: ActivityIdentifiableContainer<
@@ -95,6 +80,20 @@
     #endif
 
     public init() {}
+
+    public static func createNew() -> SharePlayObject
+      where ActivityIDType == UUID,
+      ActivityConfigurationType == GroupActivityConfiguration {
+      if #available(iOS 15, macOS 12, *) {
+        #if canImport(GroupActivities)
+          return .init(FloxBxActivity.self)
+        #else
+          return .init()
+        #endif
+      } else {
+        return .init()
+      }
+    }
 
     #if canImport(GroupActivities)
       @available(iOS 15, macOS 12, *)

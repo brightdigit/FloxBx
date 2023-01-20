@@ -2,6 +2,9 @@ import FloxBxModels
 import Foundation
 
 internal struct DeviceNotification<PayloadModelType: PayloadModel> {
+  internal let deviceID: UUID
+  internal let payloadNotification: PayloadNotification<PayloadModelType>
+
   private init(
     deviceID: UUID,
     payloadNotification: PayloadNotification<PayloadModelType>
@@ -21,7 +24,4 @@ internal struct DeviceNotification<PayloadModelType: PayloadModel> {
     )
     self.init(deviceID: deviceID, payloadNotification: payloadNotification)
   }
-
-  internal let deviceID: UUID
-  internal let payloadNotification: PayloadNotification<PayloadModelType>
 }

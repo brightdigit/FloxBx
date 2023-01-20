@@ -80,6 +80,19 @@
       }.padding().frame(maxWidth: 300, maxHeight: 500)
     }
 
+    internal var body: some View {
+      #if os(watchOS)
+        self.content.sheet(
+          isPresented: self.$presentLoginOrSignup,
+          content: self.watchForm
+        )
+      #else
+        self.content
+      #endif
+    }
+
+    internal init() {}
+
     private func watchForm() -> some View {
       VStack {
         Text("Sign up new account or sign in existing?")
@@ -103,19 +116,6 @@
         }
       }
     }
-
-    internal var body: some View {
-      #if os(watchOS)
-        self.content.sheet(
-          isPresented: self.$presentLoginOrSignup,
-          content: self.watchForm
-        )
-      #else
-        self.content
-      #endif
-    }
-
-    internal init() {}
   }
 
   private struct LoginView_Previews: PreviewProvider {
