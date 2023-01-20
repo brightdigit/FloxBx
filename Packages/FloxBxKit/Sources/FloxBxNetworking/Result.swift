@@ -26,17 +26,18 @@ extension Result {
     return error
   }
 
-  public func transform<NewSuccess>(
-    _ transform: @autoclosure () -> NewSuccess
-  ) -> Result<NewSuccess, Failure> {
-    map { _ in
-      transform()
-    }
-  }
+//
+//  public func transform<NewSuccess>(
+//    _ transform: @autoclosure () -> NewSuccess
+//  ) -> Result<NewSuccess, Failure> {
+//    map { _ in
+//      transform()
+//    }
+//  }
 
-  public func asVoid() -> Result<Void, Failure> {
-    transform(())
-  }
+//  public func asVoid() -> Result<Void, Failure> {
+//    transform(())
+//  }
 
   public init(
     _ asyncFunc: @escaping () async throws -> Success

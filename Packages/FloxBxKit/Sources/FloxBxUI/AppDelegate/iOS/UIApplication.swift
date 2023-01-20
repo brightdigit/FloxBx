@@ -1,7 +1,6 @@
 #if os(iOS) && canImport(SwiftUI)
   import SwiftUI
   import UIKit
-  extension UIDevice: Device {}
   extension UIApplication: AppInterface {
     public static var sharedInterface: AppInterface {
       UIApplication.shared

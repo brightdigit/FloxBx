@@ -1,6 +1,6 @@
 import FloxBxAuth
 
-public protocol HeaderProvider {
+internal protocol HeaderProvider {
   associatedtype RequestBuilderType: RequestBuilder
   var credentialsContainer: CredentialsContainer { get }
   var builder: RequestBuilderType { get }
