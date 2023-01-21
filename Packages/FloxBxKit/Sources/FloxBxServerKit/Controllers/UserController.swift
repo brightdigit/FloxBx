@@ -6,6 +6,16 @@ import Vapor
 
 internal struct UserController: RouteGroupCollection {
   internal typealias RouteGroupKeyType = RouteGroupKey
+
+  internal var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
+    [
+      .publicAPI: { routes in
+        routes.post("users", use: create(from:))
+        routes.get("users", use: get(from:))
+      }
+    ]
+  }
+
   private func create(
     from request: Request
   ) -> EventLoopFuture<CreateUserResponseContent> {
@@ -36,13 +46,5 @@ internal struct UserController: RouteGroupCollection {
     return user.$tags.get(on: request.db).map { tags in
       GetUserResponseContent(id: id, username: username, tags: tags.compactMap { $0.id })
     }
-  }
-
-  internal var routeGroups: [RouteGroupKey: RouteCollectionBuilder] {
-    [
-      .publicAPI: { routes in
-        routes.post("users", use: create(from:))
-      }
-    ]
   }
 }

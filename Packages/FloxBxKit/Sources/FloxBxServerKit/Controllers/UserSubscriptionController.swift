@@ -6,6 +6,8 @@ import Vapor
 
 @available(iOS 15, *)
 internal struct UserSubscriptionController: RouteGroupCollection {
+  internal typealias RouteGroupKeyType = RouteGroupKey
+
   internal var routeGroups: [RouteGroupKey: RouteGroups.RouteCollectionBuilder] {
     [
       .bearer: { bearer in
@@ -14,8 +16,6 @@ internal struct UserSubscriptionController: RouteGroupCollection {
       }
     ]
   }
-
-  internal typealias RouteGroupKeyType = RouteGroupKey
 
   private func create(from request: Request) async throws -> HTTPStatus {
     let user: User = try request.auth.require()

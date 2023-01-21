@@ -112,7 +112,7 @@ public class ServiceImpl<
         }
         return .success(())
       }
-        .asError()
+      .asError()
       completed(error)
     }
   }

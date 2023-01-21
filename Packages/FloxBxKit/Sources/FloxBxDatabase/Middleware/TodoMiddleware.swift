@@ -2,6 +2,7 @@ import FloxBxModels
 import FluentKit
 import Foundation
 
+@available(iOS 15, *)
 internal struct TodoMiddleware: AsyncModelMiddleware, SendsNotifications {
   internal typealias Model = Todo
   internal typealias PayloadModelType = TagPayload
@@ -17,9 +18,13 @@ internal struct TodoMiddleware: AsyncModelMiddleware, SendsNotifications {
   ) async throws {
     let query = model.$tags.query(on: db)
     let tags = try await query.all().compactMap(\.id)
-    let devices = try await query.with(\.$subscribers) { subscriber in
-      subscriber.with(\.$mobileDevices)
-    }.all().flatMap(\.subscribers).flatMap(\.mobileDevices)
+    let devices = try await query
+      .with(\.$subscribers) { subscriber in
+        subscriber.with(\.$mobileDevices)
+      }
+      .all()
+      .flatMap(\.subscribers)
+      .flatMap(\.mobileDevices)
 
     try await withThrowingTaskGroup(of: Void.self) { _ in
       for tagID in tags {
