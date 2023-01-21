@@ -1,3 +1,4 @@
+#if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
 import Combine
 import Foundation
 import UserNotifications
@@ -69,7 +70,7 @@ extension ApplicationObject {
       credentials = nil
     }
 
-    if let error {
+    if let error = error {
       onError(error)
     }
 
@@ -238,7 +239,7 @@ extension ApplicationObject {
   ) {
     beginDeleteItems(atIndexSet: indexSet) { error in
       self.items.remove(atOffsets: indexSet)
-      if let error {
+      if let error = error {
         self.onError(error)
       }
     }
@@ -381,3 +382,4 @@ extension ApplicationObject {
     try await service.request(CreateGroupSessionRequest())
   }
 }
+#endif
