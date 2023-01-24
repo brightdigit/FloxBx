@@ -4,19 +4,19 @@ import Foundation
 #endif
 
 public protocol Authorization {
-  var httpHeaders : [String : String] { get }
+  var httpHeaders: [String: String] { get }
 }
 
 public protocol AuthorizationContainer {
-  associatedtype AuthorizationType : Authorization
-  func fetch () throws -> AuthorizationType?
+  associatedtype AuthorizationType: Authorization
+  func fetch() throws -> AuthorizationType?
 }
 
 public class ServiceImpl<
   CoderType: Coder,
   SessionType: Session,
   RequestBuilderType: RequestBuilder,
-  AuthorizationContainerType : AuthorizationContainer
+  AuthorizationContainerType: AuthorizationContainer
 >: Service, HeaderProvider where
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
@@ -205,6 +205,7 @@ public class ServiceImpl<
       completed(error)
     }
   }
+
 //
 //  public func save(credentials: Credentials) throws {
 //    try credentialsContainer.save(credentials: credentials)
@@ -219,7 +220,7 @@ public class ServiceImpl<
 //  }
 }
 
-//#if canImport(Security)
+// #if canImport(Security)
 //  extension ServiceImpl {
 //    public convenience init(
 //      baseURL: URL,
@@ -252,4 +253,4 @@ public class ServiceImpl<
 //      )
 //    }
 //  }
-//#endif
+// #endif

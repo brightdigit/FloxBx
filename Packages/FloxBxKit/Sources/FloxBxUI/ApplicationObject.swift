@@ -28,7 +28,7 @@ import Sublimation
 
     #if DEBUG
       // swiftlint:disable:next implicitly_unwrapped_optional
-    internal var service: (any CredentialsService)!
+      internal var service: (any CredentialsService)!
     #else
       internal let service: Service = ServiceImpl(
         baseURL: Configuration.productionBaseURL,
@@ -99,42 +99,39 @@ import Sublimation
 
 #endif
 #if canImport(Security)
-public protocol CredentialsService : Service {
-  func save(credentials: Credentials) throws
-  func resetCredentials() throws -> Credentials.ResetResult
-  func fetchCredentials() throws -> Credentials?
-}
-extension ServiceImpl : CredentialsService where AuthorizationContainerType: CredentialsContainer{
-  
+  public protocol CredentialsService: Service {
+    func save(credentials: Credentials) throws
+    func resetCredentials() throws -> Credentials.ResetResult
+    func fetchCredentials() throws -> Credentials?
+  }
+
+  extension ServiceImpl: CredentialsService
+    where AuthorizationContainerType: CredentialsContainer {
     public func save(credentials: Credentials) throws {
       try credentialsContainer.save(credentials: credentials)
     }
-  
+
     public func resetCredentials() throws -> Credentials.ResetResult {
       try credentialsContainer.reset()
     }
-  
+
     public func fetchCredentials() throws -> Credentials? {
       try credentialsContainer.fetch()
     }
-}
-extension Credentials : Authorization {
-  public var httpHeaders: [String : String] {
-    guard let token = self.token else {
-      return [:]
-    }
-    return ["Authorization": "Bearer \(token)"]
   }
-  
-  
-}
 
-extension KeychainContainer : AuthorizationContainer {
-  public typealias AuthorizationType = Credentials
-  
+  extension Credentials: Authorization {
+    public var httpHeaders: [String: String] {
+      guard let token = self.token else {
+        return [:]
+      }
+      return ["Authorization": "Bearer \(token)"]
+    }
+  }
 
-  
-}
+  extension KeychainContainer: AuthorizationContainer {
+    public typealias AuthorizationType = Credentials
+  }
 
   extension ServiceImpl {
     public convenience init(
@@ -155,7 +152,7 @@ extension KeychainContainer : AuthorizationContainer {
       ) else {
         preconditionFailure("Invalid baseURL: \(baseURL)")
       }
-        
+
       self.init(
         baseURLComponents: baseURLComponents,
         coder: coder,

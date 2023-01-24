@@ -1,6 +1,6 @@
+import FloxBxModels
 import FloxBxNetworking
 import Foundation
-import FloxBxModels
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif

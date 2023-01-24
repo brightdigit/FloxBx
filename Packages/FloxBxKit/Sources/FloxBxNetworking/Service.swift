@@ -1,8 +1,8 @@
-import Foundation
 import FloxBxUtilities
+import Foundation
 
 public protocol Service {
-  associatedtype AuthorizationContainerType : AuthorizationContainer
+  associatedtype AuthorizationContainerType: AuthorizationContainer
 
   var credentialsContainer: AuthorizationContainerType { get }
   func beginRequest<RequestType: ClientRequest>(

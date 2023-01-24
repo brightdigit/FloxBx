@@ -64,8 +64,10 @@ public struct URLRequestBuilder: RequestBuilder {
 
     return urlRequest
   }
-  
-  public func headers<AuthorizationType>(basedOnCredentials credentials: AuthorizationType) -> [String : String] where AuthorizationType : Authorization {
-    return credentials.httpHeaders
+
+  public func headers<AuthorizationType>(
+    basedOnCredentials credentials: AuthorizationType
+  ) -> [String: String] where AuthorizationType: Authorization {
+    credentials.httpHeaders
   }
 }

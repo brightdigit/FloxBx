@@ -23,6 +23,8 @@ public protocol RequestBuilder {
   ) throws -> SessionRequestType
     where CoderType.DataType == SessionRequestType.DataType,
     BodyRequestType.BodyType == Void
-  
-  func headers<AuthorizationType : Authorization>(basedOnCredentials credentials: AuthorizationType) -> [String: String]
+
+  func headers<AuthorizationType: Authorization>(
+    basedOnCredentials credentials: AuthorizationType
+  ) -> [String: String]
 }

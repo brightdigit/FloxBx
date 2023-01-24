@@ -1,5 +1,5 @@
-import FloxBxNetworking
 import FloxBxModels
+import FloxBxNetworking
 import Foundation
 
 public struct CreateGroupSessionRequest: ClientSuccessRequest {

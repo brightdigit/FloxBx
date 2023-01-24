@@ -1,6 +1,6 @@
+import FloxBxModels
 import FloxBxNetworking
 import Foundation
-import FloxBxModels
 public struct GetTodoListRequest: ClientSuccessRequest {
   public typealias SuccessType = [CreateTodoResponseContent]
 
