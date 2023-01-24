@@ -48,7 +48,7 @@ let package = Package(
       name: "FloxBxDatabase",
       dependencies: ["FloxBxUtilities", .product(name: "Fluent", package: "fluent")]
     ),
-    .target(name: "FloxBxNetworking", dependencies: ["FloxBxAuth"]),
+    .target(name: "FloxBxNetworking"),
     .target(name: "FloxBxUI", dependencies: [
       .product(name: "Sublimation", package: "Sublimation"),
       "FloxBxRequests",

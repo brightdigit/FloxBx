@@ -1,14 +1,10 @@
-import FloxBxAuth
 import Foundation
+import FloxBxUtilities
 
 public protocol Service {
-  func save(credentials: Credentials) throws
+  associatedtype AuthorizationContainerType : AuthorizationContainer
 
-  @discardableResult
-  func resetCredentials() throws -> Credentials.ResetResult
-
-  func fetchCredentials() throws -> Credentials?
-
+  var credentialsContainer: AuthorizationContainerType { get }
   func beginRequest<RequestType: ClientRequest>(
     _ request: RequestType,
     _ completed: @escaping (Result<RequestType.SuccessType, Error>
@@ -37,16 +33,6 @@ public protocol Service {
   ) where
     RequestType.SuccessType == Void,
     RequestType.BodyType: Encodable
-}
-
-extension CheckedContinuation where T == Void {
-  public func resume(with error: E?) {
-    if let error = error {
-      return resume(throwing: error)
-    } else {
-      return resume()
-    }
-  }
 }
 
 extension Service {

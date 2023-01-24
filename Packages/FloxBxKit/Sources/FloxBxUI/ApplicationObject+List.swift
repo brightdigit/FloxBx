@@ -28,7 +28,7 @@ import FloxBxNetworking
         }
       }
 
-      private func developerService(fallbackURL: URL) async -> Service {
+      private func developerService(fallbackURL: URL) async -> any CredentialsService {
         let baseURL: URL
         do {
           baseURL = try await Self.fetchBaseURL()
@@ -37,7 +37,7 @@ import FloxBxNetworking
           onError(error)
           baseURL = fallbackURL
         }
-        return ServiceImpl(
+        return ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainContainer>(
           baseURL: baseURL,
           accessGroup: Configuration.accessGroup,
           serviceName: Configuration.serviceName
