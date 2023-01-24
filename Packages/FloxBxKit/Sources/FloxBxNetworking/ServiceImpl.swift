@@ -3,15 +3,6 @@ import Foundation
   import FoundationNetworking
 #endif
 
-public protocol Authorization {
-  var httpHeaders: [String: String] { get }
-}
-
-public protocol AuthorizationContainer {
-  associatedtype AuthorizationType: Authorization
-  func fetch() throws -> AuthorizationType?
-}
-
 public class ServiceImpl<
   CoderType: Coder,
   SessionType: Session,
@@ -205,52 +196,4 @@ public class ServiceImpl<
       completed(error)
     }
   }
-
-//
-//  public func save(credentials: Credentials) throws {
-//    try credentialsContainer.save(credentials: credentials)
-//  }
-//
-//  public func resetCredentials() throws -> Credentials.ResetResult {
-//    try credentialsContainer.reset()
-//  }
-//
-//  public func fetchCredentials() throws -> Credentials? {
-//    try credentialsContainer.fetch()
-//  }
 }
-
-// #if canImport(Security)
-//  extension ServiceImpl {
-//    public convenience init(
-//      baseURL: URL,
-//      accessGroup: String,
-//      serviceName: String,
-//      headers: [String: String] = ["Content-Type": "application/json; charset=utf-8"],
-//      coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
-//      session: URLSession = .shared
-//    ) where
-//      RequestBuilderType == URLRequestBuilder,
-//      SessionType == URLSession,
-//      CoderType == JSONCoder {
-//      guard let baseURLComponents = URLComponents(
-//        url: baseURL,
-//        resolvingAgainstBaseURL: false
-//      ) else {
-//        preconditionFailure("Invalid baseURL: \(baseURL)")
-//      }
-//      self.init(
-//        baseURLComponents: baseURLComponents,
-//        coder: coder,
-//        session: session,
-//        builder: .init(),
-//        credentialsContainer:
-//        KeychainContainer(
-//          accessGroup: accessGroup,
-//          serviceName: serviceName
-//        ),
-//        headers: headers
-//      )
-//    }
-//  }
-// #endif

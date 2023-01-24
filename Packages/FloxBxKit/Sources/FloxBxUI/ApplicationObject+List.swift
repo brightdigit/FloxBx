@@ -28,7 +28,7 @@
         }
       }
 
-      private func developerService(fallbackURL: URL) async -> any CredentialsService {
+      private func developerService(fallbackURL: URL) async -> CredentialsService {
         let baseURL: URL
         do {
           baseURL = try await Self.fetchBaseURL()

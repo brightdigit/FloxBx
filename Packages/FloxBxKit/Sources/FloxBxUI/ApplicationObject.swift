@@ -10,6 +10,9 @@ import Sublimation
   import UserNotifications
 
   internal class ApplicationObject: ObservableObject {
+    internal typealias CredentialsService =
+      ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainContainer>
+
     @Published internal private(set) var shareplayObject: SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID
     >
@@ -28,7 +31,7 @@ import Sublimation
 
     #if DEBUG
       // swiftlint:disable:next implicitly_unwrapped_optional
-      internal var service: (any CredentialsService)!
+      internal var service: CredentialsService!
     #else
       internal let service: Service = ServiceImpl(
         baseURL: Configuration.productionBaseURL,
@@ -97,74 +100,4 @@ import Sublimation
     }
   }
 
-#endif
-#if canImport(Security)
-  public protocol CredentialsService: Service {
-    func save(credentials: Credentials) throws
-    func resetCredentials() throws -> Credentials.ResetResult
-    func fetchCredentials() throws -> Credentials?
-  }
-
-  extension ServiceImpl: CredentialsService
-    where AuthorizationContainerType: CredentialsContainer {
-    public func save(credentials: Credentials) throws {
-      try credentialsContainer.save(credentials: credentials)
-    }
-
-    public func resetCredentials() throws -> Credentials.ResetResult {
-      try credentialsContainer.reset()
-    }
-
-    public func fetchCredentials() throws -> Credentials? {
-      try credentialsContainer.fetch()
-    }
-  }
-
-  extension Credentials: Authorization {
-    public var httpHeaders: [String: String] {
-      guard let token = self.token else {
-        return [:]
-      }
-      return ["Authorization": "Bearer \(token)"]
-    }
-  }
-
-  extension KeychainContainer: AuthorizationContainer {
-    public typealias AuthorizationType = Credentials
-  }
-
-  extension ServiceImpl {
-    public convenience init(
-      baseURL: URL,
-      accessGroup: String,
-      serviceName: String,
-      headers: [String: String] = ["Content-Type": "application/json; charset=utf-8"],
-      coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
-      session: URLSession = .shared
-    ) where
-      RequestBuilderType == URLRequestBuilder,
-      SessionType == URLSession,
-      CoderType == JSONCoder,
-      AuthorizationContainerType == KeychainContainer {
-      guard let baseURLComponents = URLComponents(
-        url: baseURL,
-        resolvingAgainstBaseURL: false
-      ) else {
-        preconditionFailure("Invalid baseURL: \(baseURL)")
-      }
-
-      self.init(
-        baseURLComponents: baseURLComponents,
-        coder: coder,
-        session: session,
-        builder: .init(),
-        credentialsContainer:
-        KeychainContainer(
-          accessGroup: accessGroup,
-          serviceName: serviceName
-        ),
-        headers: headers
-      )
-    }
-  }
 #endif
