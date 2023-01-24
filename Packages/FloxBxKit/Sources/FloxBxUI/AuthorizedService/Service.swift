@@ -7,6 +7,7 @@ extension Service
     try credentialsContainer.save(credentials: credentials)
   }
 
+  @discardableResult
   public func resetCredentials() throws -> Credentials.ResetResult {
     try credentialsContainer.reset()
   }
