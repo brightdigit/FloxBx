@@ -1,6 +1,6 @@
 import APNS
 import FloxBxDatabase
-import enum FloxBxModels.Configuration
+import enum FloxBxUtilities.Configuration
 import protocol FloxBxModels.Notifiable
 import struct FloxBxModels.PayloadNotification
 import struct FloxBxModels.TagPayload

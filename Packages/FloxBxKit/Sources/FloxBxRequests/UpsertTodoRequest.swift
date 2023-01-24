@@ -1,4 +1,5 @@
 import FloxBxNetworking
+import FloxBxModels
 import Foundation
 
 public struct UpsertTodoRequest: ClientBodySuccessRequest {

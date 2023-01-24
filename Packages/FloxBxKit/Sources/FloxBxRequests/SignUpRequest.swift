@@ -1,4 +1,5 @@
 import FloxBxNetworking
+import FloxBxModels
 
 public struct SignUpRequest: ClientBodySuccessRequest {
   public typealias BodyType = CreateUserRequestContent

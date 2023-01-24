@@ -7,8 +7,10 @@
 
   import FloxBxAuth
   import FloxBxGroupActivities
-  import FloxBxModels
-  import FloxBxNetworking
+  import FloxBxRequests
+import FloxBxModels
+import FloxBxNetworking
+  import FloxBxUtilities
 
   extension ApplicationObject {
     #if DEBUG

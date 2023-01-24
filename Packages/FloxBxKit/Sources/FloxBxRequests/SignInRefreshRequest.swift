@@ -1,4 +1,5 @@
 import FloxBxNetworking
+import FloxBxModels
 
 public struct SignInRefreshRequest: ClientSuccessRequest {
   public typealias SuccessType = CreateTokenResponseContent

@@ -1,11 +1,6 @@
-//
-//  File.swift
-//
-//
-//  Created by Leo Dion on 12/2/22.
-//
 import FloxBxNetworking
 import Foundation
+import FloxBxModels
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif

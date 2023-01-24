@@ -5,6 +5,7 @@
 //  Created by Leo Dion on 12/2/22.
 //
 import FloxBxNetworking
+import FloxBxModels
 import Foundation
 #if canImport(FoundationNetworking)
   import FoundationNetworking
