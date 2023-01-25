@@ -30,10 +30,12 @@ let package = Package(
       name: "RouteGroups",
       dependencies: [.product(name: "Vapor", package: "vapor")]
     ),
+    .target(name: "FelinePine"),
     .executableTarget(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
     ),
+    .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
     .target(
       name: "FloxBxUtilities"
     ),
@@ -56,8 +58,8 @@ let package = Package(
       "FloxBxAuth",
       "FloxBxGroupActivities"
     ]),
-    .target(name: "FloxBxGroupActivities"),
-    .target(name: "FloxBxAuth"),
+    .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
+    .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging"]),
     .target(
       name: "FloxBxServerKit",
       dependencies: [

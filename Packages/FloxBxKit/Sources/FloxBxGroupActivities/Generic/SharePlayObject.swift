@@ -1,6 +1,8 @@
 #if canImport(Combine)
   import Combine
   import Foundation
+import FloxBxLogging
+import FelinePine
 
   #if canImport(GroupActivities)
     import GroupActivities
@@ -216,4 +218,12 @@
       }
     }
   }
+
+extension SharePlayObject : LoggerCategorized {
+  public static var loggingCategory: FloxBxLogging.LoggerCategory {
+    .shareplay
+  }
+  
+  public typealias LoggersType = FloxBxLogging.Loggers
+}
 #endif
