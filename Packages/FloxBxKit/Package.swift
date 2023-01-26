@@ -26,21 +26,20 @@ let package = Package(
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2")
   ],
   targets: [
+    .target(name: "FelinePine"),
+    .target(name: "FloxBxUtilities"),
+    .target(name: "FloxBxModels"),
+    .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
+    .target(name: "FloxBxNetworking", dependencies: ["FloxBxLogging"]),
+    .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
+    .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging"]),
     .target(
       name: "RouteGroups",
       dependencies: [.product(name: "Vapor", package: "vapor")]
     ),
-    .target(name: "FelinePine"),
     .executableTarget(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
-    ),
-    .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
-    .target(
-      name: "FloxBxUtilities"
-    ),
-    .target(
-      name: "FloxBxModels"
     ),
     .target(
       name: "FloxBxRequests",
@@ -50,7 +49,6 @@ let package = Package(
       name: "FloxBxDatabase",
       dependencies: ["FloxBxUtilities", .product(name: "Fluent", package: "fluent")]
     ),
-    .target(name: "FloxBxNetworking"),
     .target(name: "FloxBxUI", dependencies: [
       .product(name: "Sublimation", package: "Sublimation"),
       "FloxBxRequests",
@@ -58,8 +56,6 @@ let package = Package(
       "FloxBxAuth",
       "FloxBxGroupActivities"
     ]),
-    .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
-    .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging"]),
     .target(
       name: "FloxBxServerKit",
       dependencies: [
