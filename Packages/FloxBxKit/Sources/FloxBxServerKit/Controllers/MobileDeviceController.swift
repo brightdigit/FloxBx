@@ -4,8 +4,11 @@ import Foundation
 import RouteGroups
 import Vapor
 
+
 @available(iOS 15, *)
-internal struct MobileDeviceController: RouteGroupCollection {
+internal struct MobileDeviceController: LoggedRouteGroupCollection {
+
+  
   internal typealias RouteGroupKeyType = RouteGroupKey
 
   internal var routeGroups: [RouteGroupKey: RouteGroups.RouteCollectionBuilder] {

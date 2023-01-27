@@ -124,6 +124,7 @@ import FelinePine
               groupSession.activeParticipants
             )
 
+            Self.logger.debug("New participants: \(newParticipants)")
             Task {
               do {
                 try await messenger.send(self.listDeltas, to: .only(newParticipants))
@@ -199,6 +200,7 @@ import FelinePine
     #endif
 
     public func send(_ deltas: [DeltaType]) {
+      Self.logger.debug("Receiving deltas: \(deltas)")
       #if canImport(GroupActivities)
         if #available(iOS 15, macOS 12, *) {
           if let groupSessionMessenger = self.groupSessionMessenger {

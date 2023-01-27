@@ -1,4 +1,6 @@
 import Foundation
+import FloxBxLogging
+import FelinePine
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -69,5 +71,14 @@ public struct URLRequestBuilder: RequestBuilder {
     basedOnCredentials credentials: AuthorizationType
   ) -> [String: String] where AuthorizationType: Authorization {
     credentials.httpHeaders
+  }
+}
+
+
+extension URLRequestBuilder : LoggerCategorized {
+  public typealias LoggersType = FloxBxLogging.Loggers
+  
+  public static var loggingCategory: LoggerCategory {
+    return .networking
   }
 }
