@@ -1,4 +1,4 @@
-public enum LoggerCategory : String, CaseIterable {
+public enum LoggerCategory: String, CaseIterable {
   case reactive
   // swiftlint:disable:next identifier_name
   case ui

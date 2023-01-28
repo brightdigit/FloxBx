@@ -1,6 +1,6 @@
-import Foundation
-import FloxBxLogging
 import FelinePine
+import FloxBxLogging
+import Foundation
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -74,11 +74,10 @@ public struct URLRequestBuilder: RequestBuilder {
   }
 }
 
-
-extension URLRequestBuilder : LoggerCategorized {
+extension URLRequestBuilder: LoggerCategorized {
   public typealias LoggersType = FloxBxLogging.Loggers
-  
+
   public static var loggingCategory: LoggerCategory {
-    return .networking
+    .networking
   }
 }

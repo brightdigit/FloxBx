@@ -6,13 +6,10 @@ import FelinePine
   import Logging
 #endif
 
-
-public struct Loggers : FelinePine.Loggers {
-  public static var loggers: [LoggerCategory : Logger] {
-    return _loggers
+public struct Loggers: FelinePine.Loggers {
+  public static var loggers: [LoggerCategory: Logger] {
+    _loggers
   }
-  
+
   public typealias LoggerCategory = FloxBxLogging.LoggerCategory
-  
-  
 }

@@ -1,16 +1,16 @@
 #if canImport(Security)
+  import FelinePine
+  import FloxBxLogging
   import Foundation
   import Security
-  import FloxBxLogging
-import FelinePine
 
   #if canImport(FoundationNetworking)
     import FoundationNetworking
   #endif
 
-// TODO: Add support for types and labels -- https://medium.com/macoclock/retrieve-multiple-values-from-keychain-77641248f4a1
-public struct KeychainContainer: CredentialsContainer {  
-  
+  // swiftlint:disable:next line_length
+  // TODO: Add support for types and labels -- https://medium.com/macoclock/retrieve-multiple-values-from-keychain-77641248f4a1
+  public struct KeychainContainer: CredentialsContainer {
     internal let accessGroup: String
     internal let serviceName: String
 
@@ -160,13 +160,11 @@ public struct KeychainContainer: CredentialsContainer {
     }
   }
 
-extension KeychainContainer : LoggerCategorized {
-  public static var loggingCategory: FloxBxLogging.LoggerCategory {
-    .keychain
+  extension KeychainContainer: LoggerCategorized {
+    public static var loggingCategory: FloxBxLogging.LoggerCategory {
+      .keychain
+    }
+
+    public typealias LoggersType = FloxBxLogging.Loggers
   }
-  
-  public typealias LoggersType = FloxBxLogging.Loggers
-  
-  
-}
 #endif

@@ -1,10 +1,10 @@
+import FelinePine
 import FloxBxAuth
 import FloxBxGroupActivities
+import FloxBxLogging
 import FloxBxModels
 import FloxBxNetworking
-import FloxBxLogging
 import Sublimation
-import FelinePine
 
 #if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
   import Combine
@@ -13,10 +13,11 @@ import FelinePine
 
   internal class ApplicationObject: ObservableObject, LoggerCategorized {
     typealias LoggersType = FloxBxLogging.Loggers
-    
+
     static var loggingCategory: LoggerCategory {
-      return LoggerCategory.reactive
+      LoggerCategory.reactive
     }
+
     internal typealias CredentialsService =
       ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainContainer>
 

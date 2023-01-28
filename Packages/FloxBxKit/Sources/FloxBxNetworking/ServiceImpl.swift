@@ -1,6 +1,6 @@
-import Foundation
 import FelinePine
 import FloxBxLogging
+import Foundation
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -14,14 +14,13 @@ public class ServiceImpl<
 >: Service, HeaderProvider, LoggerCategorized where
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
-SessionType.SessionResponseType.DataType == CoderType.DataType {
+  SessionType.SessionResponseType.DataType == CoderType.DataType {
   public static var loggingCategory: FloxBxLogging.LoggerCategory {
-    return .networking
+    .networking
   }
-  
+
   public typealias LoggersType = FloxBxLogging.Loggers
-  
-    
+
   private let baseURLComponents: URLComponents
   public let credentialsContainer: AuthorizationContainerType
   private let coder: CoderType
@@ -29,7 +28,6 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
   public let builder: RequestBuilderType
   public let headers: [String: String]
 
-  
   public init(
     baseURLComponents: URLComponents,
     coder: CoderType,
@@ -118,7 +116,7 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
       Self.logger.error("Error building request: \(error.localizedDescription)")
       return
     }
-      
+
     session.request(sessionRequest) { result in
       let error = result.flatMap { response -> Result<Void, Error> in
         guard request.isValidStatusCode(response.statusCode) else {
@@ -157,7 +155,7 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
       Self.logger.error("Error building request: \(error.localizedDescription)")
       return
     }
-      
+
     session.request(sessionRequest) { result in
       let decodedResult: Result<RequestType.SuccessType, Error> = result.flatMap { data in
         guard request.isValidStatusCode(data.statusCode) else {
@@ -191,7 +189,7 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
       completed(error)
       return
     }
-      
+
     do {
       sessionRequest = try builder.build(
         request: request,
@@ -203,7 +201,7 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
       Self.logger.error("Error building request: \(error.localizedDescription)")
       return
     }
-      
+
     session.request(sessionRequest) { result in
       let error = result.flatMap { response -> Result<Void, Error> in
         guard request.isValidStatusCode(response.statusCode) else {

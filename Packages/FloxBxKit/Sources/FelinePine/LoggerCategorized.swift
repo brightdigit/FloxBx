@@ -1,8 +1,3 @@
-//
-// LoggerCategorized.swift
-// Copyright (c) 2022 BrightDigit.
-//
-
 import Foundation
 #if canImport(os)
   import os
@@ -11,14 +6,14 @@ import Foundation
 #endif
 
 public protocol LoggerCategorized: Loggable {
-  associatedtype LoggersType : Loggers
+  associatedtype LoggersType: Loggers
   static var loggingCategory: LoggersType.LoggerCategory {
     get
   }
 }
 
-public extension LoggerCategorized {
-  static var logger: Logger {
+extension LoggerCategorized {
+  public static var logger: Logger {
     LoggersType.forCategory(loggingCategory)
   }
 }
