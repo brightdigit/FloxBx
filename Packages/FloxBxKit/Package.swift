@@ -63,7 +63,7 @@ let package = Package(
         .product(name: "Vapor", package: "vapor"),
         .product(name: "SublimationVapor", package: "Sublimation"),
         .product(name: "APNS", package: "apns"),
-        "FloxBxModels", "FloxBxDatabase", "RouteGroups"
+        "FloxBxModels", "FloxBxDatabase", "RouteGroups", "FloxBxLogging"
       ],
       swiftSettings: [
         .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
