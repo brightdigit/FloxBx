@@ -11,3 +11,10 @@ extension LoggedRouteGroupCollection {
     .networking
   }
 }
+
+extension RouteGroupCollection where Self: LoggerCategorized {
+  typealias LoggersType = FloxBxLogging.Loggers
+  static var loggingCategory: LoggerCategory {
+    .ui
+  }
+}
