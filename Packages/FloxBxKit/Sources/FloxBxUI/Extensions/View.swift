@@ -4,8 +4,9 @@
   import SwiftUI
 
   extension View where Self: LoggerCategorized {
-    typealias LoggersType = FloxBxLogging.Loggers
-    static var loggingCategory: LoggerCategory {
+    internal typealias LoggersType = FloxBxLogging.Loggers
+
+    internal static var loggingCategory: LoggerCategory {
       .ui
     }
   }

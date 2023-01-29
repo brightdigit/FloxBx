@@ -12,14 +12,14 @@ import Sublimation
   import UserNotifications
 
   internal class ApplicationObject: ObservableObject, LoggerCategorized {
-    typealias LoggersType = FloxBxLogging.Loggers
-
-    static var loggingCategory: LoggerCategory {
-      LoggerCategory.reactive
-    }
+    internal typealias LoggersType = FloxBxLogging.Loggers
 
     internal typealias CredentialsService =
       ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainContainer>
+
+    internal static var loggingCategory: LoggerCategory {
+      LoggerCategory.reactive
+    }
 
     @Published internal private(set) var shareplayObject: SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID

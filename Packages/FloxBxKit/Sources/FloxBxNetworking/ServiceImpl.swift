@@ -15,11 +15,11 @@ public class ServiceImpl<
   SessionType.SessionRequestType == RequestBuilderType.SessionRequestType,
   RequestBuilderType.SessionRequestType.DataType == CoderType.DataType,
   SessionType.SessionResponseType.DataType == CoderType.DataType {
+  public typealias LoggersType = FloxBxLogging.Loggers
+
   public static var loggingCategory: FloxBxLogging.LoggerCategory {
     .networking
   }
-
-  public typealias LoggersType = FloxBxLogging.Loggers
 
   private let baseURLComponents: URLComponents
   public let credentialsContainer: AuthorizationContainerType
@@ -140,11 +140,7 @@ public class ServiceImpl<
     let headers: [String: String]
     do {
       headers = try self.headers(withCredentials: RequestType.requiresCredentials)
-    } catch {
-      completed(.failure(error))
-      return
-    }
-    do {
+
       sessionRequest = try builder.build(
         request: request,
         withBaseURL: baseURLComponents,
@@ -153,6 +149,7 @@ public class ServiceImpl<
       )
     } catch {
       Self.logger.error("Error building request: \(error.localizedDescription)")
+      completed(.failure(error))
       return
     }
 

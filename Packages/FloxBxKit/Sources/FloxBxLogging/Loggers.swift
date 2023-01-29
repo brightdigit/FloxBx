@@ -7,9 +7,9 @@ import FelinePine
 #endif
 
 public struct Loggers: FelinePine.Loggers {
+  public typealias LoggerCategory = FloxBxLogging.LoggerCategory
+
   public static var loggers: [LoggerCategory: Logger] {
     _loggers
   }
-
-  public typealias LoggerCategory = FloxBxLogging.LoggerCategory
 }
