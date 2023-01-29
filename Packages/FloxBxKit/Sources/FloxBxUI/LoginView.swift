@@ -1,8 +1,14 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  internal struct LoginView: View {
-    @EnvironmentObject private var object: ApplicationObject
+internal struct LoginView: View {
+  internal init (service : any AuthorizedService ) {
+    self._authorization = .init(wrappedValue: .init(service: service))
+  }
+  
+
+    
+    @StateObject var authorization  : AuthorizationObject
     @State private var emailAddress: String = ""
     @State private var password: String = ""
     #if os(watchOS)
@@ -34,7 +40,7 @@
     private var formButtons: some View {
       HStack {
         Button(action: {
-          self.object.beginSignIn(
+          self.authorization.beginSignIn(
             withCredentials: .init(
               username: self.emailAddress,
               password: self.password
@@ -46,7 +52,7 @@
         Spacer()
         Button(
           action: {
-            self.object.beginSignup(
+            self.authorization.beginSignup(
               withCredentials: .init(
                 username: self.emailAddress,
                 password: self.password
@@ -91,14 +97,12 @@
       #endif
     }
 
-    internal init() {}
-
     private func watchForm() -> some View {
       VStack {
         Text("Sign up new account or sign in existing?")
         Spacer()
         Button("Sign Up") {
-          self.object
+          self.authorization
             .beginSignup(
               withCredentials: .init(
                 username: self.emailAddress,
@@ -107,7 +111,7 @@
             )
         }
         Button("Sign In") {
-          self.object.beginSignIn(
+          self.authorization.beginSignIn(
             withCredentials: .init(
               username: self.emailAddress,
               password: self.password
@@ -118,12 +122,12 @@
     }
   }
 
-  private struct LoginView_Previews: PreviewProvider {
-    // swiftlint:disable:next strict_fileprivate
-    fileprivate static var previews: some View {
-      ForEach(ColorScheme.allCases, id: \.self) {
-        LoginView().preferredColorScheme($0)
-      }
-    }
-  }
+//  private struct LoginView_Previews: PreviewProvider {
+//    // swiftlint:disable:next strict_fileprivate
+//    fileprivate static var previews: some View {
+//      ForEach(ColorScheme.allCases, id: \.self) {
+//        LoginView(isSucceeded: .constant(false), service: <#AuthorizedService#>).preferredColorScheme($0)
+//      }
+//    }
+//  }
 #endif

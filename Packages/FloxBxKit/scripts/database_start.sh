@@ -6,4 +6,8 @@ sleep 3;
 until [ "`psql -A -t -h localhost -U postgres -c \"SHOW server_version_num;\"`" -gt 120000 ]; do
 	sleep 3;
 done;
-psql -h localhost -U postgres < ./setup.sql
+
+psql -h localhost -U postgres -c "drop database if exists FloxBx"
+psql -h localhost -U postgres -c "create database FloxBx"
+psql -h localhost -U postgres -c "create user FloxBx"
+psql -h localhost -U postgres -c "grant all privileges on database FloxBx to FloxBx"

@@ -1,24 +1,40 @@
 #if canImport(SwiftUI)
   import Combine
   import SwiftUI
+import FloxBxNetworking
+import FloxBxModels
 
   internal struct TodoListView: View {
-    @EnvironmentObject private var object: ApplicationObject
+    
+//      @available(*, deprecated)
+//    @EnvironmentObject private var object: ApplicationObject
 
+    //@StateObject private var servicesObject : ServicesObject
+    let onLogout : () -> Void
+    let requestSharing : () -> Void
+    @StateObject private var listObject : TodoListObject
+    
+    init (groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing : @escaping () -> Void) {
+      let isLoaded = isLoaded ?? !items.isEmpty
+      self.onLogout = onLogout
+      self.requestSharing = requestSharing
+      self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
+    }
+    
     internal var body: some View {
       List {
-        ForEach(self.object.items) { item in
-          TodoListItemView(item: item).onAppear {
-            self.object.saveItem(item, onlyNew: true)
+        ForEach(self.listObject.items) { item in
+          TodoListItemView(item: item, groupActivityID: listObject.groupActivityID, service: listObject.service).onAppear {
+            self.listObject.saveItem(item, onlyNew: true)
           }
-        }.onDelete(perform: object.deleteItems(atIndexSet:))
+        }.onDelete(perform: listObject.beginDeleteItems(atIndexSet:))
       }
 
       .toolbar(content: {
         ToolbarItemGroup {
           HStack {
             Button {
-              self.object.logout()
+              self.onLogout()
             } label: {
               Image(systemName: "person.crop.circle.fill.badge.xmark")
             }
@@ -26,7 +42,7 @@
             Button {
               #if canImport(GroupActivities)
                 if #available(iOS 15, macOS 12, *) {
-                  object.requestSharing()
+                  self.requestSharing()
                 }
               #endif
             } label: {
@@ -34,7 +50,7 @@
             }
 
             Button {
-              self.object.addItem(.init(title: "New Item", tags: []))
+              self.listObject.addItem(.init(title: "New Item", tags: []))
             } label: {
               Image(systemName: "plus.circle.fill")
             }
@@ -49,19 +65,19 @@
     }
   }
 
-  private struct TodoList_Previews: PreviewProvider {
-    // swiftlint:disable:next strict_fileprivate
-    fileprivate static var previews: some View {
-      TodoListView().environmentObject(
-        ApplicationObject(
-          mobileDevicePublisher: .init(
-            Just(.init(model: "", operatingSystem: "", topic: ""))
-          ),
-          [
-            .init(title: "Do Stuff", tags: ["things", "places"])
-          ]
-        )
-      )
-    }
-  }
+//  private struct TodoList_Previews: PreviewProvider {
+//    // swiftlint:disable:next strict_fileprivate
+//    fileprivate static var previews: some View {
+//      TodoListView().environmentObject(
+//        ApplicationObject(
+//          mobileDevicePublisher: .init(
+//            Just(.init(model: "", operatingSystem: "", topic: ""))
+//          ),
+//          [
+//            .init(title: "Do Stuff", tags: ["things", "places"])
+//          ]
+//        )
+//      )
+//    }
+//  }
 #endif
