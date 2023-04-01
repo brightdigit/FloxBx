@@ -23,7 +23,8 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
     .package(url: "https://github.com/brightdigit/Sublimation.git", from: "0.1.3"),
-    .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2")
+    .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
+    .package(path: "Packages/StealthyStash")
   ],
   targets: [
     .target(name: "FelinePine"),
@@ -32,7 +33,7 @@ let package = Package(
     .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
     .target(name: "FloxBxNetworking", dependencies: ["FloxBxLogging"]),
     .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
-    .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging"]),
+    .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging", "StealthyStash"]),
     .target(
       name: "RouteGroups",
       dependencies: [.product(name: "Vapor", package: "vapor")]
