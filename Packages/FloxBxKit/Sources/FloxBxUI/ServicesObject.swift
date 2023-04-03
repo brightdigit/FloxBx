@@ -4,16 +4,8 @@ import Sublimation
 import FloxBxUtilities
 import FloxBxNetworking
 import FloxBxLogging
+import FloxBxModeling
 import Foundation
-import StealthyStash
-
-extension KeychainRepository : AuthorizationContainer {
-  
-  
-  public typealias AuthorizationType = Credentials
-  
-  
-}
 
 struct Account {
   let username: String
@@ -96,7 +88,7 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
       }
       baseURL = fallbackURL
     }
-    return ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainRepository>(
+    return ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, CredentialsContainer>(
       baseURL: baseURL,
       accessGroup: Configuration.accessGroup,
       serviceName: Configuration.serviceName

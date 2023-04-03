@@ -1,15 +1,13 @@
-import FloxBxModeling
-
-public protocol ClientRequest: ClientBaseRequest {
-  associatedtype SuccessType : ContentDecodable
-  associatedtype BodyType : ContentEncodable
+public protocol LegacyClientRequest: ClientBaseRequest {
+  associatedtype SuccessType
+  associatedtype BodyType
 
   var body: BodyType { get }
 
   func isValidStatusCode(_ statusCode: Int) -> Bool
 }
 
-extension ClientRequest {
+extension LegacyClientRequest {
   public var actualPath: String {
     guard !path.hasPrefix("/") else {
       return path

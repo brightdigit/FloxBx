@@ -1,4 +1,5 @@
 import Foundation
+import FloxBxModeling
 
 #if canImport(FoundationNetworking)
   import FoundationNetworking
@@ -6,7 +7,9 @@ import Foundation
 
 public protocol RequestBuilder {
   associatedtype SessionRequestType: SessionRequest
-  func build<BodyRequestType: ClientRequest, CoderType: Coder>(
+  
+  @available(*, deprecated)
+  func build<BodyRequestType: LegacyClientRequest, CoderType: LegacyCoder>(
     request: BodyRequestType,
     withBaseURL baseURLComponents: URLComponents,
     withHeaders headers: [String: String],
@@ -15,7 +18,8 @@ public protocol RequestBuilder {
     where CoderType.DataType == SessionRequestType.DataType,
     BodyRequestType.BodyType: Encodable
 
-  func build<BodyRequestType: ClientRequest, CoderType: Coder>(
+  @available(*, deprecated)
+  func build<BodyRequestType: LegacyClientRequest, CoderType: LegacyCoder>(
     request: BodyRequestType,
     withBaseURL baseURLComponents: URLComponents,
     withHeaders headers: [String: String],
@@ -23,6 +27,14 @@ public protocol RequestBuilder {
   ) throws -> SessionRequestType
     where CoderType.DataType == SessionRequestType.DataType,
     BodyRequestType.BodyType == Void
+  
+  func build<BodyRequestType: ClientRequest, CoderType: Coder>(
+    request: BodyRequestType,
+    withBaseURL baseURLComponents: URLComponents,
+    withHeaders headers: [String: String],
+    withEncoder encoder: CoderType
+  ) throws -> SessionRequestType
+  where CoderType.DataType == SessionRequestType.DataType, BodyRequestType.BodyType: ContentEncodable
 
   func headers<AuthorizationType: Authorization>(
     basedOnCredentials credentials: AuthorizationType

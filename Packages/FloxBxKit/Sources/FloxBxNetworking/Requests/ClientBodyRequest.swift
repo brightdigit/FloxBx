@@ -1,5 +1,5 @@
-// periphery:ignore
+import FloxBxModeling
 public protocol ClientBodyRequest: ClientRequest
-  where BodyType: Codable, SuccessType == Void {
+  where BodyType: Codable, SuccessType == Empty {
   var body: BodyType { get }
 }
