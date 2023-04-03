@@ -21,3 +21,38 @@ public struct Credentials : StealthyModel {
     Credentials(username: username, password: password, token: nil)
   }
 }
+
+
+public class CredentialsContainer {
+  public init(repository: StealthyRepository, credentials: Credentials? = nil) {
+    self.credentials = credentials
+    self.repository = repository
+  }
+  
+  var credentials : Credentials?
+  let repository : StealthyRepository
+  
+  public func fetch() async throws -> Credentials? {
+    let credentials : Credentials? = try await repository.fetch()
+    self.credentials = credentials
+    return credentials
+  }
+  
+  public func save(credentials: Credentials) throws {
+    if let oldCredentials = self.credentials {
+      try self.repository.update(from: oldCredentials, to: credentials)
+    } else {
+      try self.repository.create(credentials)
+    }
+  }
+  
+  public func reset() throws {
+    guard let credentials = credentials else {
+      return
+    }
+    
+    try self.repository.delete(credentials)
+  }
+  
+  
+}

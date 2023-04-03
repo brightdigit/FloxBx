@@ -5,6 +5,7 @@ import FloxBxLogging
 import FloxBxModels
 import FloxBxNetworking
 import FloxBxUtilities
+import FloxBxModeling
 import Sublimation
 
 #if canImport(Combine) && canImport(SwiftUI) && canImport(UserNotifications)
@@ -17,7 +18,7 @@ import Sublimation
     internal typealias LoggersType = FloxBxLogging.Loggers
 
     internal typealias CredentialsService =
-      ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, KeychainContainer>
+      ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, CredentialsContainer>
 
     internal static var loggingCategory: LoggerCategory {
       LoggerCategory.reactive
