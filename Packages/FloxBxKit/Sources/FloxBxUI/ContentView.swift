@@ -18,6 +18,7 @@ internal struct ContentView: View, LoggerCategorized {
 
     @StateObject private var services = ServicesObject()
   
+  
 
     #if canImport(GroupActivities)
       @State private var activity: ActivityIdentifiableContainer<UUID>?
@@ -49,9 +50,10 @@ internal struct ContentView: View, LoggerCategorized {
         }
       }
     }
-  
+
+  @MainActor
   func logout () {
-    
+    self.shouldDisplayLoginView = true
   }
   
   func requestSharing () {
@@ -77,11 +79,18 @@ internal struct ContentView: View, LoggerCategorized {
       }
       .sheet(isPresented: self.$shouldDisplayLoginView, content: {
         if let services = self.services.service {
-          LoginView(service: services)
+          LoginView(service: services) {
+            Task { @MainActor in
+              self.shouldDisplayLoginView = false
+            }
+          }
         } else {
           ProgressView()
         }
       })
+      .onReceive(self.services.$requireAuthentication) { requiresAuthentication in
+        self.shouldDisplayLoginView = requiresAuthentication
+      }
     }
 
     internal var body: some View {

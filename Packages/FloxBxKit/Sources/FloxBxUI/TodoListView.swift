@@ -13,28 +13,28 @@ import FloxBxModels
     let onLogout : () -> Void
     let requestSharing : () -> Void
     @StateObject private var listObject : TodoListObject
+    @StateObject var authorization  : AuthorizationObject
     
     init (groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing : @escaping () -> Void) {
       let isLoaded = isLoaded ?? !items.isEmpty
       self.onLogout = onLogout
       self.requestSharing = requestSharing
+      self._authorization = .init(wrappedValue: .init(service: service))
       self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
     }
     
-    internal var body: some View {
+    private var list : some View {
       List {
         ForEach(self.listObject.items) { item in
           TodoListItemView(item: item, groupActivityID: listObject.groupActivityID, service: listObject.service).onAppear {
             self.listObject.saveItem(item, onlyNew: true)
           }
         }.onDelete(perform: listObject.beginDeleteItems(atIndexSet:))
-      }
-
-      .toolbar(content: {
+      }.toolbar(content: {
         ToolbarItemGroup {
           HStack {
             Button {
-              self.onLogout()
+              self.authorization.logout()
             } label: {
               Image(systemName: "person.crop.circle.fill.badge.xmark")
             }
@@ -59,6 +59,26 @@ import FloxBxModels
               EditButton()
             #endif
           }
+        }
+      })
+    }
+    
+    internal var body: some View {
+      Group {
+        if self.listObject.isLoaded {
+          list
+        } else {
+          ProgressView()
+        }
+      }
+      .onAppear{
+        self.listObject.begin()
+      }
+      .onReceive(self.authorization.$account, perform: { account in
+        if account == nil {
+          self.onLogout()
+        } else {
+          self.listObject.begin()
         }
       })
       .navigationTitle("Todos")
