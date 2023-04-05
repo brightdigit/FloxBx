@@ -2,15 +2,21 @@
   import SwiftUI
 
 internal struct LoginView: View {
-  internal init (service : any AuthorizedService ) {
+  internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
+    self.completed = completed
     self._authorization = .init(wrappedValue: .init(service: service))
   }
   
+  
+  func logout () {
+    authorization.logout()
+  }
 
-    
+  let completed : () -> Void
     @StateObject var authorization  : AuthorizationObject
     @State private var emailAddress: String = ""
     @State private var password: String = ""
+  @State private var isAlertPresented : Bool = false
     #if os(watchOS)
       @State private var presentLoginOrSignup = false
     #endif
@@ -83,7 +89,12 @@ internal struct LoginView: View {
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500)
+      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.$account) { account in
+        guard account != nil else {
+          return
+        }
+        self.completed()
+      }
     }
 
     internal var body: some View {
@@ -93,7 +104,15 @@ internal struct LoginView: View {
           content: self.watchForm
         )
       #else
-        self.content
+      
+      self.content.alert(isPresented: .constant(self.authorization.error != nil), error: self.authorization.error) { 
+        Button("OK") {
+          Task { @MainActor in
+            self.isAlertPresented = false
+          }
+        }
+      }
+
       #endif
     }
 

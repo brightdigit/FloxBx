@@ -47,7 +47,7 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
   }
   
   
-  public func request<RequestType>(_ request: RequestType) async throws -> RequestType.SuccessType where RequestType : ClientRequest {
+  public func request<RequestType>(_ request: RequestType) async throws -> RequestType.SuccessType.DecodableType where RequestType : ClientRequest {
     let sessionRequest: SessionType.SessionRequestType
 
     let headers = try await self.headers(withCredentials: RequestType.requiresCredentials)
@@ -71,17 +71,20 @@ SessionType.SessionResponseType.DataType == CoderType.DataType {
           throw RequestError.missingData
         }
     
-    if let decodable = RequestType.SuccessType.decodable {
-      
-      let decoded = try self.coder.decode(decodable, from: bodyData)
-      return try .init(decoded: decoded)
-    }
     
-    guard let value = Empty.value as? RequestType.SuccessType else {
-      throw RequestError.missingData
-    }
+    return try self.coder.decodeContent(RequestType.SuccessType.self, from: bodyData)
     
-    return value
+//    if let decodable = RequestType.SuccessType.decodable as? Decodable {
+//
+//      let decoded = try self.coder.decode(decodable, from: bodyData)
+//      return try .init(decoded: decoded)
+//    }
+//
+//    guard let value = Empty.value as? RequestType.SuccessType else {
+//      throw RequestError.missingData
+//    }
+//
+//    return value
    
     
       

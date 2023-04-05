@@ -6,24 +6,37 @@ import FloxBxNetworking
 import FloxBxLogging
 import FloxBxModeling
 import Foundation
+import Combine
 
 struct Account {
   let username: String
 }
 
 internal class ServicesObject: ObservableObject, LoggerCategorized {
-  internal init() {
-    //self.account = account
+  internal init(service: (any AuthorizedService)? = nil, error: Error? = nil) {
     self.service = service
+    self.error = error
     
     self.$service.compactMap{$0}.map { service in
-      service
-    }
+      Future{
+        try await service.verifyLogin()
+      }
+    }.switchToLatest().map{!$0}.replaceError(with: false).receive(on: DispatchQueue.main).assign(to: &self.$requireAuthentication)
   }
+  
+//  internal init() {
+//    //self.account = account
+//    self.service = service
+//    
+//    self.$service.compactMap{$0}.map { service in
+//      service
+//    }
+//  }
   
   //@Published var account: Account?
   @Published var service: (any AuthorizedService)?
   @Published var error : Error?
+  @Published var requireAuthentication = false
   
   typealias LoggersType = FloxBxLogging.Loggers
 
@@ -48,19 +61,6 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
     )
 #endif
   }
-  
-//  func logout () {
-//    guard let service = self.service else {
-//      assertionFailure("Service is not available.")
-//      return
-//    }
-//    
-//    do {
-//      try service.resetCredentials()
-//    } catch {
-//      self.error = error
-//    }
-//  }
   
 #if DEBUG
   private static func fetchBaseURL() async throws -> URL {

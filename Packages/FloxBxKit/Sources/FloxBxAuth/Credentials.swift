@@ -52,6 +52,7 @@ public class CredentialsContainer {
     }
     
     try self.repository.delete(credentials)
+    self.credentials = nil
   }
   
   
