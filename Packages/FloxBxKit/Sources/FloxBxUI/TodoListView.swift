@@ -13,11 +13,13 @@ import FloxBxModels
     let onLogout : () -> Void
     let requestSharing : () -> Void
     @StateObject private var listObject : TodoListObject
+    @StateObject var authorization  : AuthorizationObject
     
     init (groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing : @escaping () -> Void) {
       let isLoaded = isLoaded ?? !items.isEmpty
       self.onLogout = onLogout
       self.requestSharing = requestSharing
+      self._authorization = .init(wrappedValue: .init(service: service))
       self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
     }
     
@@ -29,12 +31,17 @@ import FloxBxModels
           }
         }.onDelete(perform: listObject.beginDeleteItems(atIndexSet:))
       }
-
+      .onReceive(self.authorization.$account, perform: { account in
+        if account == nil {
+          self.onLogout()
+        }
+      })
       .toolbar(content: {
         ToolbarItemGroup {
           HStack {
             Button {
-              self.onLogout()
+              self.authorization.logout()
+              //self.onLogout()
             } label: {
               Image(systemName: "person.crop.circle.fill.badge.xmark")
             }

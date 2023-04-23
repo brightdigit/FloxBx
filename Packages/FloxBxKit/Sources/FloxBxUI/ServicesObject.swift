@@ -62,19 +62,6 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
 #endif
   }
   
-  func logout () {
-    guard let service = self.service else {
-      assertionFailure("Service is not available.")
-      return
-    }
-    
-    do {
-      try service.resetCredentials()
-    } catch {
-      self.error = error
-    }
-  }
-  
 #if DEBUG
   private static func fetchBaseURL() async throws -> URL {
     do {

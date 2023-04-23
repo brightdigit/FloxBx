@@ -18,6 +18,7 @@ internal struct ContentView: View, LoggerCategorized {
 
     @StateObject private var services = ServicesObject()
   
+  
 
     #if canImport(GroupActivities)
       @State private var activity: ActivityIdentifiableContainer<UUID>?
@@ -49,9 +50,10 @@ internal struct ContentView: View, LoggerCategorized {
         }
       }
     }
-  
+
+  @MainActor
   func logout () {
-    self.services.logout()
+    self.shouldDisplayLoginView = true
   }
   
   func requestSharing () {

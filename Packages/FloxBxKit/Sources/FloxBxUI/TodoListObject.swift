@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import FloxBxUtilities
 import FloxBxNetworking
 import FloxBxModels
 import FloxBxRequests
@@ -26,6 +27,39 @@ class TodoListObject : ObservableObject {
     self.lastErrror = lastErrror
     
     //assert(((try? service.fetchCredentials()) != nil))
+    
+   let requestResult = self.actionSubject.map { action in
+      let request : UpsertTodoRequest
+      switch action {
+        
+      case .update(let content, at: let index):
+        request = .init(groupActivityID: self.groupActivityID, itemID: content.id, body: .init(title: content.title, tags: content.tags))
+      case .append(let item):
+        request = .init(groupActivityID: self.groupActivityID, itemID: item.serverID, body: .init(title: item.title, tags: item.tags))
+      }
+      return request
+      
+    }.flatMap { (request : UpsertTodoRequest) in
+      Future{
+        try await self.service.request(request)
+      }
+    }.share()
+    
+    let errorPublisher = requestResult.map { _ in
+      return nil
+    }.catch { error in
+      return Just<Error?>(error)
+    }
+    
+    let itemPublisher = requestResult.map{item in
+      return item as Optional
+    }
+      .catch { error in
+      return Just(nil)
+    }
+    
+    
+    errorPublisher.receive(on: DispatchQueue.main).assign(to: &self.$lastErrror)
   }
   
   let groupActivityID : UUID?

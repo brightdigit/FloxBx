@@ -7,6 +7,10 @@ internal struct LoginView: View {
     self._authorization = .init(wrappedValue: .init(service: service))
   }
   
+  
+  func logout () {
+    authorization.logout()
+  }
 
   let completed : () -> Void
     @StateObject var authorization  : AuthorizationObject
@@ -84,7 +88,7 @@ internal struct LoginView: View {
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.compeletedSubject) {
+      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.successfulCompletedSubject) {
         self.completed()
       }
     }
