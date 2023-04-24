@@ -23,20 +23,14 @@ import FloxBxModels
       self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
     }
     
-    internal var body: some View {
+    private var list : some View {
       List {
         ForEach(self.listObject.items) { item in
           TodoListItemView(item: item, groupActivityID: listObject.groupActivityID, service: listObject.service).onAppear {
             self.listObject.saveItem(item, onlyNew: true)
           }
         }.onDelete(perform: listObject.beginDeleteItems(atIndexSet:))
-      }
-      .onReceive(self.authorization.$account, perform: { account in
-        if account == nil {
-          self.onLogout()
-        }
-      })
-      .toolbar(content: {
+      }.toolbar(content: {
         ToolbarItemGroup {
           HStack {
             Button {
@@ -66,6 +60,24 @@ import FloxBxModels
               EditButton()
             #endif
           }
+        }
+      })
+    }
+    
+    internal var body: some View {
+      Group {
+        if self.listObject.isLoaded {
+          list
+        } else {
+          ProgressView()
+        }
+      }
+      .onAppear{
+        self.listObject.begin()
+      }
+      .onReceive(self.authorization.$account, perform: { account in
+        if account == nil {
+          self.onLogout()
         }
       })
       .navigationTitle("Todos")

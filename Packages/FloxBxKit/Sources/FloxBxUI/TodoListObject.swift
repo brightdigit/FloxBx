@@ -19,6 +19,7 @@ enum TodoListAction {
 }
 
 class TodoListObject : ObservableObject {
+  var updateItemCancellable : AnyCancellable!
   internal init(groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool = false, lastErrror: Error? = nil) {
     self.groupActivityID = groupActivityID
     self.service = service
@@ -28,38 +29,63 @@ class TodoListObject : ObservableObject {
     
     //assert(((try? service.fetchCredentials()) != nil))
     
-   let requestResult = self.actionSubject.map { action in
-      let request : UpsertTodoRequest
-      switch action {
-        
-      case .update(let content, at: let index):
-        request = .init(groupActivityID: self.groupActivityID, itemID: content.id, body: .init(title: content.title, tags: content.tags))
-      case .append(let item):
-        request = .init(groupActivityID: self.groupActivityID, itemID: item.serverID, body: .init(title: item.title, tags: item.tags))
-      }
-      return request
-      
-    }.flatMap { (request : UpsertTodoRequest) in
+    let loadResult = self.loadSubject.map {
       Future{
-        try await self.service.request(request)
+        try await self.service.request(GetTodoListRequest(groupActivityID: self.groupActivityID))
       }
+    }.switchToLatest().share()
+    
+    let errorLoadResult = loadResult.map{_ in return nil}.catch(Just<Error?>.init)
+    
+    let listLoaded = loadResult.map(Optional.some).catch{_ in Just(nil)}.compactMap{$0}.map{
+      $0.map(TodoContentItem.init(content:))
     }.share()
     
-    let errorPublisher = requestResult.map { _ in
+    listLoaded.receive(on: DispatchQueue.main).assign(to: &self.$items)
+    listLoaded.map{_ in true}.receive(on: DispatchQueue.main).assign(to: &self.$isLoaded)
+    
+   let requestResult = self.actionSubject.map { action in
+      let request : UpsertTodoRequest
+     let index : Int?
+      switch action {
+      case .update(let content, at: let location):
+        request = .init(groupActivityID: self.groupActivityID, itemID: content.id, body: .init(title: content.title, tags: content.tags))
+        index = location
+      case .append(let item):
+        request = .init(groupActivityID: self.groupActivityID, itemID: item.serverID, body: .init(title: item.title, tags: item.tags))
+        index = nil
+      }
+      let publisher = Future{
+        try await self.service.request(request)
+      }
+     
+     return publisher.map {
+       ($0, index)
+     }
+   }.switchToLatest()
+    
+    let upsertErrorPublisher = requestResult.map { _ in
       return nil
     }.catch { error in
       return Just<Error?>(error)
     }
     
-    let itemPublisher = requestResult.map{item in
-      return item as Optional
+    self.updateItemCancellable =     requestResult.map{item in
+      return Optional.some(item)
     }
       .catch { error in
       return Just(nil)
-    }
+      }.compactMap{$0}.receive(on: DispatchQueue.main)
+      .sink { (content, index) in
+        let item = TodoContentItem(content: content)
+        if let index = index {
+          self.items[index] = item
+        } else {
+          self.items.append(item)
+        }
+      }
     
-    
-    errorPublisher.receive(on: DispatchQueue.main).assign(to: &self.$lastErrror)
+    //Publishers.CombineLatest(upsertErrorPublisher, errorLoadResult).eraseToAnyPublisher().sink
   }
   
   let groupActivityID : UUID?
@@ -70,6 +96,7 @@ class TodoListObject : ObservableObject {
   
   let errorSubject = PassthroughSubject<Error, Never>()
   let actionSubject = PassthroughSubject<TodoListAction, Never>()
+  let loadSubject = PassthroughSubject<Void, Never>()
   
   
     internal func addDelta(_ delta: TodoListDelta) {
@@ -172,6 +199,10 @@ class TodoListObject : ObservableObject {
         self.errorSubject.send(error)
       }
     }
+  }
+  
+  func begin () {
+    self.loadSubject.send()
   }
 //
 //  func logout () {

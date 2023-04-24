@@ -48,7 +48,9 @@ class AuthorizationObject: ObservableObject {
       let tokenContainer = try await self.service.request(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password)))
       let newCreds = credentials.withToken(tokenContainer.token)
       try self.service.save(credentials: newCreds)
-      successfulCompletedSubject.send()
+      Task { @MainActor in
+        successfulCompletedSubject.send()
+      }
     }
   }
   
