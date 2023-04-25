@@ -35,7 +35,6 @@ import FloxBxModels
           HStack {
             Button {
               self.authorization.logout()
-              //self.onLogout()
             } label: {
               Image(systemName: "person.crop.circle.fill.badge.xmark")
             }

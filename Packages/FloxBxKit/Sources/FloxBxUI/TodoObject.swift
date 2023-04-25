@@ -30,10 +30,7 @@ class TodoObject : ObservableObject {
     self.service = service
     
     let savedItemPublisher = saveTrigger
-    .compactMap{ _ -> UpsertTodoRequest? in
-      if item.isSaved {
-        return nil
-      }
+    .map{ _ -> UpsertTodoRequest in
       let content = CreateTodoRequestContent(text: self.text)
       return UpsertTodoRequest(
         groupActivityID: groupActivityID,
@@ -66,7 +63,8 @@ class TodoObject : ObservableObject {
   }
   
   func beginSave () {
-    
+    self.saveTrigger.send()
+    //self.service.request(<#T##request: ClientRequest##ClientRequest#>)
   }
   
   

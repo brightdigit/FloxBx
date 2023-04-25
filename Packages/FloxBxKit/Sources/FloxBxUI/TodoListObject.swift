@@ -12,14 +12,32 @@ import FloxBxNetworking
 import FloxBxModels
 import FloxBxRequests
 import FloxBxGroupActivities
+import FloxBxLogging
+import FelinePine
 
-enum TodoListAction {
+enum TodoListAction : CustomStringConvertible {
   case update(CreateTodoResponseContent, at: Int)
   case append(TodoContentItem)
+  
+  var description: String {
+    switch self {
+      
+    case .update(let content, at: let index):
+      return "update \(content) at \(index)"
+    case .append(let item):
+      return "append \(item)"
+    }
+  }
 }
 
-class TodoListObject : ObservableObject {
+class TodoListObject : ObservableObject, LoggerCategorized {
+  typealias LoggersType = FloxBxLogging.Loggers
+  
+  static var loggingCategory: FloxBxLogging.LoggerCategory {
+    return LoggerCategory.reactive
+  }
   var updateItemCancellable : AnyCancellable!
+  
   internal init(groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool = false, lastErrror: Error? = nil) {
     self.groupActivityID = groupActivityID
     self.service = service
@@ -45,6 +63,7 @@ class TodoListObject : ObservableObject {
     listLoaded.map{_ in true}.receive(on: DispatchQueue.main).assign(to: &self.$isLoaded)
     
    let requestResult = self.actionSubject.map { action in
+     Self.logger.debug("Received Action: \(action)")
       let request : UpsertTodoRequest
      let index : Int?
       switch action {
@@ -159,7 +178,7 @@ class TodoListObject : ObservableObject {
       return
     }
 
-    addDelta(.remove(deletedIds))
+    //addDelta(.remove(deletedIds))
     // addDelta(.remove(Array(deletedIds)))
 
     //let group = DispatchGroup()
@@ -171,7 +190,7 @@ class TodoListObject : ObservableObject {
           itemID: id, groupActivityID: groupActivityID
         )
         taskGroup.addTask {
-          try await self.service.request(request)
+          _ = try await self.service.request(request)
         }
 //        service.beginRequest(request) { error in
 //          errors[index] = error
@@ -182,6 +201,8 @@ class TodoListObject : ObservableObject {
         return partialResult
       }
     }
+    
+    self.items.remove(atOffsets: indexSet)
     //var errors = [Error?].init(repeating: nil, count: deletedIds.count)
 
 //    group.notify(queue: .main) {
