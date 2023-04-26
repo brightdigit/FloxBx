@@ -14,27 +14,39 @@ public protocol LegacyCoder  {
 public protocol Coder : LegacyCoder{
 }
 
+
+public extension Coder {
+  
+  func decodeContent<CodableType: ContentDecodable>(_: CodableType.Type, from data: DataType)
+  throws -> CodableType.DecodableType {
+    return 
+  }
+  
+}
+
 enum CoderError : Error {
   case missingData
   case missingDecoding
 }
 
-public struct Empty : ContentDecodable, ContentEncodable, Decodable {  
-  public typealias DecodableType = Empty
+public struct Empty : ContentDecodable, ContentEncodable {
+  public static var decodable: Void.Type {
+    return Void.self
+  }
+  
+  
+  public typealias DecodableType = Void
   
   public var encodable: EncodableValue {
     return .empty
   }
   
-  static public var decodable: Empty? {
-    return nil
-  }
   
   public static let value = Empty()
   
   internal init () {}
   
-  public init(decoded: Empty?) throws {
+  public init(decoded: Void) throws {
     
   }
 }

@@ -8,9 +8,9 @@ public protocol ContentEncodable {
 }
 
 public protocol ContentDecodable {
-  associatedtype DecodableType : Decodable
-  static var decodable : DecodableType.Type? { get }
-  init(decoded : DecodableType?) throws
+  associatedtype DecodableType 
+  static var decodable : DecodableType.Type { get }
+  init(decoded : DecodableType) throws
 }
 
 public typealias Content = ContentEncodable & ContentDecodable
@@ -21,26 +21,22 @@ extension Encodable where Self : ContentEncodable {
   }
 }
 extension Decodable where Self : ContentDecodable, DecodableType == Self {
-  public static var decodable : Self.Type? {
+    public static var decodable : Self.Type {
     return Self.self
   }
-  public init(decoded : DecodableType?) throws {
-    guard let decoded = decoded else {
-      throw CoderError.missingDecoding
-    }
+  public init(decoded : DecodableType) throws {
+
     self = decoded
   }
 }
 
 extension Array : ContentDecodable where Element : ContentDecodable, Element.DecodableType == Element {
-  public static var decodable: Array<Element.DecodableType>.Type? {
+  public static var decodable: Array<Element.DecodableType>.Type {
     return Self.self
   }
   
-  public init(decoded: Array<Element.DecodableType>?) throws {
-    guard let decoded = decoded else {
-      throw CoderError.missingData
-    }
+  public init(decoded: Array<Element.DecodableType>) throws {
+
     self = decoded
   }
   

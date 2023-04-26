@@ -1,4 +1,5 @@
 import Foundation
+import FloxBxModeling
 
 public protocol Service {
   associatedtype AuthorizationContainerType: AuthorizationContainer
@@ -40,7 +41,7 @@ public protocol Service {
   
   func request<RequestType: ClientRequest>(
     _ request: RequestType
-  ) async throws -> RequestType.SuccessType
+  ) async throws -> RequestType.SuccessType.DecodableType
 }
 
 //extension Service {

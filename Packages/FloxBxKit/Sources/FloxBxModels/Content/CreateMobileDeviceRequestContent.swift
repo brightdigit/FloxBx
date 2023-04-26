@@ -1,6 +1,7 @@
 import Foundation
 import FloxBxModeling
 public struct CreateMobileDeviceRequestContent: Codable, Content {
+  
   public let model: String
   public let operatingSystem: String
   public let topic: String
