@@ -88,7 +88,10 @@ internal struct LoginView: View {
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.successfulCompletedSubject) {
+      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.$account) { account in
+        guard account != nil else {
+          return
+        }
         self.completed()
       }
     }

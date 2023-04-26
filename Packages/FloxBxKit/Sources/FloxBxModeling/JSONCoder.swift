@@ -19,7 +19,7 @@ public extension Coder {
   
   func decodeContent<CodableType: ContentDecodable>(_: CodableType.Type, from data: DataType)
   throws -> CodableType.DecodableType {
-    return 
+    return try CodableType.decode(data, using: self)
   }
   
 }
@@ -30,6 +30,10 @@ enum CoderError : Error {
 }
 
 public struct Empty : ContentDecodable, ContentEncodable {
+  public static func decode<CoderType>(_ data: CoderType.DataType, using coder: CoderType) throws -> Void where CoderType : Coder {
+    return
+  }
+  
   public static var decodable: Void.Type {
     return Void.self
   }

@@ -77,6 +77,8 @@ import FloxBxModels
       .onReceive(self.authorization.$account, perform: { account in
         if account == nil {
           self.onLogout()
+        } else {
+          self.listObject.begin()
         }
       })
       .navigationTitle("Todos")

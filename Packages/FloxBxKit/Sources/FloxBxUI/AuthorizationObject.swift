@@ -16,6 +16,8 @@ class AuthorizationObject: ObservableObject {
     self.service = service
     self.account = account
     
+    successfulCompletedSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$account)
+    
     let logoutCompleted = self.logoutCompletedSubject.share()
     
     logoutCompleted.compactMap{
@@ -39,7 +41,7 @@ class AuthorizationObject: ObservableObject {
   @Published var account: Account?
   @Published var error : Error?
   let logoutCompletedSubject = PassthroughSubject<Result<Void, Error>, Never>()
-  let successfulCompletedSubject = PassthroughSubject<Void, Never>()  
+  let successfulCompletedSubject = PassthroughSubject<Account, Never>()
   
   
   
@@ -47,10 +49,10 @@ class AuthorizationObject: ObservableObject {
     Task{
       let tokenContainer = try await self.service.request(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password)))
       let newCreds = credentials.withToken(tokenContainer.token)
+#warning("Fix upsert")
       try self.service.save(credentials: newCreds)
-      Task { @MainActor in
-        successfulCompletedSubject.send()
-      }
+      
+      successfulCompletedSubject.send(Account(username: credentials.username))
     }
   }
   
@@ -58,10 +60,10 @@ class AuthorizationObject: ObservableObject {
     Task{
       let tokenContainer = try await self.service.request(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password)))
       let newCreds = credentials.withToken(tokenContainer.token)
+      #warning("Fix upsert")
       try self.service.save(credentials: newCreds)
-      Task { @MainActor in
-        successfulCompletedSubject.send()
-      }
+      
+      successfulCompletedSubject.send(Account(username: credentials.username))
     }
   }
   

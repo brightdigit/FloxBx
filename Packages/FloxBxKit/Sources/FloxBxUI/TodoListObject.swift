@@ -202,7 +202,10 @@ class TodoListObject : ObservableObject, LoggerCategorized {
       }
     }
     
-    self.items.remove(atOffsets: indexSet)
+    Task { @MainActor in
+      self.items.remove(atOffsets: indexSet)
+    }
+    
     //var errors = [Error?].init(repeating: nil, count: deletedIds.count)
 
 //    group.notify(queue: .main) {
