@@ -31,10 +31,26 @@ extension URLSession: Session {
   
   
   public func request(_ request: URLRequest) async throws -> URLSessionResponse {
+    #if os(iOS) || os(macOS) || os(watchOS) || os(tvOS)
     let tuple = try await self.data(for: request)
     guard let response = URLSessionResponse(tuple) else {
       throw RequestError.invalidResponse(tuple.1)
     }
     return response
+    #else
+    return try await withCheckedThrowingContinuation { continuation in
+      self.dataTask(with: request) { data, response, error in
+        let result : Result<URLSessionResponse, Error> = Result<URLSessionResponse?, Error>(catching: {
+          try URLSessionResponse(error: error, data: data, urlResponse: response)
+        }).flatMap { response in
+          guard let response = response else {
+            return .failure(RequestError.missingData)
+          }
+          return .success(response)
+        }
+        continuation.resume(with: result)
+      }
+    }
+    #endif
   }
 }

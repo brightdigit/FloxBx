@@ -32,4 +32,12 @@ extension URLSessionResponse {
   internal init?(_ tuple: (Data, URLResponse)) {
     self.init(urlResponse: tuple.1, data: tuple.0)
   }
+  
+  internal init?(error: Error?, data: Data?, urlResponse: URLResponse?) throws {
+    if let error = error {
+      throw error
+    }
+    
+    self.init(urlResponse: urlResponse, data: data)
+  }
 }
