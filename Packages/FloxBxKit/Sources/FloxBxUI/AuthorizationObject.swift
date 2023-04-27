@@ -30,6 +30,22 @@ class AuthorizationObject: ObservableObject {
     self.service = service
     self.account = account
     
+    let refreshPublisher = refreshSubject.map {
+      Future{
+        try await self.service.fetchCredentials()
+      }
+    }
+    .switchToLatest()
+    .compactMap{$0}
+    .map{Account(username: $0.username)}
+    .mapError(AuthenticationError.init)
+    .share()
+    
+    refreshPublisher.map(Optional.some).catch{_ in Just(Optional.none)}.compactMap{$0}.subscribe(self.accountSubject).store(in: &self.cancellables)
+    
+    refreshPublisher.map{_ in Optional<AuthenticationError>.none}.catch{Just(Optional.some($0))}.compactMap{$0}.subscribe(self.errorSubject).store(in: &self.cancellables)
+      
+    
     //successfulCompletedSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$account)
     
     let logoutCompleted = self.logoutCompletedSubject.share()
@@ -39,14 +55,12 @@ class AuthorizationObject: ObservableObject {
         return nil
       }
     }
-    .receive(on: DispatchQueue.main)
-    .assign(to: &self.$account)
+    .subscribe(self.accountSubject).store(in: &self.cancellables)
     
     
     logoutCompleted.compactMap {
       $0.asError().map(AuthenticationError.init)
-    }.receive(on: DispatchQueue.main)
-      .assign(to: &self.$error)
+    }.subscribe(self.errorSubject).store(in: &self.cancellables)
     
     
     let authenticationResult = authenticateSubject.map { (credentials, isNew) in
@@ -68,8 +82,11 @@ class AuthorizationObject: ObservableObject {
     .share()
     //.share()
     
-    authenticationResult.map(Optional.some).catch{_ in Just(Optional.none)}.compactMap{$0}.receive(on: DispatchQueue.main).assign(to: &self.$account)
-    authenticationResult.mapError(AuthenticationError.init).map{_ in Optional<AuthenticationError>.none}.catch{Just(Optional.some($0))}.receive(on: DispatchQueue.main).assign(to: &self.$error)
+    authenticationResult.map(Optional.some).catch{_ in Just(Optional.none)}.compactMap{$0}.subscribe(self.accountSubject).store(in: &self.cancellables)
+    authenticationResult.mapError(AuthenticationError.init).map{_ in Optional<AuthenticationError>.none}.catch{Just(Optional.some($0))}.compactMap{$0}.subscribe(self.errorSubject).store(in: &self.cancellables)
+    
+    errorSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$error)
+    accountSubject.receive(on: DispatchQueue.main).assign(to: &self.$account)
   }
   
   
@@ -77,9 +94,12 @@ class AuthorizationObject: ObservableObject {
   @Published var account: Account?
   @Published var error : AuthenticationError?
   let logoutCompletedSubject = PassthroughSubject<Result<Void, Error>, Never>()
-  //let successfulCompletedSubject = PassthroughSubject<Account, Never>()
   let authenticateSubject = PassthroughSubject<(Credentials, Bool), Never>()
+  let refreshSubject = PassthroughSubject<Void, Never>()
+  let errorSubject = PassthroughSubject<AuthenticationError, Never>()
+  let accountSubject = PassthroughSubject<Account?, Never>()
   
+  var cancellables = [AnyCancellable]()
   
   
   internal func beginSignup(withCredentials credentials: Credentials) {
