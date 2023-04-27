@@ -11,12 +11,26 @@ import FloxBxAuth
 import FloxBxNetworking
 import FloxBxRequests
 
+struct AuthenticationError : LocalizedError {
+  internal init(innerError: Error) {
+    self.innerError = innerError
+  }
+  
+  let innerError : Error
+  
+
+  
+  var errorDescription: String? {
+    return innerError.localizedDescription
+  }
+}
+
 class AuthorizationObject: ObservableObject {
   internal init(service: any AuthorizedService, account: Account? = nil) {
     self.service = service
     self.account = account
     
-    successfulCompletedSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$account)
+    //successfulCompletedSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$account)
     
     let logoutCompleted = self.logoutCompletedSubject.share()
     
@@ -30,41 +44,50 @@ class AuthorizationObject: ObservableObject {
     
     
     logoutCompleted.compactMap {
-      $0.asError()
+      $0.asError().map(AuthenticationError.init)
     }.receive(on: DispatchQueue.main)
       .assign(to: &self.$error)
     
+    
+    let authenticationResult = authenticateSubject.map { (credentials, isNew) in
+      return Future { ()  async throws -> Credentials in
+        let token : String
+        if isNew {
+          token = try await self.service.request(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))).token
+        } else {
+          token = try await self.service.request(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))).token
+        }
+        return credentials.withToken(token)
+      }
+    }
+    .switchToLatest()
+    .tryMap { credentials in
+      try self.service.save(credentials: credentials)
+      return Account(username: credentials.username)
+    }
+    .share()
+    //.share()
+    
+    authenticationResult.map(Optional.some).catch{_ in Just(Optional.none)}.compactMap{$0}.receive(on: DispatchQueue.main).assign(to: &self.$account)
+    authenticationResult.mapError(AuthenticationError.init).map{_ in Optional<AuthenticationError>.none}.catch{Just(Optional.some($0))}.receive(on: DispatchQueue.main).assign(to: &self.$error)
   }
   
   
   let service : any AuthorizedService
   @Published var account: Account?
-  @Published var error : Error?
+  @Published var error : AuthenticationError?
   let logoutCompletedSubject = PassthroughSubject<Result<Void, Error>, Never>()
-  let successfulCompletedSubject = PassthroughSubject<Account, Never>()
+  //let successfulCompletedSubject = PassthroughSubject<Account, Never>()
+  let authenticateSubject = PassthroughSubject<(Credentials, Bool), Never>()
   
   
   
   internal func beginSignup(withCredentials credentials: Credentials) {
-    Task{
-      let tokenContainer = try await self.service.request(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password)))
-      let newCreds = credentials.withToken(tokenContainer.token)
-#warning("Fix upsert")
-      try self.service.save(credentials: newCreds)
-      
-      successfulCompletedSubject.send(Account(username: credentials.username))
-    }
+    self.authenticateSubject.send((credentials, true))
   }
   
   func beginSignIn(withCredentials credentials: Credentials) {
-    Task{
-      let tokenContainer = try await self.service.request(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password)))
-      let newCreds = credentials.withToken(tokenContainer.token)
-      #warning("Fix upsert")
-      try self.service.save(credentials: newCreds)
-      
-      successfulCompletedSubject.send(Account(username: credentials.username))
-    }
+    self.authenticateSubject.send((credentials, false))
   }
   
   func logout () {
