@@ -1,4 +1,4 @@
-import FloxBxModeling
+import PrchModel
 public struct CreateTokenResponseContent: Codable, Content {
   public let token: String
 

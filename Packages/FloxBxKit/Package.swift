@@ -24,15 +24,16 @@ let package = Package(
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
     .package(url: "https://github.com/brightdigit/Sublimation.git", from: "0.1.3"),
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
-    .package(path: "Packages/StealthyStash")
+    .package(path: "Packages/StealthyStash"),
+    .package(path: "Packages/Prch")
   ],
   targets: [
     .target(name: "FelinePine"),
     .target(name: "FloxBxUtilities"),
-    .target(name: "FloxBxModeling"),
-    .target(name: "FloxBxModels", dependencies: ["FloxBxUtilities", "FloxBxModeling"]),
+    // .target(name: "FloxBxModeling"),
+    .target(name: "FloxBxModels", dependencies: ["FloxBxUtilities", .product(name: "PrchModel", package: "Prch")]),
     .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
-    .target(name: "FloxBxNetworking", dependencies: ["FloxBxLogging"]),
+    // .target(name: "FloxBxNetworking", dependencies: ["FloxBxLogging"]),
     .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
     .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging", "StealthyStash"]),
     .target(
@@ -45,7 +46,7 @@ let package = Package(
     ),
     .target(
       name: "FloxBxRequests",
-      dependencies: ["FloxBxNetworking", "FloxBxModels", "FloxBxModeling"]
+      dependencies: ["FloxBxModels", .product(name: "PrchModel", package: "Prch")]
     ),
     .target(
       name: "FloxBxDatabase",
@@ -56,7 +57,8 @@ let package = Package(
       "FloxBxRequests",
       "FloxBxUtilities",
       "FloxBxAuth",
-      "FloxBxGroupActivities"
+      "FloxBxGroupActivities",
+      .product(name: "Prch", package: "Prch")
     ]),
     .target(
       name: "FloxBxServerKit",

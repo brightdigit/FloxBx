@@ -1,7 +1,7 @@
 import FloxBxModels
-import FloxBxNetworking
+import PrchModel
 
-public struct SignUpRequest: ClientBodySuccessRequest {
+public struct SignUpRequest: ServiceCall {
   public typealias BodyType = CreateUserRequestContent
 
   public typealias SuccessType = CreateUserResponseContent

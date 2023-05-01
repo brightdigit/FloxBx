@@ -1,4 +1,4 @@
-import FloxBxModeling
+import PrchModel
 public struct CreateTokenRequestContent: Codable, Content {
   public let emailAddress: String
   public let password: String

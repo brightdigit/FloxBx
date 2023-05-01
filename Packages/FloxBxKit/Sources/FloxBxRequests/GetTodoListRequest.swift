@@ -1,11 +1,10 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 
-public struct GetTodoListRequest: ClientSuccessRequest {
+public struct GetTodoListRequest: ServiceCall {
   public typealias SuccessType = [CreateTodoResponseContent]
 
-  
   public static var requiresCredentials: Bool {
     true
   }

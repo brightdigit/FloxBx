@@ -2,8 +2,8 @@
   import Combine
   import FelinePine
   import FloxBxLogging
+  import FloxBxUtilities
   import Foundation
-import FloxBxUtilities
 
   #if canImport(GroupActivities)
     import GroupActivities
@@ -220,8 +220,8 @@ import FloxBxUtilities
         self.listDeltas.append(delta)
       }
     }
-    
-    //@available(iOS 15, macOS 12, *)
+
+    // @available(iOS 15, macOS 12, *)
     public func requestSharing() {
 //      Task {
 //        do {

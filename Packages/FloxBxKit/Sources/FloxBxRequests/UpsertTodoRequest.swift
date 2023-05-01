@@ -1,8 +1,8 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 
-public struct UpsertTodoRequest: ClientBodySuccessRequest {
+public struct UpsertTodoRequest: ServiceCall {
   public typealias SuccessType = CreateTodoResponseContent
 
   public typealias BodyType = CreateTodoRequestContent

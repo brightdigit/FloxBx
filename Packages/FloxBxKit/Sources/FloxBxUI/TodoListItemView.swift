@@ -1,13 +1,12 @@
 #if canImport(SwiftUI)
   import FloxBxModels
+  import Prch
   import SwiftUI
-import FloxBxNetworking
   internal struct TodoListItemView: View {
-    
     @StateObject private var itemObject: TodoObject
-    
-    //@State private var text: String
-    //private let item: TodoContentItem
+
+    // @State private var text: String
+    // private let item: TodoContentItem
 
     internal var body: some View {
       Group {
@@ -22,14 +21,14 @@ import FloxBxNetworking
             onEditingChanged: self.beginSave(hasFinished:),
             onCommit: self.beginSave
           )
-       }
+        }
       }
     }
 
-    internal init(item: TodoContentItem, groupActivityID: UUID?, service: any Service) {
-      self._itemObject = .init(wrappedValue: .init(item: item, service: service, groupActivityID: groupActivityID))
+    internal init(item: TodoContentItem, groupActivityID: UUID?, service: any ServiceProtocol) {
+      _itemObject = .init(wrappedValue: .init(item: item, service: service, groupActivityID: groupActivityID))
 
-      //_text = .init(initialValue: self.item.text)
+      // _text = .init(initialValue: self.item.text)
     }
 
 //    private func updatedItem() -> TodoContentItem {

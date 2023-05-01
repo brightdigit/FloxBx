@@ -2,13 +2,12 @@
   import FelinePine
   import FloxBxGroupActivities
   import FloxBxLogging
+  import Prch
   import SwiftUI
-import FloxBxNetworking
 
-internal struct ContentView: View, LoggerCategorized {
-  internal init() {
-  }
-  
+  internal struct ContentView: View, LoggerCategorized {
+    internal init() {}
+
 //    @available(*, deprecated)
 //    @EnvironmentObject private var object: ApplicationObject
 
@@ -17,8 +16,6 @@ internal struct ContentView: View, LoggerCategorized {
     >()
 
     @StateObject private var services = ServicesObject()
-  
-  
 
     #if canImport(GroupActivities)
       @State private var activity: ActivityIdentifiableContainer<UUID>?
@@ -27,38 +24,35 @@ internal struct ContentView: View, LoggerCategorized {
     @State private var shouldDisplayLoginView: Bool = false
 
     private var innerView: some View {
-      Group{
+      Group {
         if let service = services.service {
-          
-#if os(macOS)
-          TodoListView(
-            groupActivityID: shareplayObject.groupActivityID,
-            service: service,
-            onLogout: self.logout,
-            requestSharing: self.requestSharing
-          ).frame(width: 500, height: 500)
-#else
-          TodoListView(
-            groupActivityID: shareplayObject.groupActivityID,
-            service: service,
-            onLogout: self.logout,
-            requestSharing: self.requestSharing
-          )
-#endif
+          #if os(macOS)
+            TodoListView(
+              groupActivityID: shareplayObject.groupActivityID,
+              service: service,
+              onLogout: self.logout,
+              requestSharing: self.requestSharing
+            ).frame(width: 500, height: 500)
+          #else
+            TodoListView(
+              groupActivityID: shareplayObject.groupActivityID,
+              service: service,
+              onLogout: self.logout,
+              requestSharing: self.requestSharing
+            )
+          #endif
         } else {
           ProgressView()
         }
       }
     }
 
-  @MainActor
-  func logout () {
-    self.shouldDisplayLoginView = true
-  }
-  
-  func requestSharing () {
-    
-  }
+    @MainActor
+    func logout() {
+      shouldDisplayLoginView = true
+    }
+
+    func requestSharing() {}
 
     private var mainView: some View {
       TabView {

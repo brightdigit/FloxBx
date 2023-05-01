@@ -1,18 +1,20 @@
 //
 import FloxBxModels
+import Foundation
 //  File.swift
 //
 //
 //  Created by Leo Dion on 12/2/22.
 //
-import FloxBxNetworking
-import Foundation
+import PrchModel
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
 
-public struct UserSubscriptionRequest: ClientBodyRequest {
+public struct UserSubscriptionRequest: ServiceCall {
   public typealias BodyType = UserSubscriptionRequestContent
+
+  public typealias SuccessType = Empty
   public static var requiresCredentials: Bool {
     true
   }
@@ -23,7 +25,7 @@ public struct UserSubscriptionRequest: ClientBodyRequest {
 
   public var parameters: [String: String]
 
-  public var method: FloxBxNetworking.RequestMethod
+  public var method: RequestMethod
 
   public var headers: [String: String]
 }

@@ -1,9 +1,9 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 
 // periphery:ignore
-public struct GetUserRequest: ClientSuccessRequest {
+public struct GetUserRequest: ServiceCall {
   public typealias SuccessType = GetUserResponseContent
 
   public static var requiresCredentials: Bool {

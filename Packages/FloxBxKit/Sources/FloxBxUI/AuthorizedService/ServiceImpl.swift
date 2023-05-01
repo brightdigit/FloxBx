@@ -1,24 +1,30 @@
 import FloxBxAuth
-import FloxBxNetworking
 import Foundation
+import Prch
+import PrchModel
 import StealthyStash
-import FloxBxModeling
 
 #if canImport(Security)
 
-  extension ServiceImpl {
+  extension KeychainRepository: AuthorizationManager {
+    public func fetch() async throws -> AuthorizationType? {
+      let creds: Credentials? = try await fetch()
+      return creds
+    }
+
+    public typealias AuthorizationType = URLSessionAuthorization
+  }
+
+  extension Service {
     public convenience init(
       baseURL: URL,
       accessGroup: String,
       serviceName: String,
-      headers: [String: String] = ["Content-Type": "application/json; charset=utf-8"],
+      headers _: [String: String] = ["Content-Type": "application/json; charset=utf-8"],
       coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
       session: URLSession = .shared
     ) where
-      RequestBuilderType == URLRequestBuilder,
-      SessionType == URLSession,
-      CoderType == JSONCoder,
-      AuthorizationContainerType == CredentialsContainer {
+      SessionType == URLSession {
       guard let baseURLComponents = URLComponents(
         url: baseURL,
         resolvingAgainstBaseURL: false
@@ -27,14 +33,8 @@ import FloxBxModeling
       }
 
       let repository = KeychainRepository(defaultServiceName: serviceName, defaultServerName: host, defaultAccessGroup: accessGroup)
-      self.init(
-        baseURLComponents: baseURLComponents,
-        coder: coder,
-        session: session,
-        builder: .init(),
-        credentialsContainer: CredentialsContainer(repository: repository),
-        headers: headers
-      )
+
+      self.init(baseURLComponents: baseURLComponents, authorizationManager: repository, session: session, coder: coder)
     }
   }
 #endif

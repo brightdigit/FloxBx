@@ -1,29 +1,28 @@
 #if canImport(SwiftUI)
   import Combine
+  import FloxBxModels
+  import Prch
   import SwiftUI
-import FloxBxNetworking
-import FloxBxModels
 
   internal struct TodoListView: View {
-    
 //      @available(*, deprecated)
 //    @EnvironmentObject private var object: ApplicationObject
 
-    //@StateObject private var servicesObject : ServicesObject
-    let onLogout : () -> Void
-    let requestSharing : () -> Void
-    @StateObject private var listObject : TodoListObject
-    @StateObject var authorization  : AuthorizationObject
-    
-    init (groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing : @escaping () -> Void) {
+    // @StateObject private var servicesObject : ServicesObject
+    let onLogout: () -> Void
+    let requestSharing: () -> Void
+    @StateObject private var listObject: TodoListObject
+    @StateObject var authorization: AuthorizationObject
+
+    init(groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing: @escaping () -> Void) {
       let isLoaded = isLoaded ?? !items.isEmpty
       self.onLogout = onLogout
       self.requestSharing = requestSharing
-      self._authorization = .init(wrappedValue: .init(service: service))
-      self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
+      _authorization = .init(wrappedValue: .init(service: service))
+      _listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
     }
-    
-    private var list : some View {
+
+    private var list: some View {
       List {
         ForEach(self.listObject.items) { item in
           TodoListItemView(item: item, groupActivityID: listObject.groupActivityID, service: listObject.service).onAppear {
@@ -62,7 +61,7 @@ import FloxBxModels
         }
       })
     }
-    
+
     internal var body: some View {
       Group {
         if self.listObject.isLoaded {
@@ -71,7 +70,7 @@ import FloxBxModels
           ProgressView()
         }
       }
-      .onAppear{
+      .onAppear {
         self.listObject.begin()
       }
       .onReceive(self.authorization.$account, perform: { account in

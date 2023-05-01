@@ -7,18 +7,17 @@ extension Data {
 }
 
 extension AnyStealthyProperty {
-  
   public var dataString: String {
-    self.property.dataString
+    property.dataString
   }
 }
 
-
 extension StealthyProperty {
-    public var dataString: String {
-      String(data: data, encoding: .utf8) ?? ""
-    }
+  public var dataString: String {
+    String(data: data, encoding: .utf8) ?? ""
+  }
 }
+
 public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
   public static func updates(from previousItem: Credentials, to newItem: Credentials) -> [StealthyPropertyUpdate] {
     let newPasswordData = newItem.password.data(using: .utf8).map {
@@ -48,7 +47,6 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
 
   public static func properties(from model: Credentials, for _: ModelOperation) -> [AnyStealthyProperty] {
     let passwordData = model.password.data(using: .utf8)
-    
 
     let passwordProperty: AnyStealthyProperty = .init(
       property: InternetPasswordItem(
@@ -100,8 +98,8 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
     guard let password = properties
       .first(where: { $0.propertyType == .internet })?
       .dataString else {
-        return nil
-      }
+      return nil
+    }
     let token = properties.first { $0.propertyType == .generic && $0.account == username }?.data
 
     return Credentials(username: username, password: password, token: token?.string())

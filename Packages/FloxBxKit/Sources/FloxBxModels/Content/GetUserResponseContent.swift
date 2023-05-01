@@ -1,5 +1,5 @@
 import Foundation
-import FloxBxModeling
+import PrchModel
 
 public struct GetUserResponseContent: Codable, Content {
   private let id: UUID

@@ -1,13 +1,15 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 
-public struct CreateGroupSessionRequest: ClientSuccessRequest {
-  public typealias SuccessType = CreateGroupSessionResponseContent
-
+public struct CreateGroupSessionRequest: ServiceCall {
   public static var requiresCredentials: Bool {
     true
   }
+
+  public typealias BodyType = Empty
+
+  public typealias SuccessType = CreateGroupSessionResponseContent
 
   public var path: String {
     "api/v1/group-sessions"

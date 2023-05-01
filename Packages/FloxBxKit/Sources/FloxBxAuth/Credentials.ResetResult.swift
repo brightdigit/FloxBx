@@ -1,7 +1,7 @@
-//import Foundation
+// import Foundation
 //
 //// swiftlint:disable:next file_types_order
-//extension Credentials {
+// extension Credentials {
 //  @available(*, deprecated)
 //  public struct ResetResult: OptionSet {
 //    public init(rawValue: Int) {
@@ -16,7 +16,7 @@
 //    public static let password: Self = .init(rawValue: 1)
 //    public static let token: Self = .init(rawValue: 2)
 //  }
-//}
+// }
 //
 ////extension Credentials.ResetResult {
 ////  public init(didDeletePassword: Bool, didDeleteToken: Bool) {
