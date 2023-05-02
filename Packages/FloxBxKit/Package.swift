@@ -1,11 +1,11 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7
 // swiftlint:disable explicit_top_level_acl explicit_acl
 
 import PackageDescription
 
 let package = Package(
   name: "FloxBx",
-  platforms: [.macOS(.v12), .iOS(.v15), .watchOS(.v8)],
+  platforms: [.macOS(.v12), .iOS(.v16), .watchOS(.v9)],
   products: [
     .library(
       name: "FloxBxUI",
@@ -25,13 +25,16 @@ let package = Package(
     .package(url: "https://github.com/brightdigit/Sublimation.git", from: "0.1.3"),
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
     .package(path: "Packages/StealthyStash"),
-    .package(path: "Packages/Prch")
+    .package(name: "Prch2", path: "Packages/Prch")
   ],
   targets: [
     .target(name: "FelinePine"),
     .target(name: "FloxBxUtilities"),
     // .target(name: "FloxBxModeling"),
-    .target(name: "FloxBxModels", dependencies: ["FloxBxUtilities", .product(name: "PrchModel", package: "Prch")]),
+    .target(name: "FloxBxModels", dependencies: [
+      "FloxBxUtilities",
+      .product(name: "PrchModel", package: "Prch2")
+    ]),
     .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
     // .target(name: "FloxBxNetworking", dependencies: ["FloxBxLogging"]),
     .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
@@ -46,7 +49,7 @@ let package = Package(
     ),
     .target(
       name: "FloxBxRequests",
-      dependencies: ["FloxBxModels", .product(name: "PrchModel", package: "Prch")]
+      dependencies: ["FloxBxModels", .product(name: "PrchModel", package: "Prch2")]
     ),
     .target(
       name: "FloxBxDatabase",
@@ -58,7 +61,7 @@ let package = Package(
       "FloxBxUtilities",
       "FloxBxAuth",
       "FloxBxGroupActivities",
-      .product(name: "Prch", package: "Prch")
+      .product(name: "Prch", package: "Prch2")
     ]),
     .target(
       name: "FloxBxServerKit",

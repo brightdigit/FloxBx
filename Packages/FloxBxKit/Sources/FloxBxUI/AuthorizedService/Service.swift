@@ -1,6 +1,56 @@
 import FloxBxAuth
 import FloxBxRequests
+import Foundation
 import Prch
+import PrchModel
+import StealthyStash
+
+protocol StealthyManager<AuthorizationType>: AuthorizationManager {
+  func fetch() async throws -> Credentials?
+
+  func save(credentials: Credentials) throws
+
+  func reset() throws
+}
+
+extension CredentialsContainer: StealthyManager {
+  public func fetch() async throws -> AuthorizationType? {
+    let creds: Credentials? = try await fetch()
+    return creds
+  }
+
+  public typealias AuthorizationType = URLSessionAuthorization
+}
+
+class FloxBxService<SessionType: Session>: Service {
+  internal init(
+    baseURLComponents: URLComponents,
+    headers: [String: String],
+    session: SessionType,
+    coder: any Coder<SessionType.ResponseType.DataType>,
+    repository: any StealthyManager<SessionType.AuthorizationType>
+  ) {
+    self.baseURLComponents = baseURLComponents
+    self.headers = headers
+    self.session = session
+    self.coder = coder
+    self.repository = repository
+  }
+
+  var authorizationManager: any AuthorizationManager<SessionType.AuthorizationType> {
+    repository
+  }
+
+  let baseURLComponents: URLComponents
+
+  let headers: [String: String]
+
+  let session: SessionType
+
+  let coder: any Coder<SessionType.ResponseType.DataType>
+
+  let repository: any StealthyManager<SessionType.AuthorizationType>
+}
 
 public protocol AuthorizedService: ServiceProtocol {
   func save(credentials: Credentials) throws
@@ -10,29 +60,19 @@ public protocol AuthorizedService: ServiceProtocol {
   func fetchCredentials() async throws -> Credentials?
 }
 
-extension Service: AuthorizedService {
-  public func save(credentials _: FloxBxAuth.Credentials) throws {
-    // try credentialsContainer.save(credentials: credentials)
-    fatalError()
+extension FloxBxService: AuthorizedService {
+  public func save(credentials: FloxBxAuth.Credentials) throws {
+    try repository.save(credentials: credentials)
   }
 
   public func resetCredentials() throws {
-    fatalError()
-    // try credentialsContainer.reset()
+    try repository.reset()
   }
 
   public func fetchCredentials() async throws -> FloxBxAuth.Credentials? {
-    try await authorizationManager.fetch()
-
-    // try await credentialsContainer.fetch()
+    try await repository.fetch()
   }
 }
-
-// extension ServiceImpl : AuthorizedService where AuthorizationContainerType == CredentialsContainer {
-//
-//
-//
-// }
 
 extension AuthorizedService {
   func verifyLogin() async throws -> Bool {

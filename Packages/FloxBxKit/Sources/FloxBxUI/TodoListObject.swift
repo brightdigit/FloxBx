@@ -31,26 +31,38 @@ class TodoListObject: ObservableObject, LoggerCategorized {
 
   var updateItemCancellable: AnyCancellable!
 
-  internal init(groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool = false, lastErrror: Error? = nil) {
+  // swiftlint:disable:next function_body_length
+  internal init(
+    groupActivityID: UUID?,
+    service: any AuthorizedService,
+    items: [TodoContentItem] = [],
+    isLoaded: Bool = false,
+    lastErrror: Error? = nil
+  ) {
     self.groupActivityID = groupActivityID
     self.service = service
     self.items = items
     self.isLoaded = isLoaded
     self.lastErrror = lastErrror
 
-    // assert(((try? service.fetchCredentials()) != nil))
-
     let loadResult = loadSubject.map {
       Future {
-        try await self.service.request(GetTodoListRequest(groupActivityID: self.groupActivityID))
+        try await self.service.request(
+          GetTodoListRequest(groupActivityID: self.groupActivityID)
+        )
       }
     }.switchToLatest().share()
 
     let errorLoadResult = loadResult.map { _ in nil }.catch(Just<Error?>.init)
 
-    let listLoaded = loadResult.map(Optional.some).catch { _ in Just(nil) }.compactMap { $0 }.map {
-      $0.map(TodoContentItem.init(content:))
-    }.share()
+    let listLoaded = loadResult
+      .map(Optional.some)
+      .catch { _ in Just(nil) }
+      .compactMap { $0 }
+      .map {
+        $0.map(TodoContentItem.init(content:))
+      }
+      .share()
 
     listLoaded.receive(on: DispatchQueue.main).assign(to: &$items)
     listLoaded.map { _ in true }.receive(on: DispatchQueue.main).assign(to: &$isLoaded)
@@ -61,11 +73,19 @@ class TodoListObject: ObservableObject, LoggerCategorized {
       let index: Int?
       switch action {
       case let .update(content, at: location):
-        request = .init(groupActivityID: self.groupActivityID, itemID: content.id, body: .init(title: content.title, tags: content.tags))
+        request = .init(
+          groupActivityID: self.groupActivityID,
+          itemID: content.id,
+          body: .init(title: content.title, tags: content.tags)
+        )
         index = location
 
       case let .append(item):
-        request = .init(groupActivityID: self.groupActivityID, itemID: item.serverID, body: .init(title: item.title, tags: item.tags))
+        request = .init(
+          groupActivityID: self.groupActivityID,
+          itemID: item.serverID,
+          body: .init(title: item.title, tags: item.tags)
+        )
         index = nil
       }
       let publisher = Future {
@@ -97,8 +117,6 @@ class TodoListObject: ObservableObject, LoggerCategorized {
         self.items.append(item)
       }
     }
-
-    // Publishers.CombineLatest(upsertErrorPublisher, errorLoadResult).eraseToAnyPublisher().sink
   }
 
   let groupActivityID: UUID?

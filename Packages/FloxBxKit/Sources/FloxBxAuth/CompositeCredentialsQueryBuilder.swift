@@ -19,7 +19,10 @@ extension StealthyProperty {
 }
 
 public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
-  public static func updates(from previousItem: Credentials, to newItem: Credentials) -> [StealthyPropertyUpdate] {
+  public static func updates(
+    from previousItem: Credentials,
+    to newItem: Credentials
+  ) -> [StealthyPropertyUpdate] {
     let newPasswordData = newItem.password.data(using: .utf8).map {
       InternetPasswordItem(account: newItem.username, data: $0)
     }
@@ -40,12 +43,21 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
       GenericPasswordItem(account: newItem.username, data: $0)
     }
 
-    let passwordUpdate = StealthyPropertyUpdate(previousProperty: oldPasswordData, newProperty: newPasswordData)
-    let tokenUpdate = StealthyPropertyUpdate(previousProperty: previousTokenData, newProperty: newTokenData)
+    let passwordUpdate = StealthyPropertyUpdate(
+      previousProperty: oldPasswordData,
+      newProperty: newPasswordData
+    )
+    let tokenUpdate = StealthyPropertyUpdate(
+      previousProperty: previousTokenData,
+      newProperty: newTokenData
+    )
     return [passwordUpdate, tokenUpdate]
   }
 
-  public static func properties(from model: Credentials, for _: ModelOperation) -> [AnyStealthyProperty] {
+  public static func properties(
+    from model: Credentials,
+    for _: ModelOperation
+  ) -> [AnyStealthyProperty] {
     let passwordData = model.password.data(using: .utf8)
 
     let passwordProperty: AnyStealthyProperty = .init(
@@ -76,11 +88,17 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
     ]
   }
 
-  public static func model(from properties: [String: [AnyStealthyProperty]]) throws -> Credentials? {
+  public static func model(
+    from properties: [String: [AnyStealthyProperty]]
+  ) throws -> Credentials? {
     for internet in properties["password"] ?? [] {
       for generic in properties["token"] ?? [] {
         if internet.account == generic.account {
-          return .init(username: internet.account, password: internet.dataString, token: generic.dataString)
+          return .init(
+            username: internet.account,
+            password: internet.dataString,
+            token: generic.dataString
+          )
         }
       }
     }
@@ -100,7 +118,9 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
       .dataString else {
       return nil
     }
-    let token = properties.first { $0.propertyType == .generic && $0.account == username }?.data
+    let token = properties.first {
+      $0.propertyType == .generic && $0.account == username
+    }?.data
 
     return Credentials(username: username, password: password, token: token?.string())
   }

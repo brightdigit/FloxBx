@@ -17,23 +17,20 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
     self.service = service
     self.error = error
 
-    $service.compactMap { $0 }.map { service in
-      Future {
-        try await service.verifyLogin()
+    $service
+      .compactMap { $0 }
+      .map { service in
+        Future {
+          try await service.verifyLogin()
+        }
       }
-    }.switchToLatest().map { !$0 }.replaceError(with: false).receive(on: DispatchQueue.main).assign(to: &$requireAuthentication)
+      .switchToLatest()
+      .map { !$0 }
+      .replaceError(with: false)
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$requireAuthentication)
   }
 
-//  internal init() {
-//    //self.account = account
-//    self.service = service
-//
-//    self.$service.compactMap{$0}.map { service in
-//      service
-//    }
-//  }
-
-  // @Published var account: Account?
   @Published var service: (any AuthorizedService)?
   @Published var error: Error?
   @Published var requireAuthentication = false
@@ -47,7 +44,9 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
   internal func begin() {
     #if DEBUG
       Task {
-        let service = await self.developerService(fallbackURL: Configuration.productionBaseURL)
+        let service = await self.developerService(
+          fallbackURL: Configuration.productionBaseURL
+        )
         await MainActor.run {
           self.service = service
         }
@@ -87,7 +86,7 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
         }
         baseURL = fallbackURL
       }
-      return Service(
+      return FloxBxService(
         baseURL: baseURL,
         accessGroup: Configuration.accessGroup,
         serviceName: Configuration.serviceName

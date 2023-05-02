@@ -59,6 +59,7 @@ struct AuthenticationError: LocalizedError {
 }
 
 class AuthorizationObject: ObservableObject {
+  // swiftlint:disable:next function_body_length
   internal init(service: any AuthorizedService, account: Account? = nil) {
     self.service = service
     self.account = account
@@ -74,11 +75,19 @@ class AuthorizationObject: ObservableObject {
     .mapError(AuthenticationError.init)
     .share()
 
-    refreshPublisher.map(Optional.some).catch { _ in Just(Optional.none) }.compactMap { $0 }.subscribe(accountSubject).store(in: &cancellables)
+    refreshPublisher
+      .map(Optional.some)
+      .catch { _ in Just(Optional.none) }
+      .compactMap { $0 }
+      .subscribe(accountSubject)
+      .store(in: &cancellables)
 
-    refreshPublisher.map { _ in AuthenticationError?.none }.catch { Just(Optional.some($0)) }.compactMap { $0 }.subscribe(errorSubject).store(in: &cancellables)
-
-    // successfulCompletedSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &self.$account)
+    refreshPublisher
+      .map { _ in AuthenticationError?.none }
+      .catch { Just(Optional.some($0)) }
+      .compactMap { $0 }
+      .subscribe(errorSubject)
+      .store(in: &cancellables)
 
     let logoutCompleted = logoutCompletedSubject.share()
 
@@ -97,9 +106,21 @@ class AuthorizationObject: ObservableObject {
       Future { () async throws -> Credentials in
         let token: String
         if isNew {
-          token = try await self.service.request(SignUpRequest(body: .init(emailAddress: credentials.username, password: credentials.password))).token
+          token = try await self.service
+            .request(
+              SignUpRequest(body: .init(
+                emailAddress: credentials.username,
+                password: credentials.password
+              ))
+            ).token
         } else {
-          token = try await self.service.request(SignInCreateRequest(body: .init(emailAddress: credentials.username, password: credentials.password))).token
+          token = try await self.service
+            .request(
+              SignInCreateRequest(body: .init(
+                emailAddress: credentials.username,
+                password: credentials.password
+              ))
+            ).token
         }
         return credentials.withToken(token)
       }
@@ -110,10 +131,20 @@ class AuthorizationObject: ObservableObject {
       return Account(username: credentials.username)
     }
     .share()
-    // .share()
 
-    authenticationResult.map(Optional.some).catch { _ in Just(Optional.none) }.compactMap { $0 }.subscribe(accountSubject).store(in: &cancellables)
-    authenticationResult.mapError(AuthenticationError.init).map { _ in AuthenticationError?.none }.catch { Just(Optional.some($0)) }.compactMap { $0 }.subscribe(errorSubject).store(in: &cancellables)
+    authenticationResult
+      .map(Optional.some)
+      .catch { _ in Just(Optional.none) }
+      .compactMap { $0 }
+      .subscribe(accountSubject)
+      .store(in: &cancellables)
+    authenticationResult
+      .mapError(AuthenticationError.init)
+      .map { _ in AuthenticationError?.none }
+      .catch { Just(Optional.some($0)) }
+      .compactMap { $0 }
+      .subscribe(errorSubject)
+      .store(in: &cancellables)
 
     errorSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &$error)
     accountSubject.receive(on: DispatchQueue.main).assign(to: &$account)

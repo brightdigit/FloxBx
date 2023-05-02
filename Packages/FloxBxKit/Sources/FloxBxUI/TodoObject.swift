@@ -43,7 +43,10 @@ class TodoObject: ObservableObject {
         Just(.failure(error))
       }.share()
 
-    savedItemPublisher.compactMap { try? $0.get() }.receive(on: DispatchQueue.main).assign(to: &$item)
+    savedItemPublisher
+      .compactMap { try? $0.get() }
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$item)
 
     savedItemPublisher.map { result in
       guard case let .failure(error) = result else {

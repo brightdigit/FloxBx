@@ -25,21 +25,19 @@
       }
     }
 
-    internal init(item: TodoContentItem, groupActivityID: UUID?, service: any ServiceProtocol) {
-      _itemObject = .init(wrappedValue: .init(item: item, service: service, groupActivityID: groupActivityID))
-
-      // _text = .init(initialValue: self.item.text)
+    internal init(
+      item: TodoContentItem,
+      groupActivityID: UUID?,
+      service: any ServiceProtocol
+    ) {
+      _itemObject = .init(
+        wrappedValue: .init(
+          item: item,
+          service: service,
+          groupActivityID: groupActivityID
+        )
+      )
     }
-
-//    private func updatedItem() -> TodoContentItem {
-//      let title: String
-//      let tags: [String]
-//      let splits = itemObject.text.split(separator: "#", omittingEmptySubsequences: true)
-//      title = splits.first.map(String.init) ?? ""
-//      tags = splits.dropFirst().map { $0.slugified() }
-//
-//      return itemObject.updatingTitle(title, tags: tags)
-//    }
 
     private func beginSave() {
       itemObject.beginSave()
@@ -52,11 +50,4 @@
       beginSave()
     }
   }
-
-//  private struct TodoListItemView_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      TodoListItemView(item: .init(title: "Hello", tags: ["world", "Leo"]), groupActivityID: nil, service: )!
-//    }
-//  }
 #endif

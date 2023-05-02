@@ -88,7 +88,10 @@
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.$account) { account in
+      }
+      .padding()
+      .frame(maxWidth: 300, maxHeight: 500)
+      .onReceive(self.authorization.$account) { account in
         guard account != nil else {
           return
         }
@@ -104,7 +107,10 @@
         )
       #else
 
-        self.content.alert(isPresented: .constant(self.authorization.error != nil), error: self.authorization.error) {
+        self.content.alert(
+          isPresented: .constant(self.authorization.error != nil),
+          error: self.authorization.error
+        ) {
           Button("OK") {
             Task { @MainActor in
               self.isAlertPresented = false
@@ -139,13 +145,4 @@
       }
     }
   }
-
-//  private struct LoginView_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      ForEach(ColorScheme.allCases, id: \.self) {
-//        LoginView(isSucceeded: .constant(false), service: <#AuthorizedService#>).preferredColorScheme($0)
-//      }
-//    }
-//  }
 #endif
