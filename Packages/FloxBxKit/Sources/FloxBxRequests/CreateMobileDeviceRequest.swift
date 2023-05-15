@@ -10,6 +10,8 @@ public struct CreateMobileDeviceRequest: ServiceCall {
 
   public typealias BodyType = CreateMobileDeviceRequestContent
 
+  public typealias ServiceAPI = FloxBxAPI
+
   public static var requiresCredentials: Bool {
     true
   }

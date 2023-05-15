@@ -8,6 +8,8 @@ import FloxBxUtilities
 import Foundation
 import Prch
 
+public protocol FloxBxServiceProtocol: ServiceProtocol where ServiceAPI == FloxBxAPI {}
+
 enum TodoListAction: CustomStringConvertible {
   case update(CreateTodoResponseContent, at: Int)
   case append(TodoContentItem)
@@ -120,7 +122,7 @@ class TodoListObject: ObservableObject, LoggerCategorized {
   }
 
   let groupActivityID: UUID?
-  let service: any ServiceProtocol
+  let service: any FloxBxServiceProtocol
   @Published var items: [TodoContentItem]
   @Published var isLoaded: Bool
   @Published var lastErrror: Error?

@@ -2,6 +2,7 @@ import FloxBxModels
 import PrchModel
 
 public struct SignUpRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
   public typealias BodyType = CreateUserRequestContent
 
   public typealias SuccessType = CreateUserResponseContent

@@ -25,18 +25,18 @@
 
     private var innerView: some View {
       Group {
-        if let service = services.service {
+        if services.isReady {
           #if os(macOS)
             TodoListView(
               groupActivityID: shareplayObject.groupActivityID,
-              service: service,
+              service: services.service,
               onLogout: self.logout,
               requestSharing: self.requestSharing
             ).frame(width: 500, height: 500)
           #else
             TodoListView(
               groupActivityID: shareplayObject.groupActivityID,
-              service: service,
+              service: services.service,
               onLogout: self.logout,
               requestSharing: self.requestSharing
             )
@@ -72,8 +72,8 @@
         }
       }
       .sheet(isPresented: self.$shouldDisplayLoginView, content: {
-        if let services = self.services.service {
-          LoginView(service: services) {
+        if self.services.isReady {
+          LoginView(service: services.service) {
             Task { @MainActor in
               self.shouldDisplayLoginView = false
             }
@@ -100,19 +100,11 @@
           .onReceive(self.shareplayObject.$activity, perform: { activity in
             self.activity = activity
           })
-          .onAppear(perform: {
-            self.services.begin()
-          })
-
         #else
-          mainView.onAppear(perform: {
-            self.services.begin()
-          })
+          mainView
         #endif
       } else {
-        mainView.onAppear(perform: {
-          self.services.begin()
-        })
+        mainView
       }
     }
   }

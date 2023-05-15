@@ -28,7 +28,7 @@
     internal init(
       item: TodoContentItem,
       groupActivityID: UUID?,
-      service: any ServiceProtocol
+      service: any FloxBxServiceProtocol
     ) {
       _itemObject = .init(
         wrappedValue: .init(

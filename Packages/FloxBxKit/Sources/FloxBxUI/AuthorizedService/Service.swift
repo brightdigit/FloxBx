@@ -19,40 +19,53 @@ extension CredentialsContainer: StealthyManager {
     return creds
   }
 
-  public typealias AuthorizationType = URLSessionAuthorization
+  public typealias AuthorizationType = SessionAuthorization
 }
 
-class FloxBxService<SessionType: Session>: Service {
-  internal init(
-    baseURLComponents: URLComponents,
-    headers: [String: String],
-    session: SessionType,
-    coder: any Coder<SessionType.ResponseType.DataType>,
-    repository: any StealthyManager<SessionType.AuthorizationType>
-  ) {
-    self.baseURLComponents = baseURLComponents
-    self.headers = headers
+class FloxBxService<SessionType: Session>: Service where SessionType.ResponseType.DataType == Data, SessionType.RequestDataType == Data {
+  internal init(api: FloxBxAPI, session: SessionType, repository: any StealthyManager<SessionType.AuthorizationType>) {
+    self.api = api
     self.session = session
-    self.coder = coder
     self.repository = repository
   }
 
+  var api: FloxBxRequests.FloxBxAPI
+
+  var session: SessionType
+
+  typealias ServiceAPI = FloxBxAPI
+
+//  internal init(
+//    baseURLComponents: URLComponents,
+//    headers: [String: String],
+//    session: SessionType,
+//    coder: any Coder<SessionType.ResponseType.DataType>,
+//    repository: any StealthyManager<SessionType.AuthorizationType>
+//  ) {
+//    self.baseURLComponents = baseURLComponents
+//    self.headers = headers
+//    self.session = session
+//    self.coder = coder
+//    self.repository = repository
+//  }
+//
   var authorizationManager: any AuthorizationManager<SessionType.AuthorizationType> {
     repository
   }
 
-  let baseURLComponents: URLComponents
-
-  let headers: [String: String]
-
-  let session: SessionType
-
-  let coder: any Coder<SessionType.ResponseType.DataType>
-
+//
+//  let baseURLComponents: URLComponents
+//
+//  let headers: [String: String]
+//
+//  let session: SessionType
+//
+//  let coder: any Coder<SessionType.ResponseType.DataType>
+//
   let repository: any StealthyManager<SessionType.AuthorizationType>
 }
 
-public protocol AuthorizedService: ServiceProtocol {
+public protocol AuthorizedService: FloxBxServiceProtocol {
   func save(credentials: Credentials) throws
 
   func resetCredentials() throws
