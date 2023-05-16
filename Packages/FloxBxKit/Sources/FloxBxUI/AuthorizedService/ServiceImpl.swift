@@ -81,7 +81,7 @@ class TunnelBaseURLProvider<TunnelRepositoryType: TunnelRepository>: PublishingB
       session: URLSession = .shared
     ) where
       SessionType == URLSession {
-        let tunnelRepo = TunnelBaseURLProvider(key: key, repository: KVdbTunnelRepository<String>(client: URLSessionClient(session: session), bucketName: urlBucketName))
+      let tunnelRepo = TunnelBaseURLProvider(key: key, repository: KVdbTunnelRepository<String>(client: URLSessionClient(session: session), bucketName: urlBucketName))
       let repository = KeychainRepository(
         defaultServiceName: serviceName,
         defaultServerName: host,
