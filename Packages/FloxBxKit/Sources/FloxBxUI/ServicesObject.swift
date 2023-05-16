@@ -14,8 +14,13 @@ struct Account {
 
 internal class ServicesObject: ObservableObject, LoggerCategorized {
   internal convenience init(error: Error? = nil) {
-    let service: (any AuthorizedService)! = nil
-    #error("Create a service")
+    let service: (any AuthorizedService)! = FloxBxService(
+      host: Configuration.productionBaseURL.host() ?? Configuration.serviceName,
+      accessGroup: Configuration.accessGroup,
+      serviceName: Configuration.serviceName,
+      urlBucketName: Configuration.Sublimation.bucketName,
+      key: Configuration.Sublimation.key
+    )
     self.init(service: service, error: error)
   }
 
@@ -25,7 +30,9 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
     self.isReady = isReady
 
     $service
-      .compactMap { $0 }
+      .combineLatest(self.service.isReadyPublisher)
+      .filter { $0.1 }
+      .map { $0.0 }
       .map { service in
         Future {
           try await service.verifyLogin()

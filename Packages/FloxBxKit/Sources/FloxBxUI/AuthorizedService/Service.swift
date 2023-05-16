@@ -1,3 +1,4 @@
+import Combine
 import FloxBxAuth
 import FloxBxRequests
 import Foundation
@@ -23,11 +24,14 @@ extension CredentialsContainer: StealthyManager {
 }
 
 class FloxBxService<SessionType: Session>: Service where SessionType.ResponseType.DataType == Data, SessionType.RequestDataType == Data {
-  internal init(api: FloxBxAPI, session: SessionType, repository: any StealthyManager<SessionType.AuthorizationType>) {
+  internal init(api: FloxBxAPI, session: SessionType, repository: any StealthyManager<SessionType.AuthorizationType>, isReadyPublisher: AnyPublisher<Bool, Never>) {
     self.api = api
     self.session = session
     self.repository = repository
+    self.isReadyPublisher = isReadyPublisher
   }
+
+  let isReadyPublisher: AnyPublisher<Bool, Never>
 
   var api: FloxBxRequests.FloxBxAPI
 
@@ -35,33 +39,10 @@ class FloxBxService<SessionType: Session>: Service where SessionType.ResponseTyp
 
   typealias ServiceAPI = FloxBxAPI
 
-//  internal init(
-//    baseURLComponents: URLComponents,
-//    headers: [String: String],
-//    session: SessionType,
-//    coder: any Coder<SessionType.ResponseType.DataType>,
-//    repository: any StealthyManager<SessionType.AuthorizationType>
-//  ) {
-//    self.baseURLComponents = baseURLComponents
-//    self.headers = headers
-//    self.session = session
-//    self.coder = coder
-//    self.repository = repository
-//  }
-//
   var authorizationManager: any AuthorizationManager<SessionType.AuthorizationType> {
     repository
   }
 
-//
-//  let baseURLComponents: URLComponents
-//
-//  let headers: [String: String]
-//
-//  let session: SessionType
-//
-//  let coder: any Coder<SessionType.ResponseType.DataType>
-//
   let repository: any StealthyManager<SessionType.AuthorizationType>
 }
 
@@ -71,6 +52,8 @@ public protocol AuthorizedService: FloxBxServiceProtocol {
   func resetCredentials() throws
 
   func fetchCredentials() async throws -> Credentials?
+
+  var isReadyPublisher: AnyPublisher<Bool, Never> { get }
 }
 
 extension FloxBxService: AuthorizedService {
