@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "FloxBx",
-  platforms: [.macOS(.v12), .iOS(.v16), .watchOS(.v9)],
+  platforms: [.macOS(.v13), .iOS(.v16), .watchOS(.v9)],
   products: [
     .library(
       name: "FloxBxUI",
@@ -28,7 +28,10 @@ let package = Package(
     ),
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
     .package(url: "https://github.com/brightdigit/Prch.git", from: "1.0.0-alpha.1"),
-    .package(path: "Packages/StealthyStash")
+    .package(
+      url: "https://github.com/brightdigit/StealthyStash.git",
+      from: "0.1.0-alpha.1"
+    )
   ],
   targets: [
     .target(name: "FelinePine"),
