@@ -1,16 +1,20 @@
 //
+import Foundation
 //  File.swift
 //
 //
 //  Created by Leo Dion on 12/2/22.
 //
-import FloxBxNetworking
-import Foundation
+import PrchModel
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
 
-public struct DeleteMobileDeviceRequest: ClientVoidRequest {
+public struct DeleteMobileDeviceRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
+
+  public typealias SuccessType = Empty
+  public typealias BodyType = Empty
   public static var requiresCredentials: Bool {
     true
   }
@@ -23,7 +27,7 @@ public struct DeleteMobileDeviceRequest: ClientVoidRequest {
     [:]
   }
 
-  public var method: FloxBxNetworking.RequestMethod {
+  public var method: RequestMethod {
     .DELETE
   }
 

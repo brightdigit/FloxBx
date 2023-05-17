@@ -1,7 +1,8 @@
 import FloxBxModels
-import FloxBxNetworking
+import PrchModel
 
-public struct SignInRefreshRequest: ClientSuccessRequest {
+public struct SignInRefreshRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
   public typealias SuccessType = CreateTokenResponseContent
 
   public static let requiresCredentials = true

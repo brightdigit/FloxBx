@@ -1,13 +1,12 @@
 #if canImport(SwiftUI)
   import FloxBxModels
+  import Prch
   import SwiftUI
-import FloxBxNetworking
   internal struct TodoListItemView: View {
-    
     @StateObject private var itemObject: TodoObject
-    
-    //@State private var text: String
-    //private let item: TodoContentItem
+
+    // @State private var text: String
+    // private let item: TodoContentItem
 
     internal var body: some View {
       Group {
@@ -22,25 +21,23 @@ import FloxBxNetworking
             onEditingChanged: self.beginSave(hasFinished:),
             onCommit: self.beginSave
           )
-       }
+        }
       }
     }
 
-    internal init(item: TodoContentItem, groupActivityID: UUID?, service: any Service) {
-      self._itemObject = .init(wrappedValue: .init(item: item, service: service, groupActivityID: groupActivityID))
-
-      //_text = .init(initialValue: self.item.text)
+    internal init(
+      item: TodoContentItem,
+      groupActivityID: UUID?,
+      service: any FloxBxServiceProtocol
+    ) {
+      _itemObject = .init(
+        wrappedValue: .init(
+          item: item,
+          service: service,
+          groupActivityID: groupActivityID
+        )
+      )
     }
-
-//    private func updatedItem() -> TodoContentItem {
-//      let title: String
-//      let tags: [String]
-//      let splits = itemObject.text.split(separator: "#", omittingEmptySubsequences: true)
-//      title = splits.first.map(String.init) ?? ""
-//      tags = splits.dropFirst().map { $0.slugified() }
-//
-//      return itemObject.updatingTitle(title, tags: tags)
-//    }
 
     private func beginSave() {
       itemObject.beginSave()
@@ -53,11 +50,4 @@ import FloxBxNetworking
       beginSave()
     }
   }
-
-//  private struct TodoListItemView_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      TodoListItemView(item: .init(title: "Hello", tags: ["world", "Leo"]), groupActivityID: nil, service: )!
-//    }
-//  }
 #endif

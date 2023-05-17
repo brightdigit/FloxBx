@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:brightdigit/StealthyStash.git
+	branch = floxbx
+	commit = 7f815406644c26be26142b7467b5b3b5fe7f5a22
+	parent = ec5657058c0567bb824fa97ea5e2f18a76f0f69c
+	method = merge
+	cmdver = 0.4.6

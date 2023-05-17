@@ -1,98 +1,63 @@
+import Combine
 import FelinePine
 import FloxBxAuth
-import Sublimation
-import FloxBxUtilities
-import FloxBxNetworking
 import FloxBxLogging
-import FloxBxModeling
+import FloxBxUtilities
 import Foundation
-import Combine
+import Prch
+import PrchModel
+import Sublimation
 
 struct Account {
   let username: String
 }
 
 internal class ServicesObject: ObservableObject, LoggerCategorized {
-  internal init(service: (any AuthorizedService)? = nil, error: Error? = nil) {
+  internal convenience init(error: Error? = nil) {
+    let service: (any AuthorizedService)! = FloxBxService(
+      host: Configuration.productionBaseURL.host() ?? Configuration.serviceName,
+      accessGroup: Configuration.accessGroup,
+      serviceName: Configuration.serviceName,
+      urlBucketName: Configuration.Sublimation.bucketName,
+      key: Configuration.Sublimation.key
+    )
+    self.init(service: service, error: error)
+  }
+
+  internal init(
+    service: any AuthorizedService,
+    isReady: Bool = false,
+    error: Error? = nil
+  ) {
     self.service = service
     self.error = error
-    
-    self.$service.compactMap{$0}.map { service in
-      Future{
-        try await service.verifyLogin()
+    self.isReady = isReady
+
+    self.service.isReadyPublisher.receive(on: DispatchQueue.main).assign(to: &$isReady)
+
+    $service
+      .combineLatest(self.service.isReadyPublisher)
+      .filter { $0.1 }
+      .map { $0.0 }
+      .flatMap { service in
+        Future {
+          try await service.verifyLogin()
+        }
       }
-    }.switchToLatest().map{!$0}.replaceError(with: false).receive(on: DispatchQueue.main).assign(to: &self.$requireAuthentication)
+      .map { !$0 }
+      .replaceError(with: false)
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$requireAuthentication)
   }
-  
-//  internal init() {
-//    //self.account = account
-//    self.service = service
-//    
-//    self.$service.compactMap{$0}.map { service in
-//      service
-//    }
-//  }
-  
-  //@Published var account: Account?
-  @Published var service: (any AuthorizedService)?
-  @Published var error : Error?
+
+  @Published var service: any AuthorizedService
+  @Published var error: Error?
   @Published var requireAuthentication = false
-  
+  @Published var isReady: Bool
+
   typealias LoggersType = FloxBxLogging.Loggers
 
   static var loggingCategory: LoggerCategory {
     .reactive
   }
-
-  internal func begin() {
-#if DEBUG
-    Task {
-      let service = await self.developerService(fallbackURL: Configuration.productionBaseURL)
-      await MainActor.run {
-        self.service = service
-        
-      }
-    }
-#else
-    self.service = ServiceImpl(
-      baseURL: Configuration.productionBaseURL,
-      accessGroup: Configuration.accessGroup,
-      serviceName: Configuration.serviceName
-    )
-#endif
-  }
-  
-#if DEBUG
-  private static func fetchBaseURL() async throws -> URL {
-    do {
-      guard let url = try await KVdb.url(
-        withKey: Configuration.Sublimation.key,
-        atBucket: Configuration.Sublimation.bucketName
-      ) else {
-        throw DeveloperServerError.noServer
-      }
-      return url
-    } catch {
-      throw DeveloperServerError.sublimationError(error)
-    }
-  }
-
-  internal func developerService(fallbackURL: URL) async -> any AuthorizedService {
-    let baseURL: URL
-    do {
-      baseURL = try await Self.fetchBaseURL()
-      Self.logger.debug("Found service url: \(baseURL)")
-    } catch {
-      Task { @MainActor in
-        self.error = error
-      }
-      baseURL = fallbackURL
-    }
-    return ServiceImpl<JSONCoder, URLSession, URLRequestBuilder, CredentialsContainer>(
-      baseURL: baseURL,
-      accessGroup: Configuration.accessGroup,
-      serviceName: Configuration.serviceName
-    )
-  }
-#endif
 }
