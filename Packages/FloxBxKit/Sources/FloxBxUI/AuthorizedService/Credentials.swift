@@ -1,7 +1,7 @@
 import FloxBxAuth
-import FloxBxNetworking
+import Prch
 
-extension Credentials: Authorization {
+extension Credentials: SessionAuthorization {
   public var httpHeaders: [String: String] {
     guard let token = self.token else {
       return [:]

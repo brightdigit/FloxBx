@@ -1,8 +1,8 @@
 import StealthyStash
 
-public struct Credentials : StealthyModel {
+public struct Credentials: StealthyModel {
   public typealias QueryBuilder = CompositeCredentialsQueryBuilder
-  
+
   public let username: String
   public let password: String
   public let token: String?
@@ -22,38 +22,35 @@ public struct Credentials : StealthyModel {
   }
 }
 
-
 public class CredentialsContainer {
   public init(repository: StealthyRepository, credentials: Credentials? = nil) {
     self.credentials = credentials
     self.repository = repository
   }
-  
-  var credentials : Credentials?
-  let repository : StealthyRepository
-  
+
+  var credentials: Credentials?
+  let repository: StealthyRepository
+
   public func fetch() async throws -> Credentials? {
-    let credentials : Credentials? = try await repository.fetch()
+    let credentials: Credentials? = try await repository.fetch()
     self.credentials = credentials
     return credentials
   }
-  
+
   public func save(credentials: Credentials) throws {
     if let oldCredentials = self.credentials {
-      try self.repository.update(from: oldCredentials, to: credentials)
+      try repository.update(from: oldCredentials, to: credentials)
     } else {
-      try self.repository.create(credentials)
+      try repository.create(credentials)
     }
   }
-  
+
   public func reset() throws {
     guard let credentials = credentials else {
       return
     }
-    
-    try self.repository.delete(credentials)
+
+    try repository.delete(credentials)
     self.credentials = nil
   }
-  
-  
 }

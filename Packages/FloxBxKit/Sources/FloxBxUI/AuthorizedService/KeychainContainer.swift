@@ -1,18 +1,18 @@
-import FloxBxAuth
-import FloxBxNetworking
-
-//#if canImport(Security)
+// import FloxBxAuth
+// import Prch
 //
-//  extension LegacyKeychainContainer: AuthorizationContainer {
-//    public typealias AuthorizationType = Credentials
-//  }
-//#endif
-
-extension CredentialsContainer : AuthorizationContainer {
-
-
-  
-  public typealias AuthorizationType = Credentials
-  
-  
-}
+////#if canImport(Security)
+////
+////  extension LegacyKeychainContainer: AuthorizationContainer {
+////    public typealias AuthorizationType = Credentials
+////  }
+////#endif
+//
+// extension CredentialsContainer : AuthorizationContainer {
+//
+//
+//
+//  public typealias AuthorizationType = Credentials
+//
+//
+// }

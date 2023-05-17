@@ -1,22 +1,21 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-internal struct LoginView: View {
-  internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
-    self.completed = completed
-    self._authorization = .init(wrappedValue: .init(service: service))
-  }
-  
-  
-  func logout () {
-    authorization.logout()
-  }
+  internal struct LoginView: View {
+    internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
+      self.completed = completed
+      _authorization = .init(wrappedValue: .init(service: service))
+    }
 
-  let completed : () -> Void
-    @StateObject var authorization  : AuthorizationObject
+    func logout() {
+      authorization.logout()
+    }
+
+    let completed: () -> Void
+    @StateObject var authorization: AuthorizationObject
     @State private var emailAddress: String = ""
     @State private var password: String = ""
-  @State private var isAlertPresented : Bool = false
+    @State private var isAlertPresented: Bool = false
     #if os(watchOS)
       @State private var presentLoginOrSignup = false
     #endif
@@ -89,7 +88,10 @@ internal struct LoginView: View {
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500).onReceive(self.authorization.$account) { account in
+      }
+      .padding()
+      .frame(maxWidth: 300, maxHeight: 500)
+      .onReceive(self.authorization.$account) { account in
         guard account != nil else {
           return
         }
@@ -104,14 +106,17 @@ internal struct LoginView: View {
           content: self.watchForm
         )
       #else
-      
-      self.content.alert(isPresented: .constant(self.authorization.error != nil), error: self.authorization.error) { 
-        Button("OK") {
-          Task { @MainActor in
-            self.isAlertPresented = false
+
+        self.content.alert(
+          isPresented: .constant(self.authorization.error != nil),
+          error: self.authorization.error
+        ) {
+          Button("OK") {
+            Task { @MainActor in
+              self.isAlertPresented = false
+            }
           }
         }
-      }
 
       #endif
     }
@@ -140,13 +145,4 @@ internal struct LoginView: View {
       }
     }
   }
-
-//  private struct LoginView_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      ForEach(ColorScheme.allCases, id: \.self) {
-//        LoginView(isSucceeded: .constant(false), service: <#AuthorizedService#>).preferredColorScheme($0)
-//      }
-//    }
-//  }
 #endif

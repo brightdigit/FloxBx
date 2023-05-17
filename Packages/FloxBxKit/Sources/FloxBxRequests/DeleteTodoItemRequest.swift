@@ -1,10 +1,16 @@
-import FloxBxNetworking
 import Foundation
+import PrchModel
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
 
-public struct DeleteTodoItemRequest: ClientVoidRequest {
+public struct DeleteTodoItemRequest: ServiceCall {
+  public typealias SuccessType = Empty
+
+  public typealias BodyType = Empty
+
+  public typealias ServiceAPI = FloxBxAPI
+
   public static var requiresCredentials: Bool {
     true
   }
