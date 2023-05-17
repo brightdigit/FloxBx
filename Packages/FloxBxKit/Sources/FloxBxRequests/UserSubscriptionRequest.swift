@@ -13,6 +13,7 @@ import PrchModel
 
 public struct UserSubscriptionRequest: ServiceCall {
   public typealias BodyType = UserSubscriptionRequestContent
+  public typealias ServiceAPI = FloxBxAPI
 
   public typealias SuccessType = Empty
   public static var requiresCredentials: Bool {

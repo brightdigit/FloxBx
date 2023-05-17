@@ -4,6 +4,8 @@ import PrchModel
 
 // periphery:ignore
 public struct GetUserRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
+
   public typealias SuccessType = GetUserResponseContent
 
   public static var requiresCredentials: Bool {

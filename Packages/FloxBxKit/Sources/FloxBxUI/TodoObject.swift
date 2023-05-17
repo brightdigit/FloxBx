@@ -7,7 +7,7 @@ import Prch
 class TodoObject: ObservableObject {
   let saveTrigger = PassthroughSubject<Void, Never>()
   let groupActivityID: UUID?
-  let service: any ServiceProtocol
+  let service: any FloxBxServiceProtocol
   @Published var text: String
   @Published var item: TodoContentItem
   @Published var lastError: Error?
@@ -16,7 +16,11 @@ class TodoObject: ObservableObject {
     false
   }
 
-  init(item: TodoContentItem, service: any ServiceProtocol, groupActivityID: UUID?) {
+  init(
+    item: TodoContentItem,
+    service: any FloxBxServiceProtocol,
+    groupActivityID: UUID?
+  ) {
     text = item.text
     self.item = item
     self.groupActivityID = groupActivityID
@@ -31,12 +35,11 @@ class TodoObject: ObservableObject {
           body: content
         )
       }
-      .map { request -> Future<CreateTodoResponseContent, Error> in
+      .flatMap { request -> Future<CreateTodoResponseContent, Error> in
         Future<CreateTodoResponseContent, Error> {
           try await self.service.request(request)
         }
       }
-      .switchToLatest()
       .map(TodoContentItem.init(content:))
       .map(Result.success)
       .catch { error in

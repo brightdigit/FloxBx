@@ -8,6 +8,7 @@ import PrchModel
 public struct PatchMobileDeviceRequest: ServiceCall {
   public typealias SuccessType = Empty
   public typealias BodyType = PatchMobileDeviceRequestContent
+  public typealias ServiceAPI = FloxBxAPI
 
   public static var requiresCredentials: Bool {
     true

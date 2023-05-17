@@ -8,6 +8,8 @@ import FloxBxUtilities
 import Foundation
 import Prch
 
+public protocol FloxBxServiceProtocol: ServiceProtocol where ServiceAPI == FloxBxAPI {}
+
 enum TodoListAction: CustomStringConvertible {
   case update(CreateTodoResponseContent, at: Int)
   case append(TodoContentItem)
@@ -45,13 +47,14 @@ class TodoListObject: ObservableObject, LoggerCategorized {
     self.isLoaded = isLoaded
     self.lastErrror = lastErrror
 
-    let loadResult = loadSubject.map {
+    let loadResult = loadSubject.flatMap {
       Future {
         try await self.service.request(
           GetTodoListRequest(groupActivityID: self.groupActivityID)
         )
       }
-    }.switchToLatest().share()
+    }
+    .share()
 
     let errorLoadResult = loadResult.map { _ in nil }.catch(Just<Error?>.init)
 
@@ -67,7 +70,7 @@ class TodoListObject: ObservableObject, LoggerCategorized {
     listLoaded.receive(on: DispatchQueue.main).assign(to: &$items)
     listLoaded.map { _ in true }.receive(on: DispatchQueue.main).assign(to: &$isLoaded)
 
-    let requestResult = actionSubject.map { action in
+    let requestResult = actionSubject.flatMap { action in
       Self.logger.debug("Received Action: \(action)")
       let request: UpsertTodoRequest
       let index: Int?
@@ -95,7 +98,7 @@ class TodoListObject: ObservableObject, LoggerCategorized {
       return publisher.map {
         ($0, index)
       }
-    }.switchToLatest()
+    }
 
     let upsertErrorPublisher = requestResult.map { _ in
       nil
@@ -120,7 +123,7 @@ class TodoListObject: ObservableObject, LoggerCategorized {
   }
 
   let groupActivityID: UUID?
-  let service: any ServiceProtocol
+  let service: any FloxBxServiceProtocol
   @Published var items: [TodoContentItem]
   @Published var isLoaded: Bool
   @Published var lastErrror: Error?

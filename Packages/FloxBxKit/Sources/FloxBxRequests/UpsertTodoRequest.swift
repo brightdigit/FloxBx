@@ -7,6 +7,8 @@ public struct UpsertTodoRequest: ServiceCall {
 
   public typealias BodyType = CreateTodoRequestContent
 
+  public typealias ServiceAPI = FloxBxAPI
+
   public static var requiresCredentials: Bool {
     true
   }

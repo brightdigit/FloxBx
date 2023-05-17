@@ -6,6 +6,8 @@ public struct SignInCreateRequest: ServiceCall {
 
   public typealias BodyType = CreateTokenRequestContent
 
+  public typealias ServiceAPI = FloxBxAPI
+
   public static let requiresCredentials = false
 
   public let body: BodyType

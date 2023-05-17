@@ -11,6 +11,8 @@ import PrchModel
 #endif
 
 public struct DeleteMobileDeviceRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
+
   public typealias SuccessType = Empty
   public typealias BodyType = Empty
   public static var requiresCredentials: Bool {

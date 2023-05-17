@@ -64,12 +64,11 @@ class AuthorizationObject: ObservableObject {
     self.service = service
     self.account = account
 
-    let refreshPublisher = refreshSubject.map {
+    let refreshPublisher = refreshSubject.flatMap {
       Future {
         try await self.service.fetchCredentials()
       }
     }
-    .switchToLatest()
     .compactMap { $0 }
     .map { Account(username: $0.username) }
     .mapError(AuthenticationError.init)
@@ -102,7 +101,7 @@ class AuthorizationObject: ObservableObject {
       $0.asError().map(AuthenticationError.init)
     }.subscribe(errorSubject).store(in: &cancellables)
 
-    let authenticationResult = authenticateSubject.map { credentials, isNew in
+    let authenticationResult = authenticateSubject.flatMap { credentials, isNew in
       Future { () async throws -> Credentials in
         let token: String
         if isNew {
@@ -125,7 +124,6 @@ class AuthorizationObject: ObservableObject {
         return credentials.withToken(token)
       }
     }
-    .switchToLatest()
     .tryMap { credentials in
       try self.service.save(credentials: credentials)
       return Account(username: credentials.username)

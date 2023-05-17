@@ -2,6 +2,7 @@ import FloxBxModels
 import PrchModel
 
 public struct SignInRefreshRequest: ServiceCall {
+  public typealias ServiceAPI = FloxBxAPI
   public typealias SuccessType = CreateTokenResponseContent
 
   public static let requiresCredentials = true

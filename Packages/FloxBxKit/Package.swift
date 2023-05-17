@@ -22,10 +22,13 @@ let package = Package(
     .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
     .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
     .package(url: "https://github.com/vapor/fluent-postgres-driver.git", from: "2.0.0"),
-    .package(url: "https://github.com/brightdigit/Sublimation.git", branch: "prch2"),
+    .package(
+      url: "https://github.com/brightdigit/Sublimation.git",
+      from: "1.0.0-alpha.2"
+    ),
     .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
-    .package(path: "Packages/StealthyStash"),
-    .package(path: "Packages/Prch")
+    .package(url: "https://github.com/brightdigit/Prch.git", from: "1.0.0-alpha.1"),
+    .package(path: "Packages/StealthyStash")
   ],
   targets: [
     .target(name: "FelinePine"),

@@ -9,6 +9,8 @@ public struct DeleteTodoItemRequest: ServiceCall {
 
   public typealias BodyType = Empty
 
+  public typealias ServiceAPI = FloxBxAPI
+
   public static var requiresCredentials: Bool {
     true
   }

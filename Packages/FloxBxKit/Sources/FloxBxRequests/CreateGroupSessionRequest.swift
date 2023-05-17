@@ -11,6 +11,8 @@ public struct CreateGroupSessionRequest: ServiceCall {
 
   public typealias SuccessType = CreateGroupSessionResponseContent
 
+  public typealias ServiceAPI = FloxBxAPI
+
   public var path: String {
     "api/v1/group-sessions"
   }
