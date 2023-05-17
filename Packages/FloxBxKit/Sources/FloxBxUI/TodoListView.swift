@@ -1,32 +1,44 @@
 #if canImport(SwiftUI)
   import Combine
+  import FloxBxModels
+  import Prch
   import SwiftUI
-import FloxBxNetworking
-import FloxBxModels
 
   internal struct TodoListView: View {
-    
-//      @available(*, deprecated)
-//    @EnvironmentObject private var object: ApplicationObject
+    let onLogout: () -> Void
+    let requestSharing: () -> Void
+    @StateObject private var listObject: TodoListObject
+    @StateObject var authorization: AuthorizationObject
 
-    //@StateObject private var servicesObject : ServicesObject
-    let onLogout : () -> Void
-    let requestSharing : () -> Void
-    @StateObject private var listObject : TodoListObject
-    @StateObject var authorization  : AuthorizationObject
-    
-    init (groupActivityID: UUID?, service: any AuthorizedService, items: [TodoContentItem] = [], isLoaded: Bool? = nil, onLogout: @escaping () -> Void, requestSharing : @escaping () -> Void) {
+    init(
+      groupActivityID: UUID?,
+      service: any AuthorizedService,
+      items: [TodoContentItem] = [],
+      isLoaded: Bool? = nil,
+      onLogout: @escaping () -> Void,
+      requestSharing: @escaping () -> Void
+    ) {
       let isLoaded = isLoaded ?? !items.isEmpty
       self.onLogout = onLogout
       self.requestSharing = requestSharing
-      self._authorization = .init(wrappedValue: .init(service: service))
-      self._listObject = StateObject(wrappedValue: .init(groupActivityID: groupActivityID, service: service, isLoaded: isLoaded))
+      _authorization = .init(wrappedValue: .init(service: service))
+      _listObject = StateObject(
+        wrappedValue: .init(
+          groupActivityID: groupActivityID,
+          service: service,
+          isLoaded: isLoaded
+        )
+      )
     }
-    
-    private var list : some View {
+
+    private var list: some View {
       List {
         ForEach(self.listObject.items) { item in
-          TodoListItemView(item: item, groupActivityID: listObject.groupActivityID, service: listObject.service).onAppear {
+          TodoListItemView(
+            item: item,
+            groupActivityID: listObject.groupActivityID,
+            service: listObject.service
+          ).onAppear {
             self.listObject.saveItem(item, onlyNew: true)
           }
         }.onDelete(perform: listObject.beginDeleteItems(atIndexSet:))
@@ -62,7 +74,7 @@ import FloxBxModels
         }
       })
     }
-    
+
     internal var body: some View {
       Group {
         if self.listObject.isLoaded {
@@ -71,7 +83,7 @@ import FloxBxModels
           ProgressView()
         }
       }
-      .onAppear{
+      .onAppear {
         self.listObject.begin()
       }
       .onReceive(self.authorization.$account, perform: { account in
@@ -84,20 +96,4 @@ import FloxBxModels
       .navigationTitle("Todos")
     }
   }
-
-//  private struct TodoList_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      TodoListView().environmentObject(
-//        ApplicationObject(
-//          mobileDevicePublisher: .init(
-//            Just(.init(model: "", operatingSystem: "", topic: ""))
-//          ),
-//          [
-//            .init(title: "Do Stuff", tags: ["things", "places"])
-//          ]
-//        )
-//      )
-//    }
-//  }
 #endif

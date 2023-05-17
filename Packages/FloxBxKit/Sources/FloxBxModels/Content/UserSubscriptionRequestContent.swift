@@ -1,5 +1,5 @@
 import Foundation
-import FloxBxModeling
+import PrchModel
 
 public struct UserSubscriptionRequestContent: Codable, ContentEncodable {
   public let tags: [String]

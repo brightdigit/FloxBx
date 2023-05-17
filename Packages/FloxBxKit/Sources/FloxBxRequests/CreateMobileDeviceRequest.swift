@@ -1,14 +1,16 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
 
-public struct CreateMobileDeviceRequest: ClientBodySuccessRequest {
+public struct CreateMobileDeviceRequest: ServiceCall {
   public typealias SuccessType = CreateMobileDeviceResponseContent
 
   public typealias BodyType = CreateMobileDeviceRequestContent
+
+  public typealias ServiceAPI = FloxBxAPI
 
   public static var requiresCredentials: Bool {
     true

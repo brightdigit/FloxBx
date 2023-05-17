@@ -1,4 +1,4 @@
-import FloxBxModeling
+import PrchModel
 public struct CreateUserResponseContent: Codable, Content {
   public let token: String
   public init(token: String) {

@@ -2,8 +2,8 @@
   import Combine
   import FelinePine
   import FloxBxLogging
+  import FloxBxUtilities
   import Foundation
-import FloxBxUtilities
 
   #if canImport(GroupActivities)
     import GroupActivities
@@ -62,7 +62,7 @@ import FloxBxUtilities
         sharingRequestSubject.map {
           ActivityType(configuration: $0)
         }
-        .map { activity in
+        .flatMap { activity in
           Future { () -> Result<ActivityType, Error> in
             do {
               _ = try await activity.activate()
@@ -72,7 +72,6 @@ import FloxBxUtilities
             return .success(activity)
           }
         }
-        .switchToLatest()
         .compactMap {
           self.isEligible ? nil : try? $0.get()
         }
@@ -220,8 +219,8 @@ import FloxBxUtilities
         self.listDeltas.append(delta)
       }
     }
-    
-    //@available(iOS 15, macOS 12, *)
+
+    // @available(iOS 15, macOS 12, *)
     public func requestSharing() {
 //      Task {
 //        do {
