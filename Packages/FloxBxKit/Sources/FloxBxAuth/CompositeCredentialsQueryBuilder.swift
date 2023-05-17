@@ -1,22 +1,5 @@
 import Foundation
 import StealthyStash
-extension Data {
-  func string(encoding: String.Encoding = .utf8) -> String? {
-    String(data: self, encoding: encoding)
-  }
-}
-
-extension AnyStealthyProperty {
-  public var dataString: String {
-    property.dataString
-  }
-}
-
-extension StealthyProperty {
-  public var dataString: String {
-    String(data: data, encoding: .utf8) ?? ""
-  }
-}
 
 public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
   public static func updates(

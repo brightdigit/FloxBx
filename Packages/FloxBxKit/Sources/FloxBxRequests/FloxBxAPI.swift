@@ -1,10 +1,6 @@
 import Foundation
 import PrchModel
 
-public protocol BaseURLProvider {
-  var baseURLComponents: URLComponents? { get }
-}
-
 public class FloxBxAPI: API {
   public init(baseURLProvider: BaseURLProvider) {
     self.baseURLProvider = baseURLProvider
@@ -12,15 +8,6 @@ public class FloxBxAPI: API {
 
   public var isReady: Bool {
     baseURLProvider.baseURLComponents != nil
-  }
-
-  enum Defaults {
-    public static let encoder: any Encoder<Data> = JSONEncoder()
-
-    public static let decoder: any Decoder<Data> = JSONDecoder()
-
-    public static let headers: [String: String] =
-      ["Content-Type": "application/json; charset=utf-8"]
   }
 
   public let baseURLProvider: BaseURLProvider

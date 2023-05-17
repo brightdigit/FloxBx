@@ -5,9 +5,6 @@
   internal struct TodoListItemView: View {
     @StateObject private var itemObject: TodoObject
 
-    // @State private var text: String
-    // private let item: TodoContentItem
-
     internal var body: some View {
       Group {
         if #available(iOS 15.0, watchOS 8.0, macOS 12.0, *) {

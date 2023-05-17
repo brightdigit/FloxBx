@@ -219,26 +219,6 @@
         self.listDeltas.append(delta)
       }
     }
-
-    // @available(iOS 15, macOS 12, *)
-    public func requestSharing() {
-//      Task {
-//        do {
-//
-//          let groupSession = try await self.createGroupSession()
-//          self.shareplayObject
-//            .beginRequest(
-//              forConfiguration: .init(
-//                groupActivityID: groupSession.id,
-//                username: username
-//              )
-//            )
-//          //
-//        } catch {
-//          print("Failed to activate ShoppingListActivity activity: \(error)")
-//        }
-//      }
-    }
   }
 
   extension SharePlayObject: LoggerCategorized {

@@ -5,7 +5,6 @@
 
   public class AppDelegate: NSObject, ObservableObject {
     @Published public private(set) var mobileDevice: CreateMobileDeviceRequestContent?
-
     public func didRegisterForRemoteNotifications<AppInterfaceType: AppInterface>(
       from _: AppInterfaceType?,
       withDeviceToken deviceToken: Data
