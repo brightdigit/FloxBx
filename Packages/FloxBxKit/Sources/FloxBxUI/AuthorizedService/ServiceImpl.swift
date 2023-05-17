@@ -80,7 +80,7 @@ class TunnelBaseURLProvider<
       let tunnelRepo = TunnelBaseURLProvider(
         key: key,
         repository: KVdbTunnelRepository<String>(
-          client: URLSessionClient(session: session),
+          client: URLSessionClient(session: .ephemeral()),
           bucketName: urlBucketName
         )
       )
