@@ -31,12 +31,11 @@ class TodoObject: ObservableObject {
           body: content
         )
       }
-      .map { request -> Future<CreateTodoResponseContent, Error> in
+      .flatMap { request -> Future<CreateTodoResponseContent, Error> in
         Future<CreateTodoResponseContent, Error> {
           try await self.service.request(request)
         }
       }
-      .switchToLatest()
       .map(TodoContentItem.init(content:))
       .map(Result.success)
       .catch { error in

@@ -19,7 +19,7 @@ public class FloxBxAPI: API {
 
     public static let decoder: any Decoder<Data> = JSONDecoder()
 
-    public static let headers: [String: String] = [:]
+    public static let headers: [String: String] = ["Content-Type": "application/json; charset=utf-8"]
   }
 
   public let baseURLProvider: BaseURLProvider

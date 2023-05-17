@@ -29,16 +29,17 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
     self.error = error
     self.isReady = isReady
 
+    self.service.isReadyPublisher.receive(on: DispatchQueue.main).assign(to: &$isReady)
+
     $service
       .combineLatest(self.service.isReadyPublisher)
       .filter { $0.1 }
       .map { $0.0 }
-      .map { service in
+      .flatMap { service in
         Future {
           try await service.verifyLogin()
         }
       }
-      .switchToLatest()
       .map { !$0 }
       .replaceError(with: false)
       .receive(on: DispatchQueue.main)
