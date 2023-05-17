@@ -16,7 +16,7 @@
   internal class ServicesObject: ObservableObject, LoggerCategorized {
     internal convenience init(error: Error? = nil) {
       let service: (any AuthorizedService)! = FloxBxService(
-        host: Configuration.productionBaseURL.host() ?? Configuration.serviceName,
+        host: Configuration.productionBaseURL.host ?? Configuration.serviceName,
         accessGroup: Configuration.accessGroup,
         serviceName: Configuration.serviceName,
         urlBucketName: Configuration.Sublimation.bucketName,
