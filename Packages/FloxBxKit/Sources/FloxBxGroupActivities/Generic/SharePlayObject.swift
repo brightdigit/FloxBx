@@ -222,6 +222,7 @@
 
     // @available(iOS 15, macOS 12, *)
     public func requestSharing() {
+      // self.beginRequest(forConfiguration: .init)
 //      Task {
 //        do {
 //
