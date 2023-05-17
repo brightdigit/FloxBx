@@ -12,7 +12,10 @@ protocol PublishingBaseURLProvider: BaseURLProvider {
 }
 
 extension Result {
-  func unwrap<NewSuccess>(_ error: @autoclosure () -> Failure) -> Result<NewSuccess, Failure> where Success == NewSuccess? {
+  func unwrap<NewSuccess>(
+    _ error: @autoclosure () -> Failure
+  ) -> Result<NewSuccess, Failure>
+    where Success == NewSuccess? {
     flatMap { success in
       guard let newSuccess = success else {
         return .failure(error())
@@ -22,7 +25,9 @@ extension Result {
   }
 }
 
-class TunnelBaseURLProvider<TunnelRepositoryType: TunnelRepository>: PublishingBaseURLProvider {
+class TunnelBaseURLProvider<
+  TunnelRepositoryType: TunnelRepository
+>: PublishingBaseURLProvider {
   internal init(key: TunnelRepositoryType.Key, repository: TunnelRepositoryType) {
     self.key = key
     self.repository = repository
@@ -62,15 +67,6 @@ class TunnelBaseURLProvider<TunnelRepositoryType: TunnelRepository>: PublishingB
 
 #if canImport(Security)
 
-//  extension KeychainRepository: AuthorizationManager {
-//    public func fetch() async throws -> AuthorizationType? {
-//      let creds: Credentials? = try await fetch()
-//      return creds
-//    }
-//
-//    public typealias AuthorizationType = URLSessionAuthorization
-//  }
-
   extension FloxBxService {
     public convenience init(
       host: String,
@@ -81,7 +77,13 @@ class TunnelBaseURLProvider<TunnelRepositoryType: TunnelRepository>: PublishingB
       session: URLSession = .shared
     ) where
       SessionType == URLSession {
-      let tunnelRepo = TunnelBaseURLProvider(key: key, repository: KVdbTunnelRepository<String>(client: URLSessionClient(session: session), bucketName: urlBucketName))
+      let tunnelRepo = TunnelBaseURLProvider(
+        key: key,
+        repository: KVdbTunnelRepository<String>(
+          client: URLSessionClient(session: session),
+          bucketName: urlBucketName
+        )
+      )
       let repository = KeychainRepository(
         defaultServiceName: serviceName,
         defaultServerName: host,
@@ -89,38 +91,12 @@ class TunnelBaseURLProvider<TunnelRepositoryType: TunnelRepository>: PublishingB
       )
 
       let api = FloxBxAPI(baseURLProvider: tunnelRepo)
-      self.init(api: api, session: session, repository: CredentialsContainer(repository: repository), isReadyPublisher: tunnelRepo.$baseURL.map { $0 != nil }.eraseToAnyPublisher())
+      self.init(
+        api: api,
+        session: session,
+        repository: CredentialsContainer(repository: repository),
+        isReadyPublisher: tunnelRepo.$baseURL.map { $0 != nil }.eraseToAnyPublisher()
+      )
     }
-
-//    public convenience init(
-//      baseURL: URL,
-//      accessGroup: String,
-//      serviceName: String,
-//      headers: [String: String] = ["Content-Type": "application/json; charset=utf-8"],
-//      coder: JSONCoder = .init(encoder: JSONEncoder(), decoder: JSONDecoder()),
-//      session: URLSession = .shared
-//    ) where
-//      SessionType == URLSession {
-//      guard let baseURLComponents = URLComponents(
-//        url: baseURL,
-//        resolvingAgainstBaseURL: false
-//      ), let host = baseURL.host ?? baseURLComponents.host else {
-//        preconditionFailure("Invalid baseURL: \(baseURL)")
-//      }
-//
-//      let repository = KeychainRepository(
-//        defaultServiceName: serviceName,
-//        defaultServerName: host,
-//        defaultAccessGroup: accessGroup
-//      )
-//
-//      self.init(
-//        baseURLComponents: baseURLComponents,
-//        headers: headers,
-//        session: session,
-//        coder: coder,
-//        repository: CredentialsContainer(repository: repository)
-//      )
-//    }
   }
 #endif

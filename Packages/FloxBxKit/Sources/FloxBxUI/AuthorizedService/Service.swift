@@ -23,8 +23,14 @@ extension CredentialsContainer: StealthyManager {
   public typealias AuthorizationType = SessionAuthorization
 }
 
-class FloxBxService<SessionType: Session>: Service where SessionType.ResponseType.DataType == Data, SessionType.RequestDataType == Data {
-  internal init(api: FloxBxAPI, session: SessionType, repository: any StealthyManager<SessionType.AuthorizationType>, isReadyPublisher: AnyPublisher<Bool, Never>) {
+class FloxBxService<SessionType: Session>: Service
+  where SessionType.ResponseType.DataType == Data, SessionType.RequestDataType == Data {
+  internal init(
+    api: FloxBxAPI,
+    session: SessionType,
+    repository: any StealthyManager<SessionType.AuthorizationType>,
+    isReadyPublisher: AnyPublisher<Bool, Never>
+  ) {
     self.api = api
     self.session = session
     self.repository = repository

@@ -16,7 +16,11 @@ class TodoObject: ObservableObject {
     false
   }
 
-  init(item: TodoContentItem, service: any FloxBxServiceProtocol, groupActivityID: UUID?) {
+  init(
+    item: TodoContentItem,
+    service: any FloxBxServiceProtocol,
+    groupActivityID: UUID?
+  ) {
     text = item.text
     self.item = item
     self.groupActivityID = groupActivityID

@@ -24,7 +24,11 @@ internal class ServicesObject: ObservableObject, LoggerCategorized {
     self.init(service: service, error: error)
   }
 
-  internal init(service: any AuthorizedService, isReady: Bool = false, error: Error? = nil) {
+  internal init(
+    service: any AuthorizedService,
+    isReady: Bool = false,
+    error: Error? = nil
+  ) {
     self.service = service
     self.error = error
     self.isReady = isReady
