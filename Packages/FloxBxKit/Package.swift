@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
   name: "FloxBx",
-  platforms: [.macOS(.v12), .iOS(.v16), .watchOS(.v9)],
+  platforms: [.macOS(.v13), .iOS(.v16), .watchOS(.v9)],
   products: [
     .library(
       name: "FloxBxUI",
