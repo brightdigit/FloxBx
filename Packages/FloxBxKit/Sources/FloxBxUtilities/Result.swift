@@ -40,4 +40,16 @@ extension Result {
     }
     return error
   }
+
+  public func unwrap<NewSuccess>(
+    _ error: @autoclosure () -> Failure
+  ) -> Result<NewSuccess, Failure>
+    where Success == NewSuccess? {
+    flatMap { success in
+      guard let newSuccess = success else {
+        return .failure(error())
+      }
+      return .success(newSuccess)
+    }
+  }
 }

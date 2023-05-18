@@ -9,21 +9,7 @@
   import Foundation
   import Prch
 
-  public protocol FloxBxServiceProtocol: ServiceProtocol where ServiceAPI == FloxBxAPI {}
 
-  enum TodoListAction: CustomStringConvertible {
-    case update(CreateTodoResponseContent, at: Int)
-    case append(TodoContentItem)
-
-    var description: String {
-      switch self {
-      case let .update(content, at: index):
-        return "update \(content) at \(index)"
-      case let .append(item):
-        return "append \(item)"
-      }
-    }
-  }
 
   class TodoListObject: ObservableObject, LoggerCategorized {
     typealias LoggersType = FloxBxLogging.Loggers
