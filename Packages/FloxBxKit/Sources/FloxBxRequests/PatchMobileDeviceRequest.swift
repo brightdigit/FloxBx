@@ -1,12 +1,14 @@
 import FloxBxModels
-import FloxBxNetworking
 import Foundation
+import PrchModel
 #if canImport(FoundationNetworking)
   import FoundationNetworking
 #endif
 
-public struct PatchMobileDeviceRequest: ClientBodyRequest {
+public struct PatchMobileDeviceRequest: ServiceCall {
+  public typealias SuccessType = Empty
   public typealias BodyType = PatchMobileDeviceRequestContent
+  public typealias ServiceAPI = FloxBxAPI
 
   public static var requiresCredentials: Bool {
     true
@@ -23,7 +25,7 @@ public struct PatchMobileDeviceRequest: ClientBodyRequest {
     [:]
   }
 
-  public var method: FloxBxNetworking.RequestMethod {
+  public var method: RequestMethod {
     .PATCH
   }
 

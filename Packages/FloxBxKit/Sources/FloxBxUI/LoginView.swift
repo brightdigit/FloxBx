@@ -2,9 +2,20 @@
   import SwiftUI
 
   internal struct LoginView: View {
-    @EnvironmentObject private var object: ApplicationObject
+    internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
+      self.completed = completed
+      _authorization = .init(wrappedValue: .init(service: service))
+    }
+
+    func logout() {
+      authorization.logout()
+    }
+
+    let completed: () -> Void
+    @StateObject var authorization: AuthorizationObject
     @State private var emailAddress: String = ""
     @State private var password: String = ""
+    @State private var isAlertPresented: Bool = false
     #if os(watchOS)
       @State private var presentLoginOrSignup = false
     #endif
@@ -34,7 +45,7 @@
     private var formButtons: some View {
       HStack {
         Button(action: {
-          self.object.beginSignIn(
+          self.authorization.beginSignIn(
             withCredentials: .init(
               username: self.emailAddress,
               password: self.password
@@ -46,7 +57,7 @@
         Spacer()
         Button(
           action: {
-            self.object.beginSignup(
+            self.authorization.beginSignup(
               withCredentials: .init(
                 username: self.emailAddress,
                 password: self.password
@@ -77,7 +88,15 @@
           formButtons
         #endif
         Spacer()
-      }.padding().frame(maxWidth: 300, maxHeight: 500)
+      }
+      .padding()
+      .frame(maxWidth: 300, maxHeight: 500)
+      .onReceive(self.authorization.$account) { account in
+        guard account != nil else {
+          return
+        }
+        self.completed()
+      }
     }
 
     internal var body: some View {
@@ -87,18 +106,27 @@
           content: self.watchForm
         )
       #else
-        self.content
+
+        self.content.alert(
+          isPresented: .constant(self.authorization.error != nil),
+          error: self.authorization.error
+        ) {
+          Button("OK") {
+            Task { @MainActor in
+              self.isAlertPresented = false
+            }
+          }
+        }
+
       #endif
     }
-
-    internal init() {}
 
     private func watchForm() -> some View {
       VStack {
         Text("Sign up new account or sign in existing?")
         Spacer()
         Button("Sign Up") {
-          self.object
+          self.authorization
             .beginSignup(
               withCredentials: .init(
                 username: self.emailAddress,
@@ -107,22 +135,13 @@
             )
         }
         Button("Sign In") {
-          self.object.beginSignIn(
+          self.authorization.beginSignIn(
             withCredentials: .init(
               username: self.emailAddress,
               password: self.password
             )
           )
         }
-      }
-    }
-  }
-
-  private struct LoginView_Previews: PreviewProvider {
-    // swiftlint:disable:next strict_fileprivate
-    fileprivate static var previews: some View {
-      ForEach(ColorScheme.allCases, id: \.self) {
-        LoginView().preferredColorScheme($0)
       }
     }
   }

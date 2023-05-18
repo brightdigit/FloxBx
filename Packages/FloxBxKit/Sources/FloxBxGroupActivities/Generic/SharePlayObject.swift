@@ -2,6 +2,7 @@
   import Combine
   import FelinePine
   import FloxBxLogging
+  import FloxBxUtilities
   import Foundation
 
   #if canImport(GroupActivities)
@@ -61,7 +62,7 @@
         sharingRequestSubject.map {
           ActivityType(configuration: $0)
         }
-        .map { activity in
+        .flatMap { activity in
           Future { () -> Result<ActivityType, Error> in
             do {
               _ = try await activity.activate()
@@ -71,7 +72,6 @@
             return .success(activity)
           }
         }
-        .switchToLatest()
         .compactMap {
           self.isEligible ? nil : try? $0.get()
         }

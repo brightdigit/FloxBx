@@ -1,3 +1,5 @@
+import Foundation
+
 extension Result {
   public init(
     _ asyncFunc: @escaping () async throws -> Success
