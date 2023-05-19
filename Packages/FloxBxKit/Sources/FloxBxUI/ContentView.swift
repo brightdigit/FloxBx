@@ -8,9 +8,6 @@
   internal struct ContentView: View, LoggerCategorized {
     internal init() {}
 
-//    @available(*, deprecated)
-//    @EnvironmentObject private var object: ApplicationObject
-
     @StateObject private var shareplayObject = SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID
     >()

@@ -9,10 +9,6 @@
   import PrchModel
   import Sublimation
 
-  struct Account {
-    let username: String
-  }
-
   internal class ServicesObject: ObservableObject, LoggerCategorized {
     internal convenience init(error: Error? = nil) {
       let service: (any AuthorizedService)! = FloxBxService(

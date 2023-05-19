@@ -1,6 +1,5 @@
 import FloxBxModels
 
-
 enum TodoListAction: CustomStringConvertible {
   case update(CreateTodoResponseContent, at: Int)
   case append(TodoContentItem)
