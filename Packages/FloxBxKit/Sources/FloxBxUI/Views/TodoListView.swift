@@ -96,4 +96,12 @@
       .navigationTitle("Todos")
     }
   }
+
+  // private struct TodoList_Previews: PreviewProvider {
+//  // swiftlint:disable:next strict_fileprivate
+//  fileprivate static var previews: some View {
+//    TodoListView(groupActivityID: nil, service: Flox, onLogout: <#T##() -> Void#>, requestSharing: <#T##() -> Void#>)
+//
+//  }
+  // }
 #endif

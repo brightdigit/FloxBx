@@ -35,4 +35,27 @@
 
     let repository: any StealthyManager<SessionType.AuthorizationType>
   }
+
+  extension FloxBxService {
+    internal convenience init(
+      baseURLProvider: PublishingBaseURLProvider,
+      host: String,
+      accessGroup: String,
+      serviceName: String,
+      session: URLSession = .shared
+    ) where SessionType == URLSession {
+      let repository = KeychainRepository(
+        defaultServiceName: serviceName,
+        defaultServerName: host,
+        defaultAccessGroup: accessGroup
+      )
+      let api = FloxBxAPI(baseURLProvider: baseURLProvider)
+      self.init(
+        api: api,
+        session: session,
+        repository: CredentialsContainer(repository: repository),
+        isReadyPublisher: baseURLProvider.isReadyPublisher
+      )
+    }
+  }
 #endif

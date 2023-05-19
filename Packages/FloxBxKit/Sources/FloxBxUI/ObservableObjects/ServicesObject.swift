@@ -11,13 +11,18 @@
 
   internal class ServicesObject: ObservableObject, LoggerCategorized {
     internal convenience init(error: Error? = nil) {
-      let service: (any AuthorizedService)! = FloxBxService(
-        host: Configuration.productionBaseURL.host ?? Configuration.serviceName,
-        accessGroup: Configuration.accessGroup,
-        serviceName: Configuration.serviceName,
-        urlBucketName: Configuration.Sublimation.bucketName,
-        key: Configuration.Sublimation.key
-      )
+      let service: any AuthorizedService
+      #if DEBUG
+        service = FloxBxService(
+          host: Configuration.productionBaseURL.host ?? Configuration.serviceName,
+          accessGroup: Configuration.accessGroup,
+          serviceName: Configuration.serviceName,
+          urlBucketName: Configuration.Sublimation.bucketName,
+          key: Configuration.Sublimation.key
+        )
+      #else
+        service = FloxBxService(baseURL: Configuration.productionBaseURL, accessGroup: Configuration.accessGroup, serviceName: Configuration.serviceName)
+      #endif
       self.init(service: service, error: error)
     }
 
