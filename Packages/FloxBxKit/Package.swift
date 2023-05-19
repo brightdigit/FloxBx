@@ -37,8 +37,7 @@ let package = Package(
     .target(name: "FelinePine"),
     .target(name: "FloxBxUtilities"),
     .target(name: "FloxBxModels", dependencies: [
-      "FloxBxUtilities",
-      .product(name: "PrchModel", package: "Prch")
+      "FloxBxUtilities"
     ]),
     .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
     .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),

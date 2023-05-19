@@ -1,5 +1,4 @@
-import PrchModel
-public struct CreateUserRequestContent: Codable, Content {
+public struct CreateUserRequestContent: Codable {
   public let emailAddress: String
   public let password: String
   public init(emailAddress: String, password: String) {

@@ -1,7 +1,6 @@
 import Foundation
-import PrchModel
 
-public struct GetUserResponseContent: Codable, Content {
+public struct GetUserResponseContent: Codable {
   private let id: UUID
   private let username: String
   private let tags: [String]

@@ -1,6 +1,6 @@
 import Foundation
-import PrchModel
-public struct CreateGroupSessionResponseContent: Codable, Content {
+
+public struct CreateGroupSessionResponseContent: Codable {
   public let id: UUID
 
   public init(id: UUID) {
