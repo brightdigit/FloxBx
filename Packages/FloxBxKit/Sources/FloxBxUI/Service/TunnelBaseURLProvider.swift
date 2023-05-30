@@ -1,4 +1,4 @@
-#if canImport(Combine)
+#if canImport(Combine) && DEBUG
   import Combine
   import Foundation
   import Sublimation
@@ -31,11 +31,8 @@
 
     let baseURLComponentsResultSubject = PassthroughSubject<Result<URL, Error>, Never>()
 
-    var baseURLComponentsPublisher: AnyPublisher<URLComponents, Never> {
-      $baseURL
-        .compactMap { $0 }
-        .compactMap { URLComponents(url: $0, resolvingAgainstBaseURL: false) }
-        .eraseToAnyPublisher()
+    var isReadyPublisher: AnyPublisher<Bool, Never> {
+      $baseURL.map { $0 != nil }.eraseToAnyPublisher()
     }
 
     var baseURLComponents: URLComponents? {

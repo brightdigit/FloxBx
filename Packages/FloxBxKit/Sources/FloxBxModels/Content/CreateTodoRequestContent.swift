@@ -1,8 +1,7 @@
 import FloxBxUtilities
 import Foundation
-import PrchModel
 
-public struct CreateTodoRequestContent: Codable, Content {
+public struct CreateTodoRequestContent: Codable {
   public let title: String
   public let tags: [String]
 

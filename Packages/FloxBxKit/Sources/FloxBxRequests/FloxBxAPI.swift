@@ -13,7 +13,8 @@ public class FloxBxAPI: API {
   public let baseURLProvider: BaseURLProvider
   public var baseURLComponents: URLComponents {
     guard let baseURLComponents = baseURLProvider.baseURLComponents else {
-      fatalError()
+      assertionFailure("BaseURLProvider is not ready")
+      return URLComponents()
     }
 
     return baseURLComponents

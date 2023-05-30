@@ -1,6 +1,6 @@
 import Foundation
-import PrchModel
-public struct PatchMobileDeviceRequestContent: Content, Codable {
+
+public struct PatchMobileDeviceRequestContent: Codable {
   public let model: String?
   public let operatingSystem: String?
   public let topic: String?

@@ -1,5 +1,4 @@
-import PrchModel
-public struct CreateTokenResponseContent: Codable, Content {
+public struct CreateTokenResponseContent: Codable {
   public let token: String
 
   public init(token: String) {

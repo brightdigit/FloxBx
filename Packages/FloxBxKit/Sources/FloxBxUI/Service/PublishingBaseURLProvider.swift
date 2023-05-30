@@ -4,6 +4,6 @@
   import Foundation
 
   protocol PublishingBaseURLProvider: BaseURLProvider {
-    var baseURLComponentsPublisher: AnyPublisher<URLComponents, Never> { get }
+    var isReadyPublisher: AnyPublisher<Bool, Never> { get }
   }
 #endif

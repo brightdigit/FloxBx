@@ -1,6 +1,7 @@
 #if canImport(Combine)
   import Combine
   import FloxBxAuth
+  import FloxBxModels
   import FloxBxRequests
   import Foundation
   import Prch

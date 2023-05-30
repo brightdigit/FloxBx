@@ -1,8 +1,7 @@
 #if canImport(Combine)
-import FloxBxAuth
-import Combine
-import FloxBxRequests
-
+  import Combine
+  import FloxBxAuth
+  import FloxBxRequests
 
   public protocol AuthorizedService: FloxBxServiceProtocol {
     func save(credentials: Credentials) throws

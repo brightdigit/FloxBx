@@ -9,8 +9,6 @@
   import Foundation
   import Prch
 
-
-
   class TodoListObject: ObservableObject, LoggerCategorized {
     typealias LoggersType = FloxBxLogging.Loggers
 

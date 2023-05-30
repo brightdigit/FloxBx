@@ -47,4 +47,11 @@
       beginSave()
     }
   }
+
+  private struct TodoListItemView_Previews: PreviewProvider {
+    // swiftlint:disable:next strict_fileprivate
+    fileprivate static var previews: some View {
+      TodoListItemView(item: .init(title: "Hello", tags: ["world", "Leo"]), groupActivityID: nil, service: PreviewService())
+    }
+  }
 #endif

@@ -1,6 +1,5 @@
 import Foundation
-import PrchModel
 
-public struct UserSubscriptionRequestContent: Codable, ContentEncodable {
+public struct UserSubscriptionRequestContent: Codable {
   public let tags: [String]
 }

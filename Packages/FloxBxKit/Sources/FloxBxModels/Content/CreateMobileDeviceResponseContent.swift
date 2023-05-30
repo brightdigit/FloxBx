@@ -1,7 +1,6 @@
 import Foundation
-import PrchModel
 
-public struct CreateMobileDeviceResponseContent: Codable, Content {
+public struct CreateMobileDeviceResponseContent: Codable {
   public let id: UUID
 
   public init(id: UUID) {
