@@ -6,29 +6,24 @@
   import Foundation
   import PrchModel
 
-  struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
-    internal init(todoItems: [CreateTodoResponseContent] = []) {
-      self.todoItems = todoItems
+  internal struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
+    internal func save(credentials _: Credentials) throws {
+      fatalError("This service is for previews only")
     }
 
-    let todoItems: [CreateTodoResponseContent]
-    func save(credentials _: Credentials) throws {
-      fatalError()
+    internal func resetCredentials() throws {
+      fatalError("This service is for previews only")
     }
 
-    func resetCredentials() throws {
-      fatalError()
+    internal func fetchCredentials() async throws -> Credentials? {
+      fatalError("This service is for previews only")
     }
 
-    func fetchCredentials() async throws -> Credentials? {
-      fatalError()
-    }
-
-    var isReadyPublisher: AnyPublisher<Bool, Never> {
+    internal var isReadyPublisher: AnyPublisher<Bool, Never> {
       Just(true).eraseToAnyPublisher()
     }
 
-    func request<RequestType>(_: RequestType)
+    internal func request<RequestType>(_: RequestType)
     async throws -> RequestType.SuccessType.DecodableType
       where
       RequestType: PrchModel.ServiceCall,
@@ -36,5 +31,11 @@
       // swiftlint:disable:next force_cast
       todoItems as! RequestType.SuccessType.DecodableType
     }
+
+    internal init(todoItems: [CreateTodoResponseContent] = []) {
+      self.todoItems = todoItems
+    }
+
+    private let todoItems: [CreateTodoResponseContent]
   }
 #endif
