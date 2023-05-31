@@ -21,7 +21,11 @@
           key: Configuration.Sublimation.key
         )
       #else
-        service = FloxBxService(baseURL: Configuration.productionBaseURL, accessGroup: Configuration.accessGroup, serviceName: Configuration.serviceName)
+        service = FloxBxService(
+          baseURL: Configuration.productionBaseURL,
+          accessGroup: Configuration.accessGroup,
+          serviceName: Configuration.serviceName
+        )
       #endif
       self.init(service: service, error: error)
     }

@@ -17,14 +17,23 @@
       session: URLSession = .shared
     ) where
       SessionType == URLSession {
-      guard let baseURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+      guard let baseURLComponents = URLComponents(
+        url: baseURL,
+        resolvingAgainstBaseURL: false
+      ) else {
         fatalError("Unable to acquire base URL")
       }
 
       let host = baseURLComponents.host ?? baseURL.host ?? Configuration.serviceName
       let provider = StaticBaseURLProvider(baseURLComponents: baseURLComponents)
 
-      self.init(baseURLProvider: provider, host: host, accessGroup: accessGroup, serviceName: serviceName, session: session)
+      self.init(
+        baseURLProvider: provider,
+        host: host,
+        accessGroup: accessGroup,
+        serviceName: serviceName,
+        session: session
+      )
     }
   }
 #endif

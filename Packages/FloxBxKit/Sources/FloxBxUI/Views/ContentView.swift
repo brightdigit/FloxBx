@@ -106,9 +106,9 @@
     }
   }
 
-//  private struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//      ContentView()
-//    }
-//  }
+  internal struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+      ContentView()
+    }
+  }
 #endif

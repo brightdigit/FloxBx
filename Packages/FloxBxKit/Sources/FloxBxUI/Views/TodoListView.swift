@@ -97,11 +97,18 @@
     }
   }
 
-  // private struct TodoList_Previews: PreviewProvider {
-//  // swiftlint:disable:next strict_fileprivate
-//  fileprivate static var previews: some View {
-//    TodoListView(groupActivityID: nil, service: Flox, onLogout: <#T##() -> Void#>, requestSharing: <#T##() -> Void#>)
-//
-//  }
-  // }
+  internal struct TodoList_Previews: PreviewProvider {
+    // swiftlint:disable:next strict_fileprivate
+    internal static var previews: some View {
+      TodoListView(
+        groupActivityID: nil,
+        service: PreviewService(
+          todoItems: [
+            CreateTodoResponseContent(id: .init(), title: "Cheese", tags: [])
+          ]),
+        isLoaded: true
+      ) {} requestSharing: {
+      }
+    }
+  }
 #endif

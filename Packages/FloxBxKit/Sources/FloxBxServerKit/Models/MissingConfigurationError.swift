@@ -1,5 +1,5 @@
 import Foundation
 
-public struct MissingConfigurationError: Error {
+struct MissingConfigurationError: Error {
   public let key: String
 }

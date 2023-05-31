@@ -146,12 +146,11 @@
     }
   }
 
-  // private struct LoginView_Previews: PreviewProvider {
-//    // swiftlint:disable:next strict_fileprivate
-//    fileprivate static var previews: some View {
-//      ForEach(ColorScheme.allCases, id: \.self) {
-//        LoginView().preferredColorScheme($0)
-//      }
-//    }
-//  }
+  internal struct LoginView_Previews: PreviewProvider {
+    internal static var previews: some View {
+      ForEach(ColorScheme.allCases, id: \.self) {
+        LoginView(service: PreviewService()) {}.preferredColorScheme($0)
+      }
+    }
+  }
 #endif

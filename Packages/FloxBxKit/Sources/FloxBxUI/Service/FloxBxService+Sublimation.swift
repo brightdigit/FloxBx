@@ -27,7 +27,13 @@
             bucketName: urlBucketName
           )
         )
-        self.init(baseURLProvider: tunnelRepo, host: host, accessGroup: accessGroup, serviceName: serviceName, session: session)
+        self.init(
+          baseURLProvider: tunnelRepo,
+          host: host,
+          accessGroup: accessGroup,
+          serviceName: serviceName,
+          session: session
+        )
       }
     }
   #endif
