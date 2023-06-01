@@ -18,21 +18,6 @@
 
     private var cancellables = [AnyCancellable]()
 
-    internal func beginSignup(withCredentials credentials: Credentials) {
-      authenticateSubject.send((credentials, true))
-    }
-
-    internal func beginSignIn(withCredentials credentials: Credentials) {
-      authenticateSubject.send((credentials, false))
-    }
-
-    internal func logout() {
-      let result = Result {
-        try service.resetCredentials()
-      }
-      logoutCompletedSubject.send(result)
-    }
-
     internal init(service: any AuthorizedService, account: Account? = nil) {
       self.service = service
       self.account = account
@@ -122,6 +107,21 @@
 
       errorSubject.map(Optional.some).receive(on: DispatchQueue.main).assign(to: &$error)
       accountSubject.receive(on: DispatchQueue.main).assign(to: &$account)
+    }
+
+    internal func beginSignup(withCredentials credentials: Credentials) {
+      authenticateSubject.send((credentials, true))
+    }
+
+    internal func beginSignIn(withCredentials credentials: Credentials) {
+      authenticateSubject.send((credentials, false))
+    }
+
+    internal func logout() {
+      let result = Result {
+        try service.resetCredentials()
+      }
+      logoutCompletedSubject.send(result)
     }
   }
 #endif

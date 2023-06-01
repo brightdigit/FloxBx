@@ -2,6 +2,10 @@ import Foundation
 import StealthyStash
 
 public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
+  public typealias QueryType = Void
+
+  public typealias StealthyModelType = Credentials
+
   public static func updates(
     from previousItem: Credentials,
     to newItem: Credentials
@@ -16,13 +20,15 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
 
     let previousTokenData = previousItem.token.flatMap {
       $0.data(using: .utf8)
-    }.map {
+    }
+    .map {
       GenericPasswordItem(account: previousItem.username, data: $0)
     }
 
     let newTokenData = newItem.token.flatMap {
       $0.data(using: .utf8)
-    }.map {
+    }
+    .map {
       GenericPasswordItem(account: newItem.username, data: $0)
     }
 
@@ -75,23 +81,25 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
     from properties: [String: [AnyStealthyProperty]]
   ) throws -> Credentials? {
     for internet in properties["password"] ?? [] {
-      for generic in properties["token"] ?? [] {
-        if internet.account == generic.account {
-          return .init(
-            username: internet.account,
-            password: internet.dataString,
-            token: generic.dataString
-          )
-        }
+      for generic in properties["token"] ?? [] where internet.account == generic.account {
+        return .init(
+          username: internet.account,
+          password: internet.dataString,
+          token: generic.dataString
+        )
       }
     }
-    let properties = properties.values.flatMap { $0 }.enumerated().sorted { lhs, rhs in
-      if lhs.element.propertyType == rhs.element.propertyType {
-        return lhs.offset < rhs.offset
-      } else {
-        return lhs.element.propertyType == .internet
+    let properties = properties.values
+      .flatMap { $0 }
+      .enumerated()
+      .sorted { lhs, rhs in
+        if lhs.element.propertyType == rhs.element.propertyType {
+          return lhs.offset < rhs.offset
+        } else {
+          return lhs.element.propertyType == .internet
+        }
       }
-    }.map(\.element)
+      .map(\.element)
 
     guard let username = properties.map(\.account).first else {
       return nil
@@ -107,8 +115,4 @@ public struct CompositeCredentialsQueryBuilder: ModelQueryBuilder {
 
     return Credentials(username: username, password: password, token: token?.string())
   }
-
-  public typealias QueryType = Void
-
-  public typealias StealthyModelType = Credentials
 }

@@ -7,6 +7,12 @@
   import PrchModel
 
   internal struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
+    private let todoItems: [CreateTodoResponseContent]
+
+    internal init(todoItems: [CreateTodoResponseContent] = []) {
+      self.todoItems = todoItems
+    }
+
     internal func save(credentials _: Credentials) throws {
       fatalError("This service is for previews only")
     }
@@ -31,11 +37,5 @@
       // swiftlint:disable:next force_cast
       todoItems as! RequestType.SuccessType.DecodableType
     }
-
-    internal init(todoItems: [CreateTodoResponseContent] = []) {
-      self.todoItems = todoItems
-    }
-
-    private let todoItems: [CreateTodoResponseContent]
   }
 #endif

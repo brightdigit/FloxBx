@@ -7,8 +7,24 @@
   import PrchModel
   import StealthyStash
 
-  class FloxBxService<SessionType: Session>: Service
+  internal class FloxBxService<SessionType: Session>: Service
     where SessionType.ResponseType.DataType == Data, SessionType.RequestDataType == Data {
+    internal typealias ServiceAPI = FloxBxAPI
+
+    internal let isReadyPublisher: AnyPublisher<Bool, Never>
+
+    internal var api: FloxBxRequests.FloxBxAPI
+
+    internal var session: SessionType
+
+    internal var authorizationManager: any AuthorizationManager<
+      SessionType.AuthorizationType
+    > {
+      repository
+    }
+
+    internal let repository: any StealthyManager<SessionType.AuthorizationType>
+
     internal init(
       api: FloxBxAPI,
       session: SessionType,
@@ -20,20 +36,6 @@
       self.repository = repository
       self.isReadyPublisher = isReadyPublisher
     }
-
-    let isReadyPublisher: AnyPublisher<Bool, Never>
-
-    var api: FloxBxRequests.FloxBxAPI
-
-    var session: SessionType
-
-    typealias ServiceAPI = FloxBxAPI
-
-    var authorizationManager: any AuthorizationManager<SessionType.AuthorizationType> {
-      repository
-    }
-
-    let repository: any StealthyManager<SessionType.AuthorizationType>
   }
 
   extension FloxBxService {
