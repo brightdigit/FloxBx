@@ -1,7 +1,7 @@
 import FloxBxAuth
 import Prch
 
-protocol StealthyManager<AuthorizationType>: AuthorizationManager {
+internal protocol StealthyManager<AuthorizationType>: AuthorizationManager {
   func fetch() async throws -> Credentials?
 
   func save(credentials: Credentials) throws

@@ -49,7 +49,6 @@
   }
 
   internal struct TodoListItemView_Previews: PreviewProvider {
-    // swiftlint:disable:next strict_fileprivate
     internal static var previews: some View {
       TodoListItemView(
         item: .init(

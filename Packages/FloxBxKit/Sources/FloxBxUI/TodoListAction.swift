@@ -1,10 +1,11 @@
 import FloxBxModels
 
-enum TodoListAction: CustomStringConvertible {
+internal enum TodoListAction: CustomStringConvertible {
+  // swiftlint:disable:next identifier_name
   case update(CreateTodoResponseContent, at: Int)
   case append(TodoContentItem)
 
-  var description: String {
+  internal var description: String {
     switch self {
     case let .update(content, at: index):
       return "update \(content) at \(index)"

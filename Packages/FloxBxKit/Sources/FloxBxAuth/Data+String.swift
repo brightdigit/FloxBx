@@ -2,7 +2,7 @@ import Foundation
 import StealthyStash
 
 extension Data {
-  func string(encoding: String.Encoding = .utf8) -> String? {
+  internal func string(encoding: String.Encoding = .utf8) -> String? {
     String(data: self, encoding: encoding)
   }
 }

@@ -3,7 +3,7 @@
   import FloxBxRequests
   import Foundation
 
-  protocol PublishingBaseURLProvider: BaseURLProvider {
+  internal protocol PublishingBaseURLProvider: BaseURLProvider {
     var isReadyPublisher: AnyPublisher<Bool, Never> { get }
   }
 #endif

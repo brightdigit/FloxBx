@@ -9,24 +9,27 @@
   internal struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
     private let todoItems: [CreateTodoResponseContent]
 
+    internal var isReadyPublisher: AnyPublisher<Bool, Never> {
+      Just(true).eraseToAnyPublisher()
+    }
+
     internal init(todoItems: [CreateTodoResponseContent] = []) {
       self.todoItems = todoItems
     }
 
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
     internal func save(credentials _: Credentials) throws {
       fatalError("This service is for previews only")
     }
 
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
     internal func resetCredentials() throws {
       fatalError("This service is for previews only")
     }
 
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
     internal func fetchCredentials() async throws -> Credentials? {
       fatalError("This service is for previews only")
-    }
-
-    internal var isReadyPublisher: AnyPublisher<Bool, Never> {
-      Just(true).eraseToAnyPublisher()
     }
 
     internal func request<RequestType>(_: RequestType)

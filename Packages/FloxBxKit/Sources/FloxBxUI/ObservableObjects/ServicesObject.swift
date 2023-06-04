@@ -10,6 +10,17 @@
   import Sublimation
 
   internal class ServicesObject: ObservableObject, LoggerCategorized {
+    internal typealias LoggersType = FloxBxLogging.Loggers
+
+    internal static var loggingCategory: LoggerCategory {
+      .reactive
+    }
+
+    @Published internal private(set) var service: any AuthorizedService
+    @Published internal private(set) var error: Error?
+    @Published internal private(set) var requireAuthentication = false
+    @Published internal private(set) var isReady: Bool
+
     internal convenience init(error: Error? = nil) {
       let service: any AuthorizedService
       #if DEBUG
@@ -41,6 +52,8 @@
 
       self.service.isReadyPublisher.receive(on: DispatchQueue.main).assign(to: &$isReady)
 
+      // swiftlint - false positive
+      // swiftlint:disable:next array_init
       $service
         .combineLatest(self.service.isReadyPublisher)
         .filter { $0.1 }
@@ -54,17 +67,6 @@
         .replaceError(with: false)
         .receive(on: DispatchQueue.main)
         .assign(to: &$requireAuthentication)
-    }
-
-    @Published var service: any AuthorizedService
-    @Published var error: Error?
-    @Published var requireAuthentication = false
-    @Published var isReady: Bool
-
-    typealias LoggersType = FloxBxLogging.Loggers
-
-    static var loggingCategory: LoggerCategory {
-      .reactive
     }
   }
 #endif
