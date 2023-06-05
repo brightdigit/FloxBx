@@ -2,15 +2,16 @@ import Foundation
 import PrchModel
 
 public class FloxBxAPI: API {
-  public init(baseURLProvider: BaseURLProvider) {
-    self.baseURLProvider = baseURLProvider
-  }
+  public typealias RequestDataType = Data
+
+  public typealias ResponseDataType = Data
 
   public var isReady: Bool {
     baseURLProvider.baseURLComponents != nil
   }
 
   public let baseURLProvider: BaseURLProvider
+
   public var baseURLComponents: URLComponents {
     guard let baseURLComponents = baseURLProvider.baseURLComponents else {
       assertionFailure("BaseURLProvider is not ready")
@@ -32,7 +33,7 @@ public class FloxBxAPI: API {
     Defaults.decoder
   }
 
-  public typealias RequestDataType = Data
-
-  public typealias ResponseDataType = Data
+  public init(baseURLProvider: BaseURLProvider) {
+    self.baseURLProvider = baseURLProvider
+  }
 }

@@ -3,18 +3,18 @@
   import FloxBxAuth
   import FloxBxRequests
 
-  public protocol AuthorizedService: FloxBxServiceProtocol {
+  internal protocol AuthorizedService: FloxBxServiceProtocol {
+    var isReadyPublisher: AnyPublisher<Bool, Never> { get }
+
     func save(credentials: Credentials) throws
 
     func resetCredentials() throws
 
     func fetchCredentials() async throws -> Credentials?
-
-    var isReadyPublisher: AnyPublisher<Bool, Never> { get }
   }
 
   extension AuthorizedService {
-    func verifyLogin() async throws -> Bool {
+    internal func verifyLogin() async throws -> Bool {
       guard let credentials = try await fetchCredentials() else {
         return false
       }

@@ -9,14 +9,25 @@
   import Foundation
   import Prch
 
-  class TodoListObject: ObservableObject, LoggerCategorized {
-    typealias LoggersType = FloxBxLogging.Loggers
+  internal class TodoListObject: ObservableObject, LoggerCategorized {
+    internal typealias LoggersType = FloxBxLogging.Loggers
 
-    static var loggingCategory: FloxBxLogging.LoggerCategory {
+    internal static var loggingCategory: FloxBxLogging.LoggerCategory {
       LoggerCategory.reactive
     }
 
-    var updateItemCancellable: AnyCancellable!
+    // swiftlint:disable:next implicitly_unwrapped_optional
+    private var updateItemCancellable: AnyCancellable!
+
+    internal let groupActivityID: UUID?
+    internal let service: any FloxBxServiceProtocol
+    @Published internal private(set) var items: [TodoContentItem]
+    @Published internal private(set) var isLoaded: Bool
+    @Published internal private(set) var lastErrror: Error?
+
+    private let errorSubject = PassthroughSubject<Error, Never>()
+    private let actionSubject = PassthroughSubject<TodoListAction, Never>()
+    private let loadSubject = PassthroughSubject<Void, Never>()
 
     // swiftlint:disable:next function_body_length
     internal init(
@@ -87,7 +98,8 @@
 
       let upsertErrorPublisher = requestResult.map { _ in
         nil
-      }.catch { error in
+      }
+      .catch { error in
         Just<Error?>(error)
       }
 
@@ -96,7 +108,9 @@
       }
       .catch { _ in
         Just(nil)
-      }.compactMap { $0 }.receive(on: DispatchQueue.main)
+      }
+      .compactMap { $0 }
+      .receive(on: DispatchQueue.main)
       .sink { content, index in
         let item = TodoContentItem(content: content)
         if let index = index {
@@ -107,19 +121,9 @@
       }
     }
 
-    let groupActivityID: UUID?
-    let service: any FloxBxServiceProtocol
-    @Published var items: [TodoContentItem]
-    @Published var isLoaded: Bool
-    @Published var lastErrror: Error?
-
-    let errorSubject = PassthroughSubject<Error, Never>()
-    let actionSubject = PassthroughSubject<TodoListAction, Never>()
-    let loadSubject = PassthroughSubject<Void, Never>()
-
     internal func addDelta(_: TodoListDelta) {}
 
-    func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
+    internal func saveItem(_ item: TodoContentItem, onlyNew: Bool = false) {
       guard let index = items.firstIndex(where: { $0.id == item.id }) else {
         return
       }
@@ -179,7 +183,7 @@
       }
     }
 
-    func beginDeleteItems(
+    internal func beginDeleteItems(
       atIndexSet indexSet: IndexSet
     ) {
       Task {
@@ -191,11 +195,11 @@
       }
     }
 
-    func begin() {
+    internal func begin() {
       loadSubject.send()
     }
 
-    func addItem(_ item: TodoContentItem) {
+    internal func addItem(_ item: TodoContentItem) {
       actionSubject.send(.append(item))
     }
   }

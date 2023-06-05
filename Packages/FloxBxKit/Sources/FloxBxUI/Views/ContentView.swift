@@ -6,8 +6,6 @@
   import SwiftUI
 
   internal struct ContentView: View, LoggerCategorized {
-    internal init() {}
-
     @StateObject private var shareplayObject = SharePlayObject<
       TodoListDelta, GroupActivityConfiguration, UUID
     >()
@@ -43,13 +41,6 @@
         }
       }
     }
-
-    @MainActor
-    func logout() {
-      shouldDisplayLoginView = true
-    }
-
-    func requestSharing() {}
 
     private var mainView: some View {
       TabView {
@@ -104,10 +95,19 @@
         mainView
       }
     }
+
+    internal init() {}
+
+    @MainActor
+    internal func logout() {
+      shouldDisplayLoginView = true
+    }
+
+    internal func requestSharing() {}
   }
 
   internal struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
+    internal static var previews: some View {
       ContentView()
     }
   }

@@ -6,29 +6,33 @@
   import Foundation
   import PrchModel
 
-  struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
+  internal struct PreviewService: FloxBxServiceProtocol, AuthorizedService {
+    private let todoItems: [CreateTodoResponseContent]
+
+    internal var isReadyPublisher: AnyPublisher<Bool, Never> {
+      Just(true).eraseToAnyPublisher()
+    }
+
     internal init(todoItems: [CreateTodoResponseContent] = []) {
       self.todoItems = todoItems
     }
 
-    let todoItems: [CreateTodoResponseContent]
-    func save(credentials _: Credentials) throws {
-      fatalError()
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
+    internal func save(credentials _: Credentials) throws {
+      fatalError("This service is for previews only")
     }
 
-    func resetCredentials() throws {
-      fatalError()
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
+    internal func resetCredentials() throws {
+      fatalError("This service is for previews only")
     }
 
-    func fetchCredentials() async throws -> Credentials? {
-      fatalError()
+    @available(*, obsoleted: 0, message: "Should not be called in Preview.")
+    internal func fetchCredentials() async throws -> Credentials? {
+      fatalError("This service is for previews only")
     }
 
-    var isReadyPublisher: AnyPublisher<Bool, Never> {
-      Just(true).eraseToAnyPublisher()
-    }
-
-    func request<RequestType>(_: RequestType)
+    internal func request<RequestType>(_: RequestType)
     async throws -> RequestType.SuccessType.DecodableType
       where
       RequestType: PrchModel.ServiceCall,

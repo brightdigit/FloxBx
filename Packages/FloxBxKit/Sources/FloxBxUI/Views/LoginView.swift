@@ -2,17 +2,8 @@
   import SwiftUI
 
   internal struct LoginView: View {
-    internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
-      self.completed = completed
-      _authorization = .init(wrappedValue: .init(service: service))
-    }
-
-    func logout() {
-      authorization.logout()
-    }
-
-    let completed: () -> Void
-    @StateObject var authorization: AuthorizationObject
+    private let completed: () -> Void
+    @StateObject private var authorization: AuthorizationObject
     @State private var emailAddress: String = ""
     @State private var password: String = ""
     @State private var isAlertPresented: Bool = false
@@ -25,7 +16,7 @@
         Spacer()
         Image("Logo").resizable().scaledToFit().layoutPriority(-1)
         Text("FloxBx")
-          .font(/*@START_MENU_TOKEN@*/ .title/*@END_MENU_TOKEN@*/)
+          .font(.title)
           .fontWeight(.ultraLight)
           .padding()
         Spacer()
@@ -103,7 +94,9 @@
       #if os(watchOS)
         self.content.sheet(
           isPresented: self.$presentLoginOrSignup,
-          content: self.watchForm
+          content: {
+            self.watchForm
+          }
         )
       #else
 
@@ -121,7 +114,7 @@
       #endif
     }
 
-    private func watchForm() -> some View {
+    private var watchForm: some View {
       VStack {
         Text("Sign up new account or sign in existing?")
         Spacer()
@@ -143,6 +136,15 @@
           )
         }
       }
+    }
+
+    internal init(service: any AuthorizedService, completed: @escaping () -> Void) {
+      self.completed = completed
+      _authorization = .init(wrappedValue: .init(service: service))
+    }
+
+    internal func logout() {
+      authorization.logout()
     }
   }
 

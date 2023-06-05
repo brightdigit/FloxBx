@@ -5,7 +5,7 @@
   import Foundation
 
   extension StaticBaseURLProvider: PublishingBaseURLProvider {
-    var isReadyPublisher: AnyPublisher<Bool, Never> {
+    internal var isReadyPublisher: AnyPublisher<Bool, Never> {
       Just(true).eraseToAnyPublisher()
     }
   }

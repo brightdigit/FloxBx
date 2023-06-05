@@ -6,7 +6,18 @@
   import Foundation
   import Prch
 
-  class AuthorizationObject: ObservableObject {
+  internal class AuthorizationObject: ObservableObject {
+    private let service: any AuthorizedService
+    @Published internal private(set) var account: Account?
+    @Published internal private(set) var error: AuthenticationError?
+    private let logoutCompletedSubject = PassthroughSubject<Result<Void, Error>, Never>()
+    private let authenticateSubject = PassthroughSubject<(Credentials, Bool), Never>()
+    private let refreshSubject = PassthroughSubject<Void, Never>()
+    private let errorSubject = PassthroughSubject<AuthenticationError, Never>()
+    private let accountSubject = PassthroughSubject<Account?, Never>()
+
+    private var cancellables = [AnyCancellable]()
+
     // swiftlint:disable:next function_body_length
     internal init(service: any AuthorizedService, account: Account? = nil) {
       self.service = service
@@ -43,11 +54,14 @@
           nil
         }
       }
-      .subscribe(accountSubject).store(in: &cancellables)
+      .subscribe(accountSubject)
+      .store(in: &cancellables)
 
       logoutCompleted.compactMap {
         $0.asError().map(AuthenticationError.init)
-      }.subscribe(errorSubject).store(in: &cancellables)
+      }
+      .subscribe(errorSubject)
+      .store(in: &cancellables)
 
       let authenticationResult = authenticateSubject.flatMap { credentials, isNew in
         Future { () async throws -> Credentials in
@@ -96,26 +110,15 @@
       accountSubject.receive(on: DispatchQueue.main).assign(to: &$account)
     }
 
-    let service: any AuthorizedService
-    @Published var account: Account?
-    @Published var error: AuthenticationError?
-    let logoutCompletedSubject = PassthroughSubject<Result<Void, Error>, Never>()
-    let authenticateSubject = PassthroughSubject<(Credentials, Bool), Never>()
-    let refreshSubject = PassthroughSubject<Void, Never>()
-    let errorSubject = PassthroughSubject<AuthenticationError, Never>()
-    let accountSubject = PassthroughSubject<Account?, Never>()
-
-    var cancellables = [AnyCancellable]()
-
     internal func beginSignup(withCredentials credentials: Credentials) {
       authenticateSubject.send((credentials, true))
     }
 
-    func beginSignIn(withCredentials credentials: Credentials) {
+    internal func beginSignIn(withCredentials credentials: Credentials) {
       authenticateSubject.send((credentials, false))
     }
 
-    func logout() {
+    internal func logout() {
       let result = Result {
         try service.resetCredentials()
       }

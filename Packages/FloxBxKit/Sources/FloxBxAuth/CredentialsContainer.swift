@@ -1,13 +1,13 @@
 import StealthyStash
 
 public class CredentialsContainer {
+  private var credentials: Credentials?
+  private let repository: StealthyRepository
+
   public init(repository: StealthyRepository, credentials: Credentials? = nil) {
     self.credentials = credentials
     self.repository = repository
   }
-
-  var credentials: Credentials?
-  let repository: StealthyRepository
 
   public func fetch() async throws -> Credentials? {
     let credentials: Credentials? = try await repository.fetch()

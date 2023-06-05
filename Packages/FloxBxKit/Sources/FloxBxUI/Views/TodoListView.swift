@@ -5,31 +5,10 @@
   import SwiftUI
 
   internal struct TodoListView: View {
-    let onLogout: () -> Void
-    let requestSharing: () -> Void
+    private let onLogout: () -> Void
+    private let requestSharing: () -> Void
     @StateObject private var listObject: TodoListObject
-    @StateObject var authorization: AuthorizationObject
-
-    init(
-      groupActivityID: UUID?,
-      service: any AuthorizedService,
-      items: [TodoContentItem] = [],
-      isLoaded: Bool? = nil,
-      onLogout: @escaping () -> Void,
-      requestSharing: @escaping () -> Void
-    ) {
-      let isLoaded = isLoaded ?? !items.isEmpty
-      self.onLogout = onLogout
-      self.requestSharing = requestSharing
-      _authorization = .init(wrappedValue: .init(service: service))
-      _listObject = StateObject(
-        wrappedValue: .init(
-          groupActivityID: groupActivityID,
-          service: service,
-          isLoaded: isLoaded
-        )
-      )
-    }
+    @StateObject private var authorization: AuthorizationObject
 
     private var list: some View {
       List {
@@ -95,17 +74,39 @@
       })
       .navigationTitle("Todos")
     }
+
+    internal init(
+      groupActivityID: UUID?,
+      service: any AuthorizedService,
+      items: [TodoContentItem] = [],
+      // swiftlint:disable:next discouraged_optional_boolean
+      isLoaded: Bool? = nil,
+      onLogout: @escaping () -> Void,
+      requestSharing: @escaping () -> Void
+    ) {
+      let isLoaded = isLoaded ?? !items.isEmpty
+      self.onLogout = onLogout
+      self.requestSharing = requestSharing
+      _authorization = .init(wrappedValue: .init(service: service))
+      _listObject = StateObject(
+        wrappedValue: .init(
+          groupActivityID: groupActivityID,
+          service: service,
+          isLoaded: isLoaded
+        )
+      )
+    }
   }
 
   internal struct TodoList_Previews: PreviewProvider {
-    // swiftlint:disable:next strict_fileprivate
     internal static var previews: some View {
       TodoListView(
         groupActivityID: nil,
         service: PreviewService(
           todoItems: [
             CreateTodoResponseContent(id: .init(), title: "Cheese", tags: [])
-          ]),
+          ]
+        ),
         isLoaded: true
       ) {} requestSharing: {
       }
