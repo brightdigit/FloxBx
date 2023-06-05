@@ -16,7 +16,6 @@
       LoggerCategory.reactive
     }
 
-    // swiftlint:disable:next implicitly_unwrapped_optional
     private var updateItemCancellable: AnyCancellable!
 
     internal let groupActivityID: UUID?
@@ -29,7 +28,6 @@
     private let actionSubject = PassthroughSubject<TodoListAction, Never>()
     private let loadSubject = PassthroughSubject<Void, Never>()
 
-    // swiftlint:disable:next function_body_length
     internal init(
       groupActivityID: UUID?,
       service: any AuthorizedService,
