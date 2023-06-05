@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:brightdigit/FelinePine.git
+	branch = floxbx
+	commit = 7fc081f759ba619c5331c6b164c296fc6900b75c
+	parent = d9bc2968ee0aea5f7ea1ac3ae92c125e0124e855
+	method = merge
+	cmdver = 0.4.6
