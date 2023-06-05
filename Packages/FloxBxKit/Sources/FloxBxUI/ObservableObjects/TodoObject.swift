@@ -5,19 +5,20 @@
   import Foundation
   import Prch
 
-  class TodoObject: ObservableObject {
-    let saveTrigger = PassthroughSubject<Void, Never>()
-    let groupActivityID: UUID?
-    let service: any FloxBxServiceProtocol
-    @Published var text: String
-    @Published var item: TodoContentItem
-    @Published var lastError: Error?
+  internal class TodoObject: ObservableObject {
+    private let saveTrigger = PassthroughSubject<Void, Never>()
+    private let groupActivityID: UUID?
+    private let service: any FloxBxServiceProtocol
+    @Published internal var text: String
+    @Published internal private(set) var item: TodoContentItem
+    @Published internal private(set) var lastError: Error?
 
-    var isSaved: Bool {
+    internal var isSaved: Bool {
       item.isSaved
     }
 
-    init(
+    // swiftlint:disable:next function_body_length
+    internal init(
       item: TodoContentItem,
       service: any FloxBxServiceProtocol,
       groupActivityID: UUID?
@@ -45,7 +46,8 @@
         .map(Result.success)
         .catch { error in
           Just(.failure(error))
-        }.share()
+        }
+        .share()
 
       savedItemPublisher
         .compactMap { try? $0.get() }
@@ -58,11 +60,12 @@
         }
 
         return error
-      }.receive(on: DispatchQueue.main)
-        .assign(to: &$lastError)
+      }
+      .receive(on: DispatchQueue.main)
+      .assign(to: &$lastError)
     }
 
-    func beginSave() {
+    internal func beginSave() {
       saveTrigger.send()
     }
   }

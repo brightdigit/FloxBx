@@ -18,6 +18,7 @@
 
     private var cancellables = [AnyCancellable]()
 
+    // swiftlint:disable:next function_body_length
     internal init(service: any AuthorizedService, account: Account? = nil) {
       self.service = service
       self.account = account
