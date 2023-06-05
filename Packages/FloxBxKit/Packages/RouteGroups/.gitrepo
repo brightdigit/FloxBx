@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/brightdigit/RouteGroups
+	branch = floxbx
+	commit = 159c5a7c4f30480d4843956d348afea4a1ff95b7
+	parent = 049bce199fcd9ed887ff6f1e19df34c3ef08ec10
+	method = merge
+	cmdver = 0.4.6
