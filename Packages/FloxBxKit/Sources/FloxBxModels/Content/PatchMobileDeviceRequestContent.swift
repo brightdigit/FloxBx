@@ -1,4 +1,5 @@
 import Foundation
+
 public struct PatchMobileDeviceRequestContent: Codable {
   public let model: String?
   public let operatingSystem: String?

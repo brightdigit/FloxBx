@@ -1,4 +1,5 @@
 import Foundation
+
 public struct CreateGroupSessionResponseContent: Codable {
   public let id: UUID
 
