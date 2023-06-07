@@ -26,15 +26,16 @@ let package = Package(
       url: "https://github.com/brightdigit/Sublimation.git",
       from: "1.0.0-alpha.2"
     ),
-    .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.2"),
+    .package(url: "https://github.com/vapor/apns.git", from: "4.0.0-beta.3"),
     .package(url: "https://github.com/brightdigit/Prch.git", from: "1.0.0-alpha.1"),
     .package(
       url: "https://github.com/brightdigit/StealthyStash.git",
       from: "0.1.0-alpha.1"
-    )
+    ),
+    .package(path: "Packages/FelinePine"),
+    .package(path: "Packages/RouteGroups")
   ],
   targets: [
-    .target(name: "FelinePine"),
     .target(name: "FloxBxUtilities"),
     .target(name: "FloxBxModels", dependencies: [
       "FloxBxUtilities"
@@ -42,10 +43,6 @@ let package = Package(
     .target(name: "FloxBxLogging", dependencies: ["FelinePine"]),
     .target(name: "FloxBxGroupActivities", dependencies: ["FloxBxLogging"]),
     .target(name: "FloxBxAuth", dependencies: ["FloxBxLogging", "StealthyStash"]),
-    .target(
-      name: "RouteGroups",
-      dependencies: [.product(name: "Vapor", package: "vapor")]
-    ),
     .executableTarget(
       name: "fbd",
       dependencies: ["FloxBxServerKit"]
@@ -72,7 +69,7 @@ let package = Package(
         .product(name: "FluentPostgresDriver", package: "fluent-postgres-driver"),
         .product(name: "Vapor", package: "vapor"),
         .product(name: "SublimationVapor", package: "Sublimation"),
-        .product(name: "APNS", package: "apns"),
+        .product(name: "VaporAPNS", package: "apns"),
         "FloxBxModels", "FloxBxDatabase", "RouteGroups", "FloxBxLogging"
       ],
       swiftSettings: [

@@ -49,7 +49,8 @@ public struct Server {
       eventLoopGroupProvider: .createNew,
       responseDecoder: .init(),
       requestEncoder: .init(),
-      backgroundActivityLogger: app.logger, as: .default
+      //backgroundActivityLogger: app.logger,
+      as: .default
     )
   }
 

@@ -5,6 +5,7 @@ import Foundation
   import Logging
 #endif
 
+@available(iOS 14.0, watchOS 7.0, macOS 11.0, *)
 extension Logger {
   // swiftlint:disable:next force_unwrapping
   private static let subsystem: String = Bundle.main.bundleIdentifier!

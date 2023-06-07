@@ -1,9 +1,9 @@
 import Vapor
 
 public struct GroupBuilder<RouteGroupKeyType: Hashable> {
-  public let groups: [RouteGroupKeyType: RoutesBuilder]
+  public let groups: [RouteGroupKeyType: any RoutesBuilder]
 
-  public init(groups: [RouteGroupKeyType: RoutesBuilder]) {
+  public init(groups: [RouteGroupKeyType: any RoutesBuilder]) {
     self.groups = groups
   }
 

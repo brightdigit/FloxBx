@@ -5,12 +5,14 @@ import Foundation
   import Logging
 #endif
 
+@available(iOS 14.0, watchOS 7.0, macOS 11.0, *)
 public protocol Loggers {
   associatedtype LoggerCategory: CaseIterable & Hashable & RawRepresentable
     where LoggerCategory.RawValue == String
   static var loggers: [LoggerCategory: Logger] { get }
 }
 
+@available(iOS 14.0, watchOS 7.0, macOS 11.0, *)
 extension Loggers {
   // swiftlint:disable:next identifier_name
   public static var _loggers: [LoggerCategory: Logger] {
