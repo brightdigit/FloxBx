@@ -4,7 +4,7 @@
 ; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
 ;
 [subrepo]
-	remote = https://github.com/brightdigit/RouteGroups
+	remote = git@github.com:brightdigit/RouteGroups.git
 	branch = floxbx
 	commit = 05b6011b096a72b6803f584b600fded47cc3737b
 	parent = bf72e3e3f1f8a54fb93bd75c3bb2d104fdaf5873
