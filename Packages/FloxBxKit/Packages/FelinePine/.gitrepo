@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:brightdigit/FelinePine.git
 	branch = floxbx
-	commit = 7fc081f759ba619c5331c6b164c296fc6900b75c
-	parent = d9bc2968ee0aea5f7ea1ac3ae92c125e0124e855
+	commit = 957f9b3e2ef5dcde2bbbbd2957883a30cc4d8f74
+	parent = 8b784298fe9af0aa186f3a96abeabebd7bf476f7
 	method = merge
 	cmdver = 0.4.6
