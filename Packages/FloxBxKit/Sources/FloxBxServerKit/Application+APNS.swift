@@ -1,13 +1,13 @@
 import FloxBxModels
-import VaporAPNS
 import Foundation
 import Vapor
+import VaporAPNS
 
 extension Application {
   public func sendNotification<NotifiableType: Notifiable>(
     _ notification: NotifiableType
   ) async throws -> UUID? {
-    try await self.apns.client.sendAlertNotification(
+    try await apns.client.sendAlertNotification(
       .init(
         alert: .init(title: .raw(notification.title)),
         expiration: .immediately,

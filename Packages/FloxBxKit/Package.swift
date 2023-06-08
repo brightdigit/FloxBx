@@ -32,7 +32,10 @@ let package = Package(
       url: "https://github.com/brightdigit/StealthyStash.git",
       from: "0.1.0-alpha.1"
     ),
-    .package(path: "Packages/FelinePine"),
+    .package(
+      url: "https://github.com/brightdigit/FelinePine.git",
+      branch: "main"
+    ),
     .package(path: "Packages/RouteGroups")
   ],
   targets: [
