@@ -2,11 +2,7 @@ import FelinePine
 import FloxBxLogging
 import RouteGroups
 
-@available(*, deprecated, renamed: "RouteGroupCollection")
-internal protocol LoggedRouteGroupCollection: RouteGroupCollection, LoggerCategorized
-  where LoggersType == FloxBxLogging.Loggers {}
-
-extension LoggedRouteGroupCollection {
+extension RouteGroupCollection {
   internal static var loggingCategory: LoggerCategory {
     .networking
   }

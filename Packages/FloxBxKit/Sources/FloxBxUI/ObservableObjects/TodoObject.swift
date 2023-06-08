@@ -17,7 +17,6 @@
       item.isSaved
     }
 
-    // swiftlint:disable:next function_body_length
     internal init(
       item: TodoContentItem,
       service: any FloxBxServiceProtocol,

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/apns.git",
       "state" : {
-        "revision" : "3c9cfc4ae9c3cb8765ea4e99ca81688ab28d1493",
-        "version" : "4.0.0-beta.2"
+        "revision" : "1637a30b37bcb65f804ab852f991a019e6818a70",
+        "version" : "4.0.0-beta.3"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-server-community/APNSwift.git",
       "state" : {
-        "revision" : "4626afb4057e0c35aae25febf6baee95e0ced0ef",
-        "version" : "5.0.0-beta.2"
+        "revision" : "0bb74ee2b7df9d3ff1b7da7c1215a3ab88854af9",
+        "version" : "5.0.0-beta.4"
       }
     },
     {
@@ -43,6 +43,15 @@
       "state" : {
         "revision" : "a7e67a1719933318b5ab7eaaed355cde020465b1",
         "version" : "4.5.0"
+      }
+    },
+    {
+      "identity" : "felinepine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/FelinePine.git",
+      "state" : {
+        "branch" : "v0.1.0-alpha.2",
+        "revision" : "2f2e2fd7465cde5467a1764179b9db7ce8120dde"
       }
     },
     {
@@ -124,6 +133,15 @@
       "state" : {
         "revision" : "8f784d12ab5197f04977b318498e8cfd04b7edc9",
         "version" : "1.0.0-alpha.1"
+      }
+    },
+    {
+      "identity" : "routegroups",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/RouteGroups.git",
+      "state" : {
+        "branch" : "v0.1.0-alpha.2",
+        "revision" : "e8945750461f3ce71500acd146f26ed6e8310208"
       }
     },
     {

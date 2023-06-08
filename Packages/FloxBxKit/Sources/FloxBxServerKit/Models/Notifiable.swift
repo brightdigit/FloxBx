@@ -1,4 +1,4 @@
-import APNSwift
+import APNSCore
 import FloxBxModels
 import Foundation
 
