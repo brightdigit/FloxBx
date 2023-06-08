@@ -46,6 +46,15 @@
       }
     },
     {
+      "identity" : "felinepine",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/FelinePine.git",
+      "state" : {
+        "branch" : "v0.1.0-alpha.2",
+        "revision" : "2f2e2fd7465cde5467a1764179b9db7ce8120dde"
+      }
+    },
+    {
       "identity" : "fluent",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/vapor/fluent.git",
@@ -124,6 +133,15 @@
       "state" : {
         "revision" : "8f784d12ab5197f04977b318498e8cfd04b7edc9",
         "version" : "1.0.0-alpha.1"
+      }
+    },
+    {
+      "identity" : "routegroups",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/brightdigit/RouteGroups.git",
+      "state" : {
+        "branch" : "v0.1.0-alpha.2",
+        "revision" : "e8945750461f3ce71500acd146f26ed6e8310208"
       }
     },
     {

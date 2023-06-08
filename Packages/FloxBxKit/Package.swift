@@ -34,9 +34,12 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/brightdigit/FelinePine.git",
-      branch: "main"
+      from: "0.1.0-alpha.3"
     ),
-    .package(path: "Packages/RouteGroups")
+    .package(
+      url: "https://github.com/brightdigit/RouteGroups.git",
+      from: "0.1.0-alpha.3"
+    )
   ],
   targets: [
     .target(name: "FloxBxUtilities"),
