@@ -38,18 +38,15 @@ public struct Server {
     try app.apns.containers.use(
       .init(
         authenticationMethod: .jwt(
-          // 3
           privateKey: .init(pemRepresentation: appleECP8PrivateKey),
           keyIdentifier: keyIdentifier,
           teamIdentifier: teamIdentifier
         ),
-        // 5
         environment: .sandbox
       ),
       eventLoopGroupProvider: .createNew,
       responseDecoder: .init(),
       requestEncoder: .init(),
-      // backgroundActivityLogger: app.logger,
       as: .default
     )
   }
