@@ -1,6 +1,7 @@
 import FloxBxModels
 import Foundation
 import Vapor
+import VaporAPNS
 
 extension Application {
   public func sendNotification<NotifiableType: Notifiable>(
@@ -14,8 +15,7 @@ extension Application {
         topic: notification.topic,
         payload: notification.payload
       ),
-      deviceToken: notification.deviceToken.deviceTokenString,
-      deadline: .distantFuture
+      deviceToken: notification.deviceToken.deviceTokenString
     ).apnsID
   }
 }
